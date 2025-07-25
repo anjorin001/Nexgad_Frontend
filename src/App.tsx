@@ -1,11 +1,26 @@
-import './App.css'
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
 
-function App() {
+// Pages (adjust paths if needed)
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+const App = () => {
   return (
     <>
-     <div className='bg-amber-50'>hello</div>
-    </>
-  )
-}
+      <Navbar />
 
-export default App
+      {/* Main content below navbar */}
+      <div className="">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </div>
+    </>
+  );
+};
+
+export default App;
