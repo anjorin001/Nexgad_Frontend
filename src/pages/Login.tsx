@@ -1,8 +1,10 @@
-import React from 'react'
+import LoginCnt from '../components/Login'
 
 const Login = () => {
   return (
-    <div>Login</div>
+    <div>
+      <LoginCnt/>
+    </div>
   )
 }
 

@@ -1,4 +1,4 @@
-import Globe from "./Globe";
+// import Globe from "./Globe";
 
 const GlobalOrderingSection: React.FC = () => {
   return (
@@ -72,7 +72,7 @@ const GlobalOrderingSection: React.FC = () => {
           {/* Right side - Globe */}
           <div className="relative hidden lg:block">
             <div className="aspect-square max-w-lg mx-auto">
-              <Globe />
+              {/* <Globe /> */}
             </div>
             
             {/* Floating elements around globe */}

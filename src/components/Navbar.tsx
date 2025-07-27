@@ -77,7 +77,7 @@ const Navbar = () => {
               {/* Mobile Browse Categories */}
               <NavLink
                 to="/listings"
-                className="flex items-center space-x-2 text-[#1B3C53] hover:text-[#456882] hover:bg-[#F9F3EF] px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                className="flex items-center space-x-2 text-[#1B3C53] hover:text-[#456882] hover:bg-[#7da5d3] px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <FaBars className="text-sm" />
@@ -87,7 +87,7 @@ const Navbar = () => {
               {/* Mobile Auth Links */}
               <NavLink
                 to="/login"
-                className="flex items-center space-x-2 text-[#1B3C53] hover:text-[#456882] hover:bg-[#F9F3EF] px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                className="flex items-center space-x-2 text-[#1B3C53] hover:text-[#456882] hover:bg-[#7da5d3] px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <FaRegCommentDots className="text-sm" />
