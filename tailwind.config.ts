@@ -23,14 +23,15 @@
 
 // tailwind.config.ts
 import { type Config } from "tailwindcss";
+import scrollbar from "tailwind-scrollbar";
 
 const config: Config = {
   theme: {
     extend: {
       colors: {
-        'sidebar-primary': '#1B3C53',
-        'sidebar-primary-foreground': '#CBDCEB',
-        'sidebar-hover': '#456882',
+        "sidebar-primary": "#1B3C53",
+        "sidebar-primary-foreground": "#CBDCEB",
+        "sidebar-hover": "#456882",
       },
     },
   },
@@ -42,6 +43,6 @@ const config: Config = {
     "./pages/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
-  plugins: [],
+  plugins: [scrollbar],
 };
 export default config;

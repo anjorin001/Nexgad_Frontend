@@ -1,208 +1,322 @@
-import * as React from "react";
-import { GalleryVerticalEnd } from "lucide-react";
+import React, { useState } from "react";
+import { ChevronDown, RotateCcw, Filter } from "lucide-react";
+import { scrollbarStyles } from "../utils/ScrollBarStyle";
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarRail,
-} from "./ui/sidebar";
+interface FilterState {
+  category: string;
+  priceRange: {
+    min: string;
+    max: string;
+  };
+  location: string;
+  condition: string;
+}
 
-// This is sample data.
-const data = {
-  navMain: [
-    {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Building Your Application",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-        },
-        {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-        {
-          title: "Configuring",
-          url: "#",
-        },
-        {
-          title: "Testing",
-          url: "#",
-        },
-        {
-          title: "Authentication",
-          url: "#",
-        },
-        {
-          title: "Deploying",
-          url: "#",
-        },
-        {
-          title: "Upgrading",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "API Reference",
-      url: "#",
-      items: [
-        {
-          title: "Components",
-          url: "#",
-        },
-        {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Architecture",
-      url: "#",
-      items: [
-        {
-          title: "Accessibility",
-          url: "#",
-        },
-        {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Community",
-      url: "#",
-      items: [
-        {
-          title: "Contribution Guide",
-          url: "#",
-        },
-      ],
-    },
-  ],
+const FilterSidebar: React.FC = () => {
+  const [filters, setFilters] = useState<FilterState>({
+    category: "",
+    priceRange: { min: "", max: "" },
+    location: "",
+    condition: "",
+  });
+
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
+
+  // Electronics categories
+  const categories = [
+    "Smartphones & Tablets",
+    "Laptops & Computers",
+    "Audio & Headphones",
+    "Gaming & Consoles",
+    "Cameras & Photography",
+    "Home Appliances",
+    "TV & Entertainment",
+    "Accessories",
+    "Smart Home",
+    "Wearables",
+  ];
+
+  // Nigerian states/locations
+  const locations = [
+    "Abuja (FCT)",
+    "Lagos",
+    "Kano",
+    "Kaduna",
+    "Port Harcourt",
+    "Ibadan",
+    "Benin City",
+    "Jos",
+    "Enugu",
+    "Aba",
+    "Warri",
+    "Calabar",
+    "Ilorin",
+    "Akure",
+    "Sokoto",
+    "Maiduguri",
+    "Zaria",
+    "Owerri",
+    "Uyo",
+    "Asaba",
+  ];
+
+  const conditions = [
+    "Brand New",
+    "Foreign Used",
+    "Nigerian Used",
+    "Refurbished",
+  ];
+
+  const priceRanges = [
+    { label: "Under ₦50,000", min: "0", max: "50000" },
+    { label: "₦50,000 - ₦100,000", min: "50000", max: "100000" },
+    { label: "₦100,000 - ₦250,000", min: "100000", max: "250000" },
+    { label: "₦250,000 - ₦500,000", min: "250000", max: "500000" },
+    { label: "₦500,000 - ₦1,000,000", min: "500000", max: "1000000" },
+    { label: "Above ₦1,000,000", min: "1000000", max: "" },
+  ];
+
+  const handleCategoryChange = (category: string) => {
+    setFilters((prev) => ({ ...prev, category }));
+  };
+
+  const handlePriceRangeSelect = (min: string, max: string) => {
+    setFilters((prev) => ({ ...prev, priceRange: { min, max } }));
+  };
+
+  const handleCustomPriceChange = (type: "min" | "max", value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      priceRange: { ...prev.priceRange, [type]: value },
+    }));
+  };
+
+  const handleLocationChange = (location: string) => {
+    setFilters((prev) => ({ ...prev, location }));
+    setIsLocationOpen(false);
+  };
+
+  const handleConditionChange = (condition: string) => {
+    setFilters((prev) => ({ ...prev, condition }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      category: "",
+      priceRange: { min: "", max: "" },
+      location: "",
+      condition: "",
+    });
+  };
+
+  const hasActiveFilters = () => {
+    return (
+      filters.category !== "" ||
+      filters.priceRange.min !== "" ||
+      filters.priceRange.max !== "" ||
+      filters.location !== "" ||
+      filters.condition !== ""
+    );
+  };
+
+  return (
+    <>
+      <style>{scrollbarStyles}</style>
+      <div className="w-80 bg-[#ffff] p-6 rounded-lg shadow-sm sticky top-4 h-fit max-h-[calc(100vh-2rem)] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <Filter className="w-5 h-5 text-[#1B3C53]" />
+            <h2 className="text-lg font-semibold text-[#1B3C53]">Filters</h2>
+          </div>
+          {hasActiveFilters() && (
+            <button
+              onClick={resetFilters}
+              className="flex items-center gap-1 text-sm text-[#456882] hover:text-[#1B3C53] transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Reset
+            </button>
+          )}
+        </div>
+
+        {/* Category Filter */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-[#1B3C53] mb-3">Category</h3>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {categories.map((category) => (
+              <label
+                key={category}
+                className="flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="category"
+                  value={category}
+                  checked={filters.category === category}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  className="w-4 h-4 text-[#1B3C53] bg-white border-[#456882] focus:ring-[#1B3C53]"
+                />
+                <span className="ml-2 text-sm text-[#1B3C53]">{category}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Price Range Filter */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-[#1B3C53] mb-3">
+            Price Range
+          </h3>
+
+          {/* Predefined ranges */}
+          <div className="space-y-2 mb-4">
+            {priceRanges.map((range) => (
+              <label
+                key={range.label}
+                className="flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="priceRange"
+                  checked={
+                    filters.priceRange.min === range.min &&
+                    filters.priceRange.max === range.max
+                  }
+                  onChange={() => handlePriceRangeSelect(range.min, range.max)}
+                  className="w-4 h-4 text-[#1B3C53] bg-white border-[#456882] focus:ring-[#1B3C53]"
+                />
+                <span className="ml-2 text-sm text-[#1B3C53]">
+                  {range.label}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          {/* Custom price inputs */}
+          <div className="space-y-2">
+            <div className="text-xs text-[#456882] mb-2">
+              Or set custom range:
+            </div>
+            <div className="flex flex-col gap-2">
+              <input
+                type="number"
+                placeholder="Min price"
+                value={filters.priceRange.min}
+                onChange={(e) => handleCustomPriceChange("min", e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-[#456882] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
+              />
+              <input
+                type="number"
+                placeholder="Max price"
+                value={filters.priceRange.max}
+                onChange={(e) => handleCustomPriceChange("max", e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-[#456882] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Location Filter */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-[#1B3C53] mb-3">Location</h3>
+          <div className="relative">
+            <button
+              onClick={() => setIsLocationOpen(!isLocationOpen)}
+              className="w-full px-3 py-2 text-left bg-white border border-[#456882] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent flex items-center justify-between"
+            >
+              <span
+                className={`text-sm ${
+                  filters.location ? "text-[#1B3C53]" : "text-[#456882]"
+                }`}
+              >
+                {filters.location || "Select location"}
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 text-[#456882] transition-transform ${
+                  isLocationOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isLocationOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-[#456882] rounded-md shadow-lg max-h-48 overflow-y-auto">
+                <button
+                  onClick={() => handleLocationChange("")}
+                  className="w-full px-3 py-2 text-left text-sm text-[#456882] hover:bg-[#CBDCEB] focus:outline-none"
+                >
+                  All locations
+                </button>
+                {locations.map((location) => (
+                  <button
+                    key={location}
+                    onClick={() => handleLocationChange(location)}
+                    className="w-full px-3 py-2 text-left text-sm text-[#1B3C53] hover:bg-[#CBDCEB] focus:outline-none"
+                  >
+                    {location}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Condition Filter */}
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-[#1B3C53] mb-3">Condition</h3>
+          <div className="space-y-2">
+            {conditions.map((condition) => (
+              <label
+                key={condition}
+                className="flex items-center cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="condition"
+                  value={condition}
+                  checked={filters.condition === condition}
+                  onChange={(e) => handleConditionChange(e.target.value)}
+                  className="w-4 h-4 text-[#1B3C53] bg-white border-[#456882] focus:ring-[#1B3C53]"
+                />
+                <span className="ml-2 text-sm text-[#1B3C53]">{condition}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Apply Filters Button */}
+        <button
+          onClick={() => {
+            // This would typically call a function passed as props to apply filters
+            console.log("Applying filters:", filters);
+          }}
+          className="w-full bg-[#1B3C53] text-white py-3 px-4 rounded-md hover:bg-[#456882] transition-colors font-medium"
+        >
+          Apply Filters
+        </button>
+
+        {/* Active filters display */}
+        {hasActiveFilters() && (
+          <div className="mt-4 p-3 bg-white rounded-md">
+            <div className="text-xs font-medium text-[#1B3C53] mb-2">
+              Active Filters:
+            </div>
+            <div className="space-y-1 text-xs text-[#456882]">
+              {filters.category && <div>Category: {filters.category}</div>}
+              {(filters.priceRange.min || filters.priceRange.max) && (
+                <div>
+                  Price: ₦{filters.priceRange.min || "0"} - ₦
+                  {filters.priceRange.max || "∞"}
+                </div>
+              )}
+              {filters.location && <div>Location: {filters.location}</div>}
+              {filters.condition && <div>Condition: {filters.condition}</div>}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  return (
-    <Sidebar {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <GalleryVerticalEnd className="size-4" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">Documentation</span>
-                  <span className="">v1.0.0</span>
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu>
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <a href={item.url} className="font-medium">
-                    {item.title}
-                  </a>
-                </SidebarMenuButton>
-                {item.items?.length ? (
-                  <SidebarMenuSub>
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={item.isActive}>
-                          <a href={item.url}>{item.title}</a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                ) : null}
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
-  );
-}
+export default FilterSidebar;
