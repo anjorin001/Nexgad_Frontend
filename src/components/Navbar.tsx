@@ -1,9 +1,18 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FaBars, FaRegCommentDots, FaXmark } from "react-icons/fa6";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import UserProfileDropdown from "./UserProfileDropdown";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const auth = localStorage.getItem("auth");
+    if (auth) {
+      setIsAuthenticated(JSON.parse(auth));
+    }
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen((prev) => !prev);
@@ -39,19 +48,30 @@ const Navbar = () => {
 
           {/* Desktop Auth Links */}
           <div className="hidden md:flex items-center space-x-4">
-            <NavLink
-              to="/login"
-              className="flex items-center space-x-2 text-[#1B3C53] hover:text-[#456882] px-3 py-2 rounded-lg hover:bg-[#F9F3EF] transition-all duration-200 font-medium"
-            >
-              <FaRegCommentDots className="text-sm" />
-              <span>Sign in</span>
-            </NavLink>
-            <NavLink
-              to="/register"
-              className="bg-[#1B3C53] text-white px-6 py-2 rounded-lg hover:bg-[#456882] transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105"
-            >
-              Sign up
-            </NavLink>
+            {isAuthenticated ? (
+              <UserProfileDropdown
+                onProfileClick={() => {
+                  navigate("/userprofile");
+                }}
+                onLogout={() => {}}
+              />
+            ) : (
+              <>
+                <NavLink
+                  to="/login"
+                  className="flex items-center space-x-2 text-[#1B3C53] hover:text-[#456882] px-3 py-2 rounded-lg hover:bg-[#F9F3EF] transition-all duration-200 font-medium"
+                >
+                  <FaRegCommentDots className="text-sm" />
+                  <span>Sign in</span>
+                </NavLink>
+                <NavLink
+                  to="/register"
+                  className="bg-[#1B3C53] text-white px-6 py-2 rounded-lg hover:bg-[#456882] transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+                >
+                  Sign up
+                </NavLink>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -85,22 +105,33 @@ const Navbar = () => {
               </NavLink>
 
               {/* Mobile Auth Links */}
-              <NavLink
-                to="/login"
-                className="flex items-center space-x-2 text-[#1B3C53] hover:text-[#456882] hover:bg-[#7da5d3] px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <FaRegCommentDots className="text-sm" />
-                <span>Sign in</span>
-              </NavLink>
+              {isAuthenticated ? (
+                <UserProfileDropdown
+                  onProfileClick={() => {
+                    navigate("/userprofile");
+                  }}
+                  onLogout={() => {}}
+                />
+              ) : (
+                <>
+                  <NavLink
+                    to="/login"
+                    className="flex items-center space-x-2 text-[#1B3C53] hover:text-[#456882] hover:bg-[#7da5d3] px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FaRegCommentDots className="text-sm" />
+                    <span>Sign in</span>
+                  </NavLink>
 
-              <NavLink
-                to="/register"
-                className="block bg-[#1B3C53] text-white px-3 py-2 rounded-lg hover:bg-[#456882] transition-all duration-200 text-sm font-medium text-center mx-2 mt-2"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Sign up
-              </NavLink>
+                  <NavLink
+                    to="/register"
+                    className="block bg-[#1B3C53] text-white px-3 py-2 rounded-lg hover:bg-[#456882] transition-all duration-200 text-sm font-medium text-center mx-2 mt-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign up
+                  </NavLink>
+                </>
+              )}
             </div>
           </div>
         )}
