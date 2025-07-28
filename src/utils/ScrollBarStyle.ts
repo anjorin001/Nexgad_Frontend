@@ -1,10 +1,10 @@
   export const scrollbarStyles = `
     .custom-scrollbar::-webkit-scrollbar {
-      width: 8px;
+      width: 7px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
       background: #CBDCEB;
-      border-radius: 4px;
+      border-radius: 5px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background-color: #1B3C53;

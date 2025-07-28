@@ -121,13 +121,13 @@ const FilterSidebar: React.FC = () => {
 
   return (
     <>
+      <div className="w-80 bg-[#ffff] p-6 rounded-lg shadow-sm sticky top-4 h-fit max-h-[calc(100vh-2rem)] overflow-y-auto custom-scrollbar">
       <style>{scrollbarStyles}</style>
-      <div className="w-80 bg-[#ffff] p-6 rounded-lg shadow-sm sticky top-4 h-fit max-h-[calc(100vh-2rem)] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Filter className="w-5 h-5 text-[#1B3C53]" />
-            <h2 className="text-lg font-semibold text-[#1B3C53]">Filters</h2>
+            <h2 className="text-lg font-semibold text-[#1B3C53]">Categories</h2>
           </div>
           {hasActiveFilters() && (
             <button
@@ -143,7 +143,7 @@ const FilterSidebar: React.FC = () => {
         {/* Category Filter */}
         <div className="mb-6">
           <h3 className="text-sm font-medium text-[#1B3C53] mb-3">Category</h3>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
+          <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
             {categories.map((category) => (
               <label
                 key={category}
