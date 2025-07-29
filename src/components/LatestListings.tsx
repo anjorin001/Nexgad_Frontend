@@ -1,7 +1,9 @@
-import React from 'react';
-import {FaPhone, FaHeart, FaShare } from 'react-icons/fa6';
-import { FaMapMarkerAlt } from 'react-icons/fa';
-import dummyImage from "../assets/dummyImage.jpeg"
+import React from "react";
+import { FaHeart, FaShare } from "react-icons/fa6";
+import { FaMapMarkerAlt, FaShoppingCart } from "react-icons/fa";
+import dummyImage from "../assets/dummyImage.jpeg";
+import { useNavigate } from "react-router-dom";
+import { slugifyProduct } from "../utils/Slugify";
 interface Listing {
   id: string;
   title: string;
@@ -16,139 +18,149 @@ interface Listing {
 interface LatestListingsProps {
   onViewAll?: () => void;
   onListingClick?: (listingId: string) => void;
-  onCallClick?: (listingId: string) => void;
+  onAddToCart?: (listingId: string) => void;
 }
 
-const LatestListings: React.FC<LatestListingsProps> = ({ 
-  onViewAll, 
-  onListingClick, 
-  onCallClick 
+const LatestListings: React.FC<LatestListingsProps> = ({
+  onViewAll,
+  onListingClick,
+  onAddToCart,
 }) => {
-    // Dummy data - you can replace with your actual data
+  const navigate = useNavigate();
+  // Dummy data - you can replace with your actual data
   const listings: Listing[] = [
     {
-      id: '1',
-      title: 'MacBook Pro M2 14-inch',
-      brand: 'Apple',
+      id: "1",
+      title: "MacBook Pro M2 14-inch",
+      brand: "Apple",
       price: 850000,
-      location: 'Lagos, Victoria Island',
+      location: "Lagos, Victoria Island",
       image: dummyImage,
       isSponsored: true,
-      isFeatured: true
+      isFeatured: true,
     },
     {
-      id: '2',
-      title: 'iPhone 14 Pro Max 256GB',
-      brand: 'Apple',
+      id: "2",
+      title: "iPhone 14 Pro Max 256GB",
+      brand: "Apple",
       price: 650000,
-      location: 'Abuja, Wuse 2',
+      location: "Abuja, Wuse 2",
       image: dummyImage,
-      isSponsored: true
+      isSponsored: true,
     },
     {
-      id: '3',
-      title: 'Samsung Galaxy S23 Ultra',
-      brand: 'Samsung',
+      id: "3",
+      title: "Samsung Galaxy S23 Ultra",
+      brand: "Samsung",
       price: 580000,
-      location: 'Lagos, Ikeja',
-      image: dummyImage
+      location: "Lagos, Ikeja",
+      image: dummyImage,
     },
     {
-      id: '4',
-      title: 'Dell XPS 13 Laptop',
-      brand: 'Dell',
+      id: "4",
+      title: "Dell XPS 13 Laptop",
+      brand: "Dell",
       price: 420000,
-      location: 'Port Harcourt, GRA',
+      location: "Port Harcourt, GRA",
       image: dummyImage,
-      isFeatured: true
+      isFeatured: true,
     },
     {
-      id: '5',
-      title: 'Sony WH-1000XM5 Headphones',
-      brand: 'Sony',
+      id: "5",
+      title: "Sony WH-1000XM5 Headphones",
+      brand: "Sony",
       price: 180000,
-      location: 'Kano, Fagge',
+      location: "Kano, Fagge",
       image: dummyImage,
-      isSponsored: true
+      isSponsored: true,
     },
     {
-      id: '6',
-      title: 'iPad Air 5th Generation',
-      brand: 'Apple',
+      id: "6",
+      title: "iPad Air 5th Generation",
+      brand: "Apple",
       price: 320000,
-      location: 'Lagos, Lekki',
-      image: dummyImage
+      location: "Lagos, Lekki",
+      image: dummyImage,
     },
     {
-      id: '7',
-      title: 'Gaming Laptop RTX 4060',
-      brand: 'ASUS',
+      id: "7",
+      title: "Gaming Laptop RTX 4060",
+      brand: "ASUS",
       price: 750000,
-      location: 'Abuja, Garki',
-      image: '/api/placeholder/300/200'
+      location: "Abuja, Garki",
+      image: "/api/placeholder/300/200",
     },
     {
-      id: '8',
-      title: 'Apple Watch Series 9',
-      brand: 'Apple',
+      id: "8",
+      title: "Apple Watch Series 9",
+      brand: "Apple",
       price: 250000,
-      location: 'Lagos, Maryland',
+      location: "Lagos, Maryland",
       image: dummyImage,
-      isFeatured: true
+      isFeatured: true,
     },
     {
-      id: '9',
-      title: 'Nintendo Switch OLED',
-      brand: 'Nintendo',
+      id: "9",
+      title: "Nintendo Switch OLED",
+      brand: "Nintendo",
       price: 180000,
-      location: 'Ibadan, Bodija',
-      image: dummyImage
-    },
-    {
-      id: '10',
-      title: 'Canon EOS R6 Camera',
-      brand: 'Canon',
-      price: 920000,
-      location: 'Lagos, Surulere',
+      location: "Ibadan, Bodija",
       image: dummyImage,
-      isSponsored: true
     },
     {
-      id: '11',
-      title: 'Surface Pro 9',
-      brand: 'Microsoft',
+      id: "10",
+      title: "Canon EOS R6 Camera",
+      brand: "Canon",
+      price: 920000,
+      location: "Lagos, Surulere",
+      image: dummyImage,
+      isSponsored: true,
+    },
+    {
+      id: "11",
+      title: "Surface Pro 9",
+      brand: "Microsoft",
       price: 480000,
-      location: 'Abuja, Maitama',
-      image: dummyImage
+      location: "Abuja, Maitama",
+      image: dummyImage,
     },
     {
-      id: '12',
-      title: 'AirPods Pro 2nd Gen',
-      brand: 'Apple',
+      id: "12",
+      title: "AirPods Pro 2nd Gen",
+      brand: "Apple",
       price: 120000,
-      location: 'Lagos, Yaba',
-      image: dummyImage
-    }
+      location: "Lagos, Yaba",
+      image: dummyImage,
+    },
   ];
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0
+    return price.toLocaleString("en-NG", {
+      style: "currency",
+      currency: "NGN",
+      minimumFractionDigits: 0,
     });
   };
 
-  const handleListingClick = (listingId: string) => {
+  const handleListingClick = (listingTitle: string, listingId: string) => {
+    const productUrl = `/listings/${slugifyProduct(listingTitle, listingId)}`;
+
     if (onListingClick) {
       onListingClick(listingId);
     }
+    if (listingId) {
+      navigate(productUrl);
+    }
+    console.log(productUrl)
   };
 
-  const handleCallClick = (e: React.MouseEvent, listingId: string) => {
+  const handleAddToCart = (e: React.MouseEvent, listingId: string) => {
     e.stopPropagation();
-    if (onCallClick) {
-      onCallClick(listingId);
+    // Add your cart logic here
+    console.log("Adding to cart:", listingId);
+    // Call the prop function if provided
+    if (onAddToCart) {
+      onAddToCart(listingId);
     }
   };
 
@@ -180,11 +192,11 @@ const LatestListings: React.FC<LatestListingsProps> = ({
         </div>
 
         {/* Listings Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {listings.map((listing) => (
             <div
               key={listing.id}
-              onClick={() => handleListingClick(listing.id)}
+              onClick={() => handleListingClick(listing.title, listing.id)}
               className="bg-white rounded-2xl border border-[#CBDCEB] hover:border-[#456882]/30 transition-all duration-300 hover:shadow-xl cursor-pointer group overflow-hidden"
             >
               {/* Image Container */}
@@ -194,7 +206,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
                   alt={listing.title}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                
+
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
                   {listing.isSponsored && (
@@ -218,16 +230,29 @@ const LatestListings: React.FC<LatestListingsProps> = ({
                     <FaShare className="text-sm" />
                   </button>
                 </div>
+
+                {/* Quick Add to Cart - appears on hover */}
+                <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button
+                    onClick={(e) => handleAddToCart(e, listing.id)}
+                    className="w-full bg-[#1B3C53] hover:bg-[#456882] text-white py-2 px-4 rounded-lg transition-all duration-200 font-medium text-sm flex items-center justify-center space-x-2"
+                  >
+                    <FaShoppingCart className="text-sm" />
+                    <span>Quick Add</span>
+                  </button>
+                </div>
               </div>
 
               {/* Content */}
-              <div className="p-5">
+              <div className="p-3 sm:p-5">
                 {/* Title and Brand */}
                 <div className="mb-3">
-                  <h3 className="text-lg font-semibold text-[#1B3C53] mb-1 group-hover:text-[#456882] transition-colors duration-200 line-clamp-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-[#1B3C53] mb-1 group-hover:text-[#456882] transition-colors duration-200 line-clamp-2">
                     {listing.title}
                   </h3>
-                  <p className="text-sm text-[#456882]/60 font-medium">{listing.brand}</p>
+                  <p className="text-sm text-[#456882]/60 font-medium">
+                    {listing.brand}
+                  </p>
                 </div>
 
                 {/* Location */}
@@ -236,17 +261,19 @@ const LatestListings: React.FC<LatestListingsProps> = ({
                   <span className="truncate">{listing.location}</span>
                 </div>
 
-                {/* Price and Call Button */}
-                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold text-[#1B3C53]">
+                {/* Price and Add to Cart Button */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="text-xl sm:text-2xl font-bold text-[#1B3C53]">
                     {formatPrice(listing.price)}
                   </div>
+
+                  {/* Main Add to Cart Button */}
                   <button
-                    onClick={(e) => handleCallClick(e, listing.id)}
-                    className="flex items-center space-x-2 bg-[#CBDCEB] hover:bg-[#1B3C53] text-[#1B3C53] hover:text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm"
+                    onClick={(e) => handleAddToCart(e, listing.id)}
+                    className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 font-medium text-xs sm:text-sm min-w-[100px] sm:min-w-[120px]"
                   >
-                    <FaPhone className="text-xs" />
-                    <span>Call</span>
+                    <FaShoppingCart className="text-xs" />
+                    <span>Add to Cart</span>
                   </button>
                 </div>
               </div>

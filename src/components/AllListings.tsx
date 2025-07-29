@@ -1,7 +1,9 @@
 import React from "react";
-import { FaPhone, FaHeart, FaShare } from "react-icons/fa6";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { FaMapMarkerAlt, FaShoppingCart } from "react-icons/fa";
+import { FaHeart, FaShare } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 import dummyImage from "../assets/dummyImage.jpeg";
+import { slugifyProduct } from "../utils/Slugify";
 interface Listing {
   id: string;
   title: string;
@@ -16,13 +18,14 @@ interface Listing {
 interface LatestListingsProps {
   onViewAll?: () => void;
   onListingClick?: (listingId: string) => void;
-  onCallClick?: (listingId: string) => void;
+  onAddToCart?: (listingId: string) => void;
 }
 
 const LatestListings: React.FC<LatestListingsProps> = ({
   onListingClick,
-  onCallClick,
+  onAddToCart,
 }) => {
+  const navigate = useNavigate();
   // Dummy data - you can replace with your actual data
   const listings: Listing[] = [
     {
@@ -138,16 +141,25 @@ const LatestListings: React.FC<LatestListingsProps> = ({
     });
   };
 
-  const handleListingClick = (listingId: string) => {
+  const handleListingClick = (listingTitle: string, listingId: string) => {
+    const productUrl = `/listings/${slugifyProduct(listingTitle, listingId)}`;
+
     if (onListingClick) {
       onListingClick(listingId);
     }
+    if (listingId) {
+      navigate(productUrl);
+    }
+    console.log(productUrl)
   };
 
-  const handleCallClick = (e: React.MouseEvent, listingId: string) => {
+  const handleAddToCart = (e: React.MouseEvent, listingId: string) => {
     e.stopPropagation();
-    if (onCallClick) {
-      onCallClick(listingId);
+    // Add your cart logic here
+    console.log("Adding to cart:", listingId);
+    // Call the prop function if provided
+    if (onAddToCart) {
+      onAddToCart(listingId);
     }
   };
 
@@ -193,7 +205,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
           {listings.map((listing) => (
             <div
               key={listing.id}
-              onClick={() => handleListingClick(listing.id)}
+              onClick={() => handleListingClick(listing.title, listing.id)}
               className="bg-white rounded-2xl border border-[#CBDCEB] hover:border-[#456882]/30 transition-all duration-300 hover:shadow-xl cursor-pointer group overflow-hidden"
             >
               {/* Image Container */}
@@ -227,6 +239,17 @@ const LatestListings: React.FC<LatestListingsProps> = ({
                     <FaShare className="text-sm" />
                   </button>
                 </div>
+
+                {/* Quick Add to Cart - appears on hover */}
+                <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button
+                    onClick={(e) => handleAddToCart(e, listing.id)}
+                    className="w-full bg-[#1B3C53] hover:bg-[#456882] text-white py-2 px-4 rounded-lg transition-all duration-200 font-medium text-sm flex items-center justify-center space-x-2"
+                  >
+                    <FaShoppingCart className="text-sm" />
+                    <span>Quick Add</span>
+                  </button>
+                </div>
               </div>
 
               {/* Content */}
@@ -247,17 +270,19 @@ const LatestListings: React.FC<LatestListingsProps> = ({
                   <span className="truncate">{listing.location}</span>
                 </div>
 
-                {/* Price and Call Button */}
-                <div className="flex items-center justify-between">
-                  <div className="text-xl sm:text-2xl font-bold text-[#1B3C53]">
+                {/* Price and Add to Cart Button - Always stacked */}
+                <div className="flex flex-col gap-3">
+                  <div className="text-xl font-bold text-[#1B3C53]">
                     {formatPrice(listing.price)}
                   </div>
+
+                  {/* Main Add to Cart Button */}
                   <button
-                    onClick={(e) => handleCallClick(e, listing.id)}
-                    className="flex items-center space-x-1 sm:space-x-2 bg-[#CBDCEB] hover:bg-[#1B3C53] text-[#1B3C53] hover:text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 font-medium text-xs sm:text-sm"
+                    onClick={(e) => handleAddToCart(e, listing.id)}
+                    className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm w-full"
                   >
-                    <FaPhone className="text-xs" />
-                    <span>Call</span>
+                    <FaShoppingCart className="text-xs" />
+                    <span>Add to Cart</span>
                   </button>
                 </div>
               </div>
