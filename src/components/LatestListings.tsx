@@ -1,8 +1,9 @@
 import React from "react";
-import { FaHeart, FaShare } from "react-icons/fa6";
 import { FaMapMarkerAlt, FaShoppingCart } from "react-icons/fa";
-import dummyImage from "../assets/dummyImage.jpeg";
+import { FaHeart, FaShare } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import dummyImage from "../assets/dummyImage.jpeg";
+import { useShareProduct } from "../hooks/useShareProduct";
 import { slugifyProduct } from "../utils/Slugify";
 interface Listing {
   id: string;
@@ -27,6 +28,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
   onAddToCart,
 }) => {
   const navigate = useNavigate();
+  const { handleShare } = useShareProduct();
   // Dummy data - you can replace with your actual data
   const listings: Listing[] = [
     {
@@ -151,7 +153,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
     if (listingId) {
       navigate(productUrl);
     }
-    console.log(productUrl)
+    console.log(productUrl);
   };
 
   const handleAddToCart = (e: React.MouseEvent, listingId: string) => {
@@ -226,7 +228,20 @@ const LatestListings: React.FC<LatestListingsProps> = ({
                   <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-[#456882] hover:text-[#1B3C53] transition-colors duration-200">
                     <FaHeart className="text-sm" />
                   </button>
-                  <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-[#456882] hover:text-[#1B3C53] transition-colors duration-200">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const slug = slugifyProduct(listing.title, listing.id);
+                      handleShare(
+                        listing.id,
+                        listing.title,
+                        listing.price,
+                        slug
+                      );
+                    }}
+                    className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-[#456882] hover:text-[#1B3C53] transition-colors duration-200"
+                  >
                     <FaShare className="text-sm" />
                   </button>
                 </div>

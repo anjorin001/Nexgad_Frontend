@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { User, LogOut } from 'lucide-react';
+import { LogOut, User, Rotate3d, Heart, SendHorizontal } from "lucide-react";
+import  { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface UserData {
   firstName: string;
@@ -8,34 +9,26 @@ interface UserData {
   email?: string;
 }
 
-interface UserProfileDropdownProps {
-  onProfileClick?: () => void;
-  onLogout?: () => void;
-}
-
-const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
-  onProfileClick,
-  onLogout
-}) => {
+const UserProfileDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  const navigate = useNavigate()
   // Simulate getting user data from localStorage
   useEffect(() => {
     // Replace this with your actual auth logic
-    const authData = localStorage.getItem('auth');
+    const authData = localStorage.getItem("auth");
     if (authData) {
       try {
         const parsedAuth = JSON.parse(authData);
         setUserData({
-          firstName: parsedAuth.firstName || 'Anjiorin',
-          lastName: parsedAuth.lastName || 'Favour',
+          firstName: parsedAuth.firstName || "Anjiorin",
+          lastName: parsedAuth.lastName || "Favour",
           profilePicture: parsedAuth.profilePicture,
-          email: parsedAuth.email
+          email: parsedAuth.email,
         });
       } catch (error) {
-        console.error('Error parsing auth data:', error);
+        console.error("Error parsing auth data:", error);
       }
     }
   }, []);
@@ -43,30 +36,18 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleProfileClick = () => {
-    setIsOpen(false);
-    if (onProfileClick) {
-      onProfileClick();
-    }
-  };
-
-  const handleLogout = () => {
-    setIsOpen(false);
-    // Clear auth from localStorage
-    localStorage.removeItem('auth');
-    if (onLogout) {
-      onLogout();
-    }
-  };
 
   // Don't render if no user data
   if (!userData) {
@@ -74,7 +55,35 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
   }
 
   // Generate initials for fallback avatar
-  const initials = `${userData.firstName.charAt(0)}${userData.lastName.charAt(0)}`.toUpperCase();
+  const initials = `${userData.firstName.charAt(0)}${userData.lastName.charAt(
+    0
+  )}`.toUpperCase();
+
+
+  
+  const handleNavigation = (routeKey: string) => {
+    switch (routeKey) {
+      case 'userprofile':
+        navigate('/userprofile');
+        break;
+      case 'orders':
+        navigate('/my-orders');
+        break;
+      case 'wishlist':
+        navigate('/wishlist');
+        break;
+      case 'gadget-request':
+        navigate('/gadget-request');
+        break;
+      case 'logout':
+        // Optional logout logic
+        localStorage.removeItem('auth');
+        navigate('/login');
+        break;
+      default:
+        console.warn('Unknown route:', routeKey);
+    }
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -88,7 +97,7 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
         <span className="text-sm font-medium hidden sm:block">
           Hi, {userData.lastName} {userData.firstName}
         </span>
-        
+
         {/* Profile Picture */}
         <div className="relative">
           {userData.profilePicture ? (
@@ -102,7 +111,7 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
               {initials}
             </div>
           )}
-          
+
           {/* Online Status Indicator */}
           <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
         </div>
@@ -110,7 +119,7 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div 
+        <div
           className="absolute right-0 top-full mt-2 w-48 bg-white border border-[#CBDCEB] rounded-lg shadow-lg py-2 z-50"
           onMouseLeave={() => setIsOpen(false)}
         >
@@ -129,15 +138,39 @@ const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
           {/* Menu Items */}
           <div className="py-1">
             <button
-              onClick={handleProfileClick}
+              onClick={()=>{handleNavigation("userprofile")}}
               className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
             >
               <User className="w-4 h-4 mr-3 text-[#456882]" />
               My Profile
             </button>
-            
+
             <button
-              onClick={handleLogout}
+              onClick={()=>{handleNavigation("orders")}}
+              className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
+            >
+              <Rotate3d className="w-4 h-4 mr-3 text-[#456882]" />
+              Orders
+            </button>
+
+            <button
+              onClick={()=>{handleNavigation("wishlist")}}
+              className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
+            >
+              <Heart className="w-4 h-4 mr-3 text-[#456882]" />
+              Wishlist
+            </button>
+
+            <button
+              onClick={()=>{handleNavigation("gadget-request")}}
+              className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
+            >
+              <SendHorizontal  className="w-4 h-4 mr-3 text-[#456882]" />
+              Gadget Request
+            </button>
+
+            <button
+              onClick={()=>{handleNavigation("logout")}}
               className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
             >
               <LogOut className="w-4 h-4 mr-3 text-[#456882]" />

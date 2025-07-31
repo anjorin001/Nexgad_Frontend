@@ -73,7 +73,7 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
     "description"
   );
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const { linkCopied } = useAppContext(); //TODO create usecontext to make use of this for this file and utils shareprod
+  const { linkCopied } = useAppContext(); 
   const { handleShare } = useShareProduct()
 
 
