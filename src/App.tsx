@@ -7,7 +7,9 @@ import ProductDetail from "./pages/ProductDetail";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import Navbar from "./components/Navbar";
-// import Cart from "./pages/Cart";
+import Cart from "./pages/Cart";
+import Order from "./pages/Order";
+import Wishlist from "./pages/Wishlist";
 
 const App = () => {
   return (
@@ -23,7 +25,9 @@ const App = () => {
             <Route path="/listings" element={<Listings />} />
             <Route path="/userprofile" element={<Profile />} />
             <Route path="/listings/:slug" element={<ProductDetail />} />
-            {/* <Route path="/cart" element={<Cart />} /> */}
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/my-orders" element={<Order />} />
+            <Route path="/wishlist" element={<Wishlist />} />
           </Routes>
         </div>
       </AppProvider>

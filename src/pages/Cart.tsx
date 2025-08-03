@@ -1,10 +1,15 @@
-import React from 'react'
-import CartPage from '../components/Cart'
+import CartPage from "../components/Cart";
+import Footer from "../components/Footer";
+import CompactProductGrid from "../components/OptListings";
 
 const Cart = () => {
   return (
-    <CartPage/>
-  )
-}
+    <>
+      <CartPage />
+      <CompactProductGrid maxItems={4} showTitle={false} />
+      <Footer />
+    </>
+  );
+};
 
-export default Cart
+export default Cart;
