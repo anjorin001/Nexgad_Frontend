@@ -10,7 +10,7 @@ import {
   FaTruck,
 } from "react-icons/fa";
 import { FaShield } from "react-icons/fa6";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 // Type definitions
 interface CartItem {
@@ -23,11 +23,6 @@ interface CartItem {
   category: string;
   inStock: boolean;
   shipping: "free" | "standard";
-}
-
-interface PromoCode {
-  code: string;
-  discount: number;
 }
 
 interface CartPageProps {
@@ -83,9 +78,7 @@ const CartPage: React.FC<CartPageProps> = ({
         ]
   );
 
-  const [promoCode, setPromoCode] = useState<string>("");
-  const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
-
+  const navigate = useNavigate();
   // Calculate totals
   const subtotal: number = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -96,11 +89,8 @@ const CartPage: React.FC<CartPageProps> = ({
   )
     ? 9.99
     : 0;
-  const discount: number = appliedPromo
-    ? subtotal * (appliedPromo.discount / 100)
-    : 0;
-  const tax: number = (subtotal - discount) * 0.08; // 8% tax
-  const total: number = subtotal + shipping + tax - discount;
+  const tax: number = (subtotal) * 0.08; // 8% tax
+  const total: number = subtotal + shipping + tax;
 
   // Cart item functions
   const updateQuantity = (id: number, newQuantity: number): void => {
@@ -121,24 +111,6 @@ const CartPage: React.FC<CartPageProps> = ({
     onUpdateCart?.(updatedItems);
   };
 
-  const applyPromoCode = (): void => {
-    if (promoCode.toLowerCase() === "save10") {
-      setAppliedPromo({ code: "SAVE10", discount: 10 });
-    } else {
-      alert("Invalid promo code");
-    }
-  };
-
-  const removePromoCode = (): void => {
-    setAppliedPromo(null);
-    setPromoCode("");
-  };
-
-  const handlePromoCodeChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    setPromoCode(e.target.value);
-  };
 
   if (cartItems.length === 0) {
     return (
@@ -328,46 +300,6 @@ const CartPage: React.FC<CartPageProps> = ({
               </div>
 
               <div className="p-6">
-                {/* Promo Code */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-[#1B3C53] mb-2">
-                    Promo Code
-                  </label>
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={promoCode}
-                      onChange={handlePromoCodeChange}
-                      placeholder="Enter code"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B3C53]/20 focus:border-[#1B3C53] transition-colors duration-200"
-                      disabled={!!appliedPromo}
-                    />
-                    {appliedPromo ? (
-                      <button
-                        onClick={removePromoCode}
-                        className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200 text-sm font-medium"
-                        type="button"
-                      >
-                        Remove
-                      </button>
-                    ) : (
-                      <button
-                        onClick={applyPromoCode}
-                        className="px-4 py-2 bg-[#CBDCEB] text-[#1B3C53] rounded-lg hover:bg-[#456882]/20 transition-colors duration-200 text-sm font-medium"
-                        type="button"
-                      >
-                        Apply
-                      </button>
-                    )}
-                  </div>
-                  {appliedPromo && (
-                    <div className="mt-2 text-sm text-green-600 font-medium">
-                      ✓ {appliedPromo.code} applied ({appliedPromo.discount}%
-                      off)
-                    </div>
-                  )}
-                </div>
-
                 {/* Price Breakdown */}
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
@@ -376,13 +308,6 @@ const CartPage: React.FC<CartPageProps> = ({
                       ₦{subtotal.toFixed(2)}
                     </span>
                   </div>
-
-                  {discount > 0 && (
-                    <div className="flex justify-between text-green-600">
-                      <span>Discount</span>
-                      <span>-₦{discount.toFixed(2)}</span>
-                    </div>
-                  )}
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
@@ -412,6 +337,9 @@ const CartPage: React.FC<CartPageProps> = ({
                 <button
                   className="w-full mt-6 bg-[#1B3C53] text-white py-3 px-4 rounded-lg hover:bg-[#456882] transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center space-x-2"
                   type="button"
+                  onClick={() => {
+                    navigate("/checkout/summary");
+                  }}
                 >
                   <FaCreditCard className="text-sm" />
                   <span>Proceed to Checkout</span>

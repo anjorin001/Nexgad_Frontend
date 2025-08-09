@@ -3,6 +3,7 @@ import { FaMapMarkerAlt, FaShoppingCart } from "react-icons/fa";
 import { FaHeart, FaShare } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import dummyImage from "../assets/dummyImage.jpeg";
+import { useAppContext, type SortState } from "../context/AppContext";
 import { useShareProduct } from "../hooks/useShareProduct";
 import { slugifyProduct } from "../utils/Slugify";
 interface Listing {
@@ -28,6 +29,8 @@ const LatestListings: React.FC<LatestListingsProps> = ({
 }) => {
   const navigate = useNavigate();
   const { handleShare } = useShareProduct();
+  const { sort ,setSort } = useAppContext();
+
   // Dummy data - you can replace with your actual data
   const listings: Listing[] = [
     {
@@ -165,6 +168,15 @@ const LatestListings: React.FC<LatestListingsProps> = ({
     }
   };
 
+  const handleSortChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ): void => {
+    const selectedValue = event.target.value;
+    setSort(selectedValue as SortState);
+    console.log("Sort option selected:", selectedValue);
+    // Later: implement your sorting logic here
+  };
+
   //   const handleViewAll = () => {
   //     if (onViewAll) {
   //       onViewAll();
@@ -172,7 +184,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
   //   };
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+    <section className="py-16 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="flex justify-between items-center mb-12">
@@ -190,15 +202,16 @@ const LatestListings: React.FC<LatestListingsProps> = ({
             </p>
           </div>
 
-          <div>
+          <div className="hidden md:block">
             <select
               className="border border-[#CBDCEB] rounded-lg px-4 py-2 text-[#1B3C53] bg-white focus:outline-none focus:ring-2 focus:ring-[#456882] transition"
-              // onChange={handleSortChange} // Optional: add handler for sorting
-              defaultValue="newest"
+              onChange={handleSortChange}
+              defaultValue={sort}
             >
               <option value="newest">Newest first</option>
-              <option value="lowest">Lowest price first</option>
-              <option value="highest">Highest price first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="price-low">Lowest price first</option>
+              <option value="price-high">Highest price first</option>
             </select>
           </div>
         </div>

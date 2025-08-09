@@ -1,27 +1,11 @@
+import { ChevronDown, Filter, RotateCcw } from "lucide-react";
 import React, { useState } from "react";
-import { ChevronDown, RotateCcw, Filter } from "lucide-react";
+import { useAppContext } from "../context/AppContext";
 import { scrollbarStyles } from "../utils/ScrollBarStyle";
 
-interface FilterState {
-  category: string;
-  priceRange: {
-    min: string;
-    max: string;
-  };
-  location: string;
-  condition: string;
-}
-
 const FilterSidebar: React.FC = () => {
-  const [filters, setFilters] = useState<FilterState>({
-    category: "",
-    priceRange: { min: "", max: "" },
-    location: "",
-    condition: "",
-  });
-
   const [isLocationOpen, setIsLocationOpen] = useState(false);
-
+  const { setFilters, filters } = useAppContext();
   // Electronics categories
   const categories = [
     "Smartphones & Tablets",
@@ -122,7 +106,7 @@ const FilterSidebar: React.FC = () => {
   return (
     <>
       <div className="w-80  hidden md:block bg-[#ffff] p-6 rounded-lg shadow-sm sticky top-4 h-fit max-h-[calc(100vh-2rem)] overflow-y-auto custom-scrollbar">
-      <style>{scrollbarStyles}</style>
+        <style>{scrollbarStyles}</style>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">

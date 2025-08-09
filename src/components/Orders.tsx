@@ -17,7 +17,7 @@ import {
   FaTimesCircle,
   FaTruck,
 } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 // Types
 interface OrderItem {
@@ -75,7 +75,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
   const [activeTab, setActiveTab] = useState<"active" | "inactive">("active");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-
+  const navigate = useNavigate()
   // Sample orders data
   const allOrders: Order[] = [
     {
@@ -296,7 +296,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
 
   const handleViewDetails = (orderId: string): void => {
     onViewOrderDetails?.(orderId);
-    // Navigate to order details page
+    navigate(`/my-orders/${orderId}`)
     console.log("Viewing order details:", orderId);
   };
 
@@ -338,7 +338,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
