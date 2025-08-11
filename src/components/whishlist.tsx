@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-  FaHeart, 
-  FaShoppingCart, 
-  FaTrash, 
-  FaShare, 
-  FaMapMarkerAlt,
-  FaFilter,
-  FaSearch,
-  FaList,
-  FaShoppingBag,
-  FaCheckCircle,
-  FaExclamationTriangle,
+import React, { useState } from "react";
+import {
   FaCalendarAlt,
-  FaEllipsisV
-} from 'react-icons/fa';
-import { MdGridOn } from "react-icons/md"; 
+  FaCheckCircle,
+  FaEllipsisV,
+  FaExclamationTriangle,
+  FaFilter,
+  FaHeart,
+  FaList,
+  FaMapMarkerAlt,
+  FaSearch,
+  FaShare,
+  FaShoppingBag,
+  FaShoppingCart,
+  FaTrash,
+} from "react-icons/fa";
+import { MdGridOn } from "react-icons/md";
+import { NavLink, useNavigate } from "react-router-dom";
 
 // Types
 interface WishlistItem {
@@ -43,26 +43,31 @@ interface WishlistPageProps {
   onAddToCart?: (itemId: string) => void;
   onRemoveFromWishlist?: (itemId: string) => void;
   onProductClick?: (itemId: string) => void;
-  onShare?: (itemId: string, title: string, price: number, slug: string) => void;
+  onShare?: (
+    itemId: string,
+    title: string,
+    price: number,
+    slug: string
+  ) => void;
   onClearWishlist?: () => void;
 }
 
-type ViewMode = 'grid' | 'list';
-type SortOption = 'newest' | 'oldest' | 'price-low' | 'price-high' | 'name';
+type ViewMode = "grid" | "list";
+type SortOption = "newest" | "oldest" | "price-low" | "price-high" | "name";
 
 const WishlistPage: React.FC<WishlistPageProps> = ({
   onAddToCart,
   onRemoveFromWishlist,
   onProductClick,
   onShare,
-  onClearWishlist
+  onClearWishlist,
 }) => {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [stockFilter, setStockFilter] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<SortOption>('newest');
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [stockFilter, setStockFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [showItemActions, setShowItemActions] = useState<string | null>(null);
@@ -70,138 +75,154 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
   // Sample wishlist data
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([
     {
-      id: '1',
-      title: 'MacBook Pro M2 14-inch Space Gray',
-      brand: 'Apple',
+      id: "1",
+      title: "MacBook Pro M2 14-inch Space Gray",
+      brand: "Apple",
       price: 850000,
       originalPrice: 950000,
-      location: 'Lagos, Victoria Island',
-      image: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=300&h=300&fit=crop',
-      dateAdded: '2024-07-20',
+      location: "Lagos, Victoria Island",
+      image:
+        "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=300&h=300&fit=crop",
+      dateAdded: "2024-07-20",
       inStock: true,
       discount: 11,
       isSponsored: true,
       isFeatured: true,
       seller: {
-        name: 'TechHub Lagos',
-        id: 'seller-1',
-        rating: 4.8
+        name: "TechHub Lagos",
+        id: "seller-1",
+        rating: 4.8,
       },
-      category: 'Laptops'
+      category: "Laptops",
     },
     {
-      id: '2',
-      title: 'iPhone 14 Pro Max 256GB Deep Purple',
-      brand: 'Apple',
+      id: "2",
+      title: "iPhone 14 Pro Max 256GB Deep Purple",
+      brand: "Apple",
       price: 650000,
-      location: 'Abuja, Wuse 2',
-      image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop',
-      dateAdded: '2024-07-18',
+      location: "Abuja, Wuse 2",
+      image:
+        "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop",
+      dateAdded: "2024-07-18",
       inStock: true,
       isSponsored: true,
       seller: {
-        name: 'Mobile World Abuja',
-        id: 'seller-2',
-        rating: 4.6
+        name: "Mobile World Abuja",
+        id: "seller-2",
+        rating: 4.6,
       },
-      category: 'Smartphones'
+      category: "Smartphones",
     },
     {
-      id: '3',
-      title: 'Samsung Galaxy S23 Ultra 512GB',
-      brand: 'Samsung',
+      id: "3",
+      title: "Samsung Galaxy S23 Ultra 512GB",
+      brand: "Samsung",
       price: 580000,
       originalPrice: 650000,
-      location: 'Lagos, Ikeja',
-      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop',
-      dateAdded: '2024-07-15',
+      location: "Lagos, Ikeja",
+      image:
+        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop",
+      dateAdded: "2024-07-15",
       inStock: false,
       discount: 11,
       seller: {
-        name: 'Galaxy Store Lagos',
-        id: 'seller-3',
-        rating: 4.5
+        name: "Galaxy Store Lagos",
+        id: "seller-3",
+        rating: 4.5,
       },
-      category: 'Smartphones'
+      category: "Smartphones",
     },
     {
-      id: '4',
-      title: 'Sony WH-1000XM5 Wireless Headphones',
-      brand: 'Sony',
+      id: "4",
+      title: "Sony WH-1000XM5 Wireless Headphones",
+      brand: "Sony",
       price: 180000,
-      location: 'Kano, Fagge',
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop',
-      dateAdded: '2024-07-12',
+      location: "Kano, Fagge",
+      image:
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop",
+      dateAdded: "2024-07-12",
       inStock: true,
       isFeatured: true,
       seller: {
-        name: 'Audio Pro Kano',
-        id: 'seller-4',
-        rating: 4.7
+        name: "Audio Pro Kano",
+        id: "seller-4",
+        rating: 4.7,
       },
-      category: 'Headphones'
+      category: "Headphones",
     },
     {
-      id: '5',
-      title: 'iPad Air 5th Generation 256GB',
-      brand: 'Apple',
+      id: "5",
+      title: "iPad Air 5th Generation 256GB",
+      brand: "Apple",
       price: 320000,
       originalPrice: 380000,
-      location: 'Lagos, Lekki',
-      image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop',
-      dateAdded: '2024-07-10',
+      location: "Lagos, Lekki",
+      image:
+        "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop",
+      dateAdded: "2024-07-10",
       inStock: true,
       discount: 16,
       seller: {
-        name: 'Tablet Store Lekki',
-        id: 'seller-5',
-        rating: 4.4
+        name: "Tablet Store Lekki",
+        id: "seller-5",
+        rating: 4.4,
       },
-      category: 'Tablets'
+      category: "Tablets",
     },
     {
-      id: '6',
-      title: 'Canon EOS R6 Mark II Camera Body',
-      brand: 'Canon',
+      id: "6",
+      title: "Canon EOS R6 Mark II Camera Body",
+      brand: "Canon",
       price: 920000,
-      location: 'Lagos, Surulere',
-      image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=300&h=300&fit=crop',
-      dateAdded: '2024-07-08',
+      location: "Lagos, Surulere",
+      image:
+        "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=300&h=300&fit=crop",
+      dateAdded: "2024-07-08",
       inStock: false,
       seller: {
-        name: 'Camera House Lagos',
-        id: 'seller-6',
-        rating: 4.9
+        name: "Camera House Lagos",
+        id: "seller-6",
+        rating: 4.9,
       },
-      category: 'Cameras'
-    }
+      category: "Cameras",
+    },
   ]);
 
   // Get unique categories for filter
-  const categories = ['all', ...Array.from(new Set(wishlistItems.map(item => item.category)))];
+  const categories = [
+    "all",
+    ...Array.from(new Set(wishlistItems.map((item) => item.category))),
+  ];
 
   // Filter and sort items
   const filteredItems = wishlistItems
-    .filter(item => {
-      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           item.brand.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
-      const matchesStock = stockFilter === 'all' || 
-                          (stockFilter === 'in-stock' && item.inStock) ||
-                          (stockFilter === 'out-of-stock' && !item.inStock);
+    .filter((item) => {
+      const matchesSearch =
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.brand.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        categoryFilter === "all" || item.category === categoryFilter;
+      const matchesStock =
+        stockFilter === "all" ||
+        (stockFilter === "in-stock" && item.inStock) ||
+        (stockFilter === "out-of-stock" && !item.inStock);
       return matchesSearch && matchesCategory && matchesStock;
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case 'newest':
-          return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
-        case 'oldest':
-          return new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime();
-        case 'price-low':
+        case "newest":
+          return (
+            new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
+          );
+        case "oldest":
+          return (
+            new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
+          );
+        case "price-low":
           return a.price - b.price;
-        case 'price-high':
+        case "price-high":
           return b.price - a.price;
-        case 'name':
+        case "name":
           return a.title.localeCompare(b.title);
         default:
           return 0;
@@ -217,40 +238,43 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
   };
 
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-NG', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-NG", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const slugifyProduct = (title: string, id: string): string => {
     const slug = title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
     return `${slug}-${id}`;
   };
 
   const handleProductClick = (item: WishlistItem): void => {
     const productUrl = `/listings/${slugifyProduct(item.title, item.id)}`;
-    
+
     if (onProductClick) {
       onProductClick(item.id);
     }
-    
+
     navigate(productUrl);
   };
 
   const handleAddToCart = (e: React.MouseEvent, itemId: string): void => {
     e.stopPropagation();
     onAddToCart?.(itemId);
-    console.log('Added to cart:', itemId);
+    console.log("Added to cart:", itemId);
   };
 
-  const handleRemoveFromWishlist = (e: React.MouseEvent, itemId: string): void => {
+  const handleRemoveFromWishlist = (
+    e: React.MouseEvent,
+    itemId: string
+  ): void => {
     e.stopPropagation();
-    setWishlistItems(items => items.filter(item => item.id !== itemId));
+    setWishlistItems((items) => items.filter((item) => item.id !== itemId));
     onRemoveFromWishlist?.(itemId);
   };
 
@@ -261,24 +285,24 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
   };
 
   const handleSelectItem = (itemId: string): void => {
-    setSelectedItems(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
+    setSelectedItems((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
         : [...prev, itemId]
     );
   };
 
   const handleSelectAll = (): void => {
     setSelectedItems(
-      selectedItems.length === filteredItems.length 
-        ? [] 
-        : filteredItems.map(item => item.id)
+      selectedItems.length === filteredItems.length
+        ? []
+        : filteredItems.map((item) => item.id)
     );
   };
 
   const handleAddSelectedToCart = (): void => {
-    selectedItems.forEach(itemId => {
-      const item = wishlistItems.find(item => item.id === itemId);
+    selectedItems.forEach((itemId) => {
+      const item = wishlistItems.find((item) => item.id === itemId);
       if (item && item.inStock) {
         onAddToCart?.(itemId);
       }
@@ -287,8 +311,10 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
   };
 
   const handleRemoveSelected = (): void => {
-    setWishlistItems(items => items.filter(item => !selectedItems.includes(item.id)));
-    selectedItems.forEach(itemId => onRemoveFromWishlist?.(itemId));
+    setWishlistItems((items) =>
+      items.filter((item) => !selectedItems.includes(item.id))
+    );
+    selectedItems.forEach((itemId) => onRemoveFromWishlist?.(itemId));
     setSelectedItems([]);
   };
 
@@ -298,8 +324,12 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-16">
             <FaHeart className="mx-auto text-6xl text-[#CBDCEB] mb-6" />
-            <h2 className="text-2xl font-bold text-[#1B3C53] mb-4">Your wishlist is empty</h2>
-            <p className="text-gray-600 mb-8">Save items you love for later by clicking the heart icon.</p>
+            <h2 className="text-2xl font-bold text-[#1B3C53] mb-4">
+              Your wishlist is empty
+            </h2>
+            <p className="text-gray-600 mb-8">
+              Save items you love for later by clicking the heart icon.
+            </p>
             <NavLink
               to="/listings"
               className="inline-flex items-center space-x-2 bg-[#1B3C53] text-white px-8 py-3 rounded-lg hover:bg-[#456882] transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
@@ -320,12 +350,15 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#1B3C53] mb-2">My Wishlist</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1B3C53] mb-2">
+                My Wishlist
+              </h1>
               <p className="text-gray-600 text-sm sm:text-base">
-                {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} saved for later
+                {filteredItems.length} item
+                {filteredItems.length !== 1 ? "s" : ""} saved for later
               </p>
             </div>
-            
+
             {wishlistItems.length > 0 && (
               <button
                 onClick={onClearWishlist}
@@ -358,21 +391,21 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
             {/* View Mode Toggle */}
             <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
               <button
-                onClick={() => setViewMode('grid')}
+                onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-md transition-all duration-200 ${
-                  viewMode === 'grid' 
-                    ? 'bg-[#1B3C53] text-white shadow-sm' 
-                    : 'text-gray-600 hover:bg-gray-200'
+                  viewMode === "grid"
+                    ? "bg-[#1B3C53] text-white shadow-sm"
+                    : "text-gray-600 hover:bg-gray-200"
                 }`}
               >
                 <MdGridOn className="text-lg" />
               </button>
               <button
-                onClick={() => setViewMode('list')}
+                onClick={() => setViewMode("list")}
                 className={`p-2 rounded-md transition-all duration-200 ${
-                  viewMode === 'list' 
-                    ? 'bg-[#1B3C53] text-white shadow-sm' 
-                    : 'text-gray-600 hover:bg-gray-200'
+                  viewMode === "list"
+                    ? "bg-[#1B3C53] text-white shadow-sm"
+                    : "text-gray-600 hover:bg-gray-200"
                 }`}
               >
                 <FaList className="text-lg" />
@@ -386,7 +419,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
             >
               <FaFilter className="text-sm" />
               <span className="hidden sm:inline">Filters</span>
-              {(categoryFilter !== 'all' || stockFilter !== 'all' || sortBy !== 'newest') && (
+              {(categoryFilter !== "all" ||
+                stockFilter !== "all" ||
+                sortBy !== "newest") && (
                 <span className="bg-[#456882] text-white text-xs rounded-full w-2 h-2"></span>
               )}
             </button>
@@ -399,22 +434,26 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                 {/* Category and Stock Filters */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#456882] mb-2">Category</label>
+                    <label className="block text-sm font-medium text-[#456882] mb-2">
+                      Category
+                    </label>
                     <select
                       value={categoryFilter}
                       onChange={(e) => setCategoryFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1B3C53]/20 focus:border-[#1B3C53] transition-colors duration-200 bg-white"
                     >
-                      {categories.map(category => (
+                      {categories.map((category) => (
                         <option key={category} value={category}>
-                          {category === 'all' ? 'All Categories' : category}
+                          {category === "all" ? "All Categories" : category}
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-[#456882] mb-2">Availability</label>
+                    <label className="block text-sm font-medium text-[#456882] mb-2">
+                      Availability
+                    </label>
                     <select
                       value={stockFilter}
                       onChange={(e) => setStockFilter(e.target.value)}
@@ -429,7 +468,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
 
                 {/* Sort */}
                 <div>
-                  <label className="block text-sm font-medium text-[#456882] mb-2">Sort By</label>
+                  <label className="block text-sm font-medium text-[#456882] mb-2">
+                    Sort By
+                  </label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -444,12 +485,14 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                 </div>
 
                 {/* Clear Filters */}
-                {(categoryFilter !== 'all' || stockFilter !== 'all' || sortBy !== 'newest') && (
+                {(categoryFilter !== "all" ||
+                  stockFilter !== "all" ||
+                  sortBy !== "newest") && (
                   <button
                     onClick={() => {
-                      setCategoryFilter('all');
-                      setStockFilter('all');
-                      setSortBy('newest');
+                      setCategoryFilter("all");
+                      setStockFilter("all");
+                      setSortBy("newest");
                     }}
                     className="text-[#456882] hover:text-[#1B3C53] font-medium text-sm transition-colors duration-200"
                   >
@@ -498,7 +541,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
         </div>
 
         {/* Items Display */}
-        { viewMode === 'grid' ? (
+        {viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {filteredItems.map((item) => (
               <div
@@ -560,8 +603,8 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                       disabled={!item.inStock}
                       className={`flex-1 py-2 px-3 rounded-lg transition-all duration-200 font-medium text-sm flex items-center justify-center space-x-2 ${
                         item.inStock
-                          ? 'bg-[#1B3C53] hover:bg-[#456882] text-white'
-                          : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                          ? "bg-[#1B3C53] hover:bg-[#456882] text-white"
+                          : "bg-gray-400 text-gray-200 cursor-not-allowed"
                       }`}
                     >
                       <FaShoppingCart className="text-xs" />
@@ -645,7 +688,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                         onClick={(e) => e.stopPropagation()}
                         className="rounded border-gray-300 text-[#1B3C53] focus:ring-[#1B3C53]"
                       />
-                      
+
                       <div className="relative w-20 h-20 sm:w-24 sm:h-24 overflow-hidden rounded-lg">
                         <img
                           src={item.image}
@@ -677,7 +720,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setShowItemActions(showItemActions === item.id ? null : item.id);
+                              setShowItemActions(
+                                showItemActions === item.id ? null : item.id
+                              );
                             }}
                             className="p-2 text-gray-400 hover:text-[#456882] rounded-full transition-colors duration-200"
                           >
@@ -694,7 +739,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                                 }}
                                 disabled={!item.inStock}
                                 className={`w-full flex items-center space-x-2 px-4 py-3 text-left text-sm hover:bg-gray-50 transition-colors duration-200 ${
-                                  !item.inStock ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700'
+                                  !item.inStock
+                                    ? "text-gray-400 cursor-not-allowed"
+                                    : "text-gray-700"
                                 }`}
                               >
                                 <FaShoppingCart className="text-xs" />
@@ -735,9 +782,17 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                           <FaCalendarAlt className="mr-2 flex-shrink-0" />
                           <span>Added {formatDate(item.dateAdded)}</span>
                         </div>
-                        <div className={`flex items-center ${item.inStock ? 'text-green-600' : 'text-red-600'}`}>
-                          {item.inStock ? <FaCheckCircle className="mr-1" /> : <FaExclamationTriangle className="mr-1" />}
-                          {item.inStock ? 'In Stock' : 'Out of Stock'}
+                        <div
+                          className={`flex items-center ${
+                            item.inStock ? "text-green-600" : "text-red-600"
+                          }`}
+                        >
+                          {item.inStock ? (
+                            <FaCheckCircle className="mr-1" />
+                          ) : (
+                            <FaExclamationTriangle className="mr-1" />
+                          )}
+                          {item.inStock ? "In Stock" : "Out of Stock"}
                         </div>
                       </div>
 
@@ -780,8 +835,8 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                             disabled={!item.inStock}
                             className={`inline-flex items-center space-x-1 px-3 py-2 rounded-lg transition-all duration-200 font-medium text-sm ${
                               item.inStock
-                                ? 'bg-[#1B3C53] hover:bg-[#456882] text-white'
-                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                ? "bg-[#1B3C53] hover:bg-[#456882] text-white"
+                                : "bg-gray-300 text-gray-500 cursor-not-allowed"
                             }`}
                           >
                             <FaShoppingCart className="text-xs" />
@@ -797,7 +852,9 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                           </button>
 
                           <button
-                            onClick={(e) => handleRemoveFromWishlist(e, item.id)}
+                            onClick={(e) =>
+                              handleRemoveFromWishlist(e, item.id)
+                            }
                             className="p-2 text-[#456882] hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
                             title="Remove from wishlist"
                           >
@@ -813,8 +870,8 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                           disabled={!item.inStock}
                           className={`flex-1 inline-flex items-center justify-center space-x-2 py-2 px-3 rounded-lg transition-all duration-200 font-medium text-sm ${
                             item.inStock
-                              ? 'bg-[#1B3C53] hover:bg-[#456882] text-white'
-                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                              ? "bg-[#1B3C53] hover:bg-[#456882] text-white"
+                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
                           }`}
                         >
                           <FaShoppingCart className="text-xs" />
@@ -849,14 +906,18 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
         {filteredItems.length === 0 && wishlistItems.length > 0 && (
           <div className="text-center py-12">
             <FaSearch className="mx-auto text-4xl text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No items found</h3>
-            <p className="text-gray-600 mb-4">Try adjusting your search or filter criteria</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No items found
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Try adjusting your search or filter criteria
+            </p>
             <button
               onClick={() => {
-                setSearchTerm('');
-                setCategoryFilter('all');
-                setStockFilter('all');
-                setSortBy('newest');
+                setSearchTerm("");
+                setCategoryFilter("all");
+                setStockFilter("all");
+                setSortBy("newest");
               }}
               className="text-[#456882] hover:text-[#1B3C53] font-medium transition-colors duration-200"
             >
@@ -870,22 +931,27 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
           <div className="mt-8 bg-white rounded-lg shadow-sm p-4 sm:p-6">
             <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-sm text-gray-600 text-center sm:text-left">
-                {filteredItems.filter(item => item.inStock).length} of {filteredItems.length} items available
+                {filteredItems.filter((item) => item.inStock).length} of{" "}
+                {filteredItems.length} items available
               </div>
-              
+
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                 <button
                   onClick={() => {
-                    const inStockItems = filteredItems.filter(item => item.inStock);
-                    inStockItems.forEach(item => onAddToCart?.(item.id));
+                    const inStockItems = filteredItems.filter(
+                      (item) => item.inStock
+                    );
+                    inStockItems.forEach((item) => onAddToCart?.(item.id));
                   }}
-                  disabled={filteredItems.filter(item => item.inStock).length === 0}
+                  disabled={
+                    filteredItems.filter((item) => item.inStock).length === 0
+                  }
                   className="inline-flex items-center justify-center space-x-2 bg-[#1B3C53] text-white px-6 py-3 rounded-lg hover:bg-[#456882] transition-all duration-200 font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   <FaShoppingCart className="text-sm" />
                   <span>Add All Available to Cart</span>
                 </button>
-                
+
                 <NavLink
                   to="/listings"
                   className="inline-flex items-center justify-center space-x-2 bg-[#CBDCEB] text-[#1B3C53] px-6 py-3 rounded-lg hover:bg-[#456882]/20 transition-all duration-200 font-medium"
@@ -899,8 +965,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
         )}
       </div>
 
-
-  {/* Click Outside to Close Mobile Actions */ }
+      {/* Click Outside to Close Mobile Actions */}
       {showItemActions && (
         <div
           className="fixed inset-0 z-10"
