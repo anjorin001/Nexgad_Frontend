@@ -1,6 +1,7 @@
 import React from "react";
 import { FaMapMarkerAlt, FaHeart, FaShare } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import dummyImage from "../assets/dummyImage.jpeg";
 
 // Types
 interface Product {
@@ -10,8 +11,7 @@ interface Product {
   price: number;
   location: string;
   image: string;
-  isSponsored?: boolean;
-  isFeatured?: boolean;
+  productType?: "default" | "sponsored" | "featured";
 }
 
 interface CompactProductCardsProps {
@@ -42,15 +42,14 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
 
   // Sample product data - replace with your actual data
   const allProducts: Product[] = [
-    {
+     {
       id: "1",
       title: "MacBook Pro M2 14-inch",
       brand: "Apple",
       price: 850000,
       location: "Lagos, Victoria Island",
-      image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=300&h=200&fit=crop",
-      isSponsored: true,
-      isFeatured: true,
+      image: dummyImage,
+      productType: "sponsored",
     },
     {
       id: "2",
@@ -58,8 +57,8 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
       brand: "Apple",
       price: 650000,
       location: "Abuja, Wuse 2",
-      image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=200&fit=crop",
-      isSponsored: true,
+      image: dummyImage,
+      productType: "sponsored",
     },
     {
       id: "3",
@@ -67,7 +66,7 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
       brand: "Samsung",
       price: 580000,
       location: "Lagos, Ikeja",
-      image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=200&fit=crop",
+      image: dummyImage,
     },
     {
       id: "4",
@@ -75,8 +74,8 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
       brand: "Dell",
       price: 420000,
       location: "Port Harcourt, GRA",
-      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=200&fit=crop",
-      isFeatured: true,
+      image: dummyImage,
+      productType: "featured",
     },
     {
       id: "5",
@@ -84,7 +83,8 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
       brand: "Sony",
       price: 180000,
       location: "Kano, Fagge",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop",
+      image: dummyImage,
+      productType: "sponsored",
     },
     {
       id: "6",
@@ -92,7 +92,7 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
       brand: "Apple",
       price: 320000,
       location: "Lagos, Lekki",
-      image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=200&fit=crop",
+      image: dummyImage,
     },
     {
       id: "7",
@@ -100,7 +100,7 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
       brand: "ASUS",
       price: 750000,
       location: "Abuja, Garki",
-      image: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=300&h=200&fit=crop",
+      image: "/api/placeholder/300/200",
     },
     {
       id: "8",
@@ -108,8 +108,8 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
       brand: "Apple",
       price: 250000,
       location: "Lagos, Maryland",
-      image: "https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=300&h=200&fit=crop",
-      isFeatured: true,
+      image: dummyImage,
+       productType: "featured",
     },
     {
       id: "9",
@@ -117,7 +117,7 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
       brand: "Nintendo",
       price: 180000,
       location: "Ibadan, Bodija",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
+      image: dummyImage,
     },
     {
       id: "10",
@@ -125,7 +125,24 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
       brand: "Canon",
       price: 920000,
       location: "Lagos, Surulere",
-      image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=300&h=200&fit=crop",
+      image: dummyImage,
+      productType: "sponsored",
+    },
+    {
+      id: "11",
+      title: "Surface Pro 9",
+      brand: "Microsoft",
+      price: 480000,
+      location: "Abuja, Maitama",
+      image: dummyImage,
+    },
+    {
+      id: "12",
+      title: "AirPods Pro 2nd Gen",
+      brand: "Apple",
+      price: 120000,
+      location: "Lagos, Yaba",
+      image: dummyImage,
     },
   ];
 
@@ -191,9 +208,9 @@ const CompactProductCards: React.FC<CompactProductCardsProps> = ({
                   />
                   
                   {/* Compact Badges */}
-                  {(product.isSponsored || product.isFeatured) && (
+                  {(product.productType) && (
                     <div className="absolute top-1 left-1">
-                      {product.isFeatured && (
+                      {product.productType === "featured" && (
                         <span className="bg-[#1B3C53] text-white text-xs font-semibold px-1.5 py-0.5 rounded-full text-[10px]">
                           Featured
                         </span>

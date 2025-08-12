@@ -1,27 +1,27 @@
 import { Route, Routes } from "react-router-dom";
+import AdminRouter from "./admin/Admin";
 import { AppProvider } from "./context/AppContext";
+import UserLayout from "./layout/UserLayout";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import GadgetRequest from "./pages/GadgetRequest";
 import Home from "./pages/Home";
 import Listings from "./pages/Listings";
 import Login from "./pages/Login";
+import Order from "./pages/Order";
+import OrderDetail from "./pages/OrderDetail";
 import ProductDetail from "./pages/ProductDetail";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
-import Navbar from "./components/Navbar";
-import Cart from "./pages/Cart";
-import Order from "./pages/Order";
+import Support from "./pages/Support";
 import Wishlist from "./pages/Wishlist";
-import GadgetRequest from "./pages/GadgetRequest";
-import OrderDetail from "./pages/OrderDetail";
-import Checkout from "./pages/Checkout";
 
 const App = () => {
   return (
     <>
       <AppProvider>
-        <Navbar isAuthenticated={true} />
-
-        <div>
-          <Routes>
+        <Routes>
+          <Route element={<UserLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -34,8 +34,11 @@ const App = () => {
             <Route path="/my-orders/:slug" element={<OrderDetail />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/gadget-request" element={<GadgetRequest />} />
-          </Routes>
-        </div>
+            <Route path="/support" element={<Support />} />
+          </Route>
+
+          <Route path="/admin/*" element={<AdminRouter />} />
+        </Routes>
       </AppProvider>
     </>
   );

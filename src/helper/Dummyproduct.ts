@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export const dummyProduct: any = {
   id: "1",
@@ -6,6 +7,7 @@ export const dummyProduct: any = {
   price: 850000,
   originalPrice: 1000000, //TODO optional for db
   condition: "Brand New",
+  quantity:20,
   availability: "In Stock",
   category: "Laptops & Computers",
   description: `Brand new MacBook Pro with M2 chip delivers exceptional performance and battery life. Perfect for professionals, students, and creatives.

@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
   ];
 
   const supportLinks = [
-    { name: 'Help Center', href: '/help' },
+    { name: 'Help Center', href: '/support' },
     { name: 'Safety Tips', href: '/safety' },
     { name: 'Contact Us', href: '/contact' },
     { name: 'Report a Problem', href: '/report' }

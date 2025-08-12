@@ -13,8 +13,7 @@ interface Listing {
   price: number;
   location: string;
   image: string;
-  isSponsored?: boolean;
-  isFeatured?: boolean;
+  productType?: "default" | "sponsored" | "featured";
 }
 
 interface LatestListingsProps {
@@ -40,8 +39,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
       price: 850000,
       location: "Lagos, Victoria Island",
       image: dummyImage,
-      isSponsored: true,
-      isFeatured: true,
+      productType: "sponsored",
     },
     {
       id: "2",
@@ -50,7 +48,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
       price: 650000,
       location: "Abuja, Wuse 2",
       image: dummyImage,
-      isSponsored: true,
+      productType: "sponsored",
     },
     {
       id: "3",
@@ -67,7 +65,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
       price: 420000,
       location: "Port Harcourt, GRA",
       image: dummyImage,
-      isFeatured: true,
+      productType: "featured",
     },
     {
       id: "5",
@@ -76,7 +74,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
       price: 180000,
       location: "Kano, Fagge",
       image: dummyImage,
-      isSponsored: true,
+      productType: "sponsored",
     },
     {
       id: "6",
@@ -101,7 +99,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
       price: 250000,
       location: "Lagos, Maryland",
       image: dummyImage,
-      isFeatured: true,
+       productType: "featured",
     },
     {
       id: "9",
@@ -118,7 +116,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
       price: 920000,
       location: "Lagos, Surulere",
       image: dummyImage,
-      isSponsored: true,
+      productType: "sponsored",
     },
     {
       id: "11",
@@ -177,11 +175,6 @@ const LatestListings: React.FC<LatestListingsProps> = ({
     // Later: implement your sorting logic here
   };
 
-  //   const handleViewAll = () => {
-  //     if (onViewAll) {
-  //       onViewAll();
-  //     }
-  //   };
 
   return (
     <section className="py-16 sm:px-6 lg:px-8 bg-white">
@@ -233,12 +226,12 @@ const LatestListings: React.FC<LatestListingsProps> = ({
 
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
-                  {listing.isSponsored && (
+                  {listing.productType === "sponsored" && (
                     <span className="bg-[#456882] text-white text-xs font-semibold px-3 py-1 rounded-full">
                       Sponsored
                     </span>
                   )}
-                  {listing.isFeatured && (
+                  {listing.productType === "featured" && (
                     <span className="bg-[#1B3C53] text-white text-xs font-semibold px-3 py-1 rounded-full">
                       Featured
                     </span>

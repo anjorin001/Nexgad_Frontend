@@ -1,0 +1,454 @@
+import type { ProductData } from "../components/GadegtManagement";
+import type { Order } from "../components/OrderTable";
+import type { UserRequest } from "../components/RequestTable";
+import type { SupportTicket } from "../components/TicketTable";
+
+export const dummyData: ProductData[] = [
+  {
+    id: "1",
+    title: "iPhone 15 Pro Max",
+    brand: "Apple",
+    price: 850000,
+    originalPrice: 950000,
+    condition: "Brand New",
+    availability: "In Stock",
+    quantity: 12,
+    category: "smartphones",
+    description: "Latest iPhone with advanced camera system and A17 Pro chip",
+    specifications: { Storage: "256GB", RAM: "8GB", Camera: "48MP" },
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1678652197831-2d180705cd2c?w=400&h=300&fit=crop",
+        alt: "iPhone 15 Pro Max",
+        isPrimary: true,
+      },
+    ],
+    location: { city: "Lagos", state: "Lagos" },
+    seller: { name: "Tech Store", rating: 4.8 },
+    deliveryOptions: { pickup: true, delivery: true },
+    dateListeddays: 5,
+    sku: "IPH15PM256",
+    tags: ["smartphone", "apple", "flagship"],
+    productType: "featured",
+  },
+  {
+    id: "2",
+    title: "Samsung Galaxy S24 Ultra",
+    brand: "Samsung",
+    price: 720000,
+    condition: "Brand New",
+    availability: "In Stock",
+    quantity: 8,
+    category: "smartphones",
+    description: "Premium Samsung smartphone with S Pen and excellent camera",
+    specifications: { Storage: "512GB", RAM: "12GB", Camera: "200MP" },
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=300&fit=crop",
+        alt: "Galaxy S24 Ultra",
+        isPrimary: true,
+      },
+    ],
+    location: { city: "Abuja", state: "FCT" },
+    seller: { name: "Mobile Hub", rating: 4.6 },
+    deliveryOptions: { pickup: true, delivery: true },
+    dateListeddays: 3,
+    sku: "SAM24U512",
+    tags: ["smartphone", "samsung", "android"],
+    productType: "sponsored",
+  },
+  {
+    id: "3",
+    title: "MacBook Pro 16-inch M3",
+    brand: "Apple",
+    price: 1200000,
+    originalPrice: 1350000,
+    condition: "Brand New",
+    availability: "Limited Stock",
+    quantity: 3,
+    category: "laptops",
+    description: "Powerful MacBook Pro with M3 chip for professional use",
+    specifications: { Storage: "1TB", RAM: "16GB", Processor: "M3 Pro" },
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=300&fit=crop",
+        alt: "MacBook Pro",
+        isPrimary: true,
+      },
+    ],
+    location: { city: "Port Harcourt", state: "Rivers" },
+    seller: { name: "Laptop World", rating: 4.9 },
+    deliveryOptions: { pickup: false, delivery: true },
+    dateListeddays: 7,
+    sku: "MBP16M3",
+    tags: ["laptop", "apple", "professional"],
+    productType: "default",
+  },
+  {
+    id: "4",
+    title: "Sony WH-1000XM5 Headphones",
+    brand: "Sony",
+    price: 125000,
+    condition: "Brand New",
+    availability: "In Stock",
+    quantity: 15,
+    category: "audio",
+    description: "Premium noise-canceling wireless headphones",
+    specifications: { Battery: "30 hours", Driver: "30mm", Weight: "250g" },
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=300&fit=crop",
+        alt: "Sony Headphones",
+        isPrimary: true,
+      },
+    ],
+    location: { city: "Kano", state: "Kano" },
+    seller: { name: "Audio Pro", rating: 4.7 },
+    deliveryOptions: { pickup: true, delivery: true },
+    dateListeddays: 2,
+    sku: "SONY1000XM5",
+    tags: ["headphones", "sony", "wireless"],
+    productType: "default",
+  },
+  {
+    id: "5",
+    title: "Dell XPS 13 Laptop",
+    brand: "Dell",
+    price: 680000,
+    condition: "Foreign Used",
+    availability: "In Stock",
+    quantity: 5,
+    category: "laptops",
+    description: "Compact and powerful ultrabook for professionals",
+    specifications: {
+      Storage: "512GB SSD",
+      RAM: "16GB",
+      Processor: "Intel i7",
+    },
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=300&fit=crop",
+        alt: "Dell XPS 13",
+        isPrimary: true,
+      },
+    ],
+    location: { city: "Ibadan", state: "Oyo" },
+    seller: { name: "PC World", rating: 4.4 },
+    deliveryOptions: { pickup: true, delivery: true },
+    dateListeddays: 12,
+    sku: "DELLXPS13",
+    tags: ["laptop", "dell", "ultrabook"],
+    productType: "default",
+  },
+  {
+    id: "6",
+    title: "iPad Pro 12.9-inch",
+    brand: "Apple",
+    price: 450000,
+    condition: "Brand New",
+    availability: "Out of Stock",
+    quantity: 0,
+    category: "tablets",
+    description: "Professional tablet with M2 chip and Apple Pencil support",
+    specifications: {
+      Storage: "256GB",
+      RAM: "8GB",
+      Display: "12.9-inch Liquid Retina",
+    },
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop",
+        alt: "iPad Pro",
+        isPrimary: true,
+      },
+    ],
+    location: { city: "Lagos", state: "Lagos" },
+    seller: { name: "Apple Store", rating: 4.9 },
+    deliveryOptions: { pickup: true, delivery: false },
+    dateListeddays: 1,
+    sku: "IPADPRO129",
+    tags: ["tablet", "apple", "professional"],
+    productType: "featured",
+  },
+];
+
+
+export const dummyOrders: Order[] = [
+  {
+    id: "1",
+    orderNumber: "ORD-2024-001",
+    status: "pending",
+    customerName: "John Doe",
+    items: [
+      {
+        id: "1",
+        name: "iPhone 15 Pro Max",
+        brand: "Apple",
+        price: 1250000,
+        quantity: 1,
+        image:
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=100&h=100&fit=crop",
+      },
+      {
+        id: "2",
+        name: "AirPods Pro",
+        brand: "Apple",
+        price: 280000,
+        quantity: 1,
+        image:
+          "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=100&h=100&fit=crop",
+      },
+    ],
+    totalAmount: 1530000,
+    orderDate: "2024-08-10",
+    shippingAddress: "123 Main St, Victoria Island, Lagos State",
+    paymentMethod: "Bank Transfer",
+    seller: { name: "TechHub Lagos", id: "SELL-001" },
+    estimatedDelivery: "2024-08-15",
+  },
+  {
+    id: "2",
+    orderNumber: "ORD-2024-002",
+    status: "processing",
+    customerName: "Jane Smith",
+    items: [
+      {
+        id: "3",
+        name: "MacBook Air M3",
+        brand: "Apple",
+        price: 1850000,
+        quantity: 1,
+        image:
+          "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=100&h=100&fit=crop",
+      },
+    ],
+    totalAmount: 1850000,
+    orderDate: "2024-08-09",
+    shippingAddress: "456 Oak Ave, Wuse 2, Abuja FCT",
+    paymentMethod: "Card Payment",
+    trackingNumber: "TRK123456789",
+    seller: { name: "GadgetWorld Abuja", id: "SELL-002" },
+    estimatedDelivery: "2024-08-14",
+  },
+  {
+    id: "3",
+    orderNumber: "ORD-2024-003",
+    status: "shipped",
+    customerName: "Mike Johnson",
+    items: [
+      {
+        id: "4",
+        name: "Samsung Galaxy S24 Ultra",
+        brand: "Samsung",
+        price: 980000,
+        quantity: 1,
+        image:
+          "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=100&h=100&fit=crop",
+      },
+    ],
+    totalAmount: 980000,
+    orderDate: "2024-08-08",
+    shippingAddress: "789 Pine St, GRA, Port Harcourt Rivers State",
+    paymentMethod: "Bank Transfer",
+    trackingNumber: "TRK987654321",
+    seller: { name: "ElectroMart PH", id: "SELL-003" },
+    estimatedDelivery: "2024-08-13",
+  },
+  {
+    id: "4",
+    orderNumber: "ORD-2024-004",
+    status: "delivered",
+    customerName: "Sarah Wilson",
+    items: [
+      {
+        id: "5",
+        name: "Sony WH-1000XM5",
+        brand: "Sony",
+        price: 420000,
+        quantity: 1,
+        image:
+          "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=100&h=100&fit=crop",
+      },
+    ],
+    totalAmount: 420000,
+    orderDate: "2024-08-05",
+    deliveryDate: "2024-08-08",
+    shippingAddress: "321 Cedar Rd, Kaduna State",
+    paymentMethod: "Card Payment",
+    trackingNumber: "TRK456789123",
+    seller: { name: "AudioHub Kaduna", id: "SELL-004" },
+  },
+  {
+    id: "5",
+    orderNumber: "ORD-2024-005",
+    status: "cancelled",
+    customerName: "David Brown",
+    items: [
+      {
+        id: "6",
+        name: "iPad Pro",
+        brand: "Apple",
+        price: 850000,
+        quantity: 1,
+        image:
+          "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=100&h=100&fit=crop",
+      },
+    ],
+    totalAmount: 850000,
+    orderDate: "2024-08-07",
+    shippingAddress: "654 Birch Ave, Kano State",
+    paymentMethod: "Bank Transfer",
+    seller: { name: "TabletZone Kano", id: "SELL-005" },
+    cancellationReason: "Customer requested cancellation due to change of mind",
+  },
+];
+
+
+export const mockRequests: UserRequest[] = [
+  {
+    id: 'REQ-001',
+    userName: 'John Doe',
+    productName: 'iPhone 15 Pro',
+    category: 'Electronics',
+    brand: 'Apple',
+    description: 'Latest iPhone with 256GB storage',
+    quantity: '1',
+    budgetRange: '$800-$1200',
+    status: 'pending',
+    submittedDate: '2024-08-10',
+    notes: 'Customer prefers Space Black color',
+    chatEnabled: false,
+    chatMessages: []
+  },
+  {
+    id: 'REQ-002',
+    userName: 'Jane Smith',
+    productName: 'MacBook Air M2',
+    category: 'Electronics',
+    brand: 'Apple',
+    description: '13-inch laptop for work',
+    quantity: '1',
+    budgetRange: '$1000-$1500',
+    status: 'in-progress',
+    submittedDate: '2024-08-09',
+    estimatedResponse: '2024-08-15',
+    notes: 'Urgent request for business use',
+    chatEnabled: true,
+    chatMessages: [
+      {
+        id: 'msg-1',
+        sender: 'user',
+        message: 'Hi, any updates on my MacBook request?',
+        timestamp: '2024-08-11T10:30:00Z'
+      },
+      {
+        id: 'msg-2',
+        sender: 'admin',
+        message: 'We are sourcing the best deals for you. Will update by tomorrow.',
+        timestamp: '2024-08-11T11:00:00Z'
+      }
+    ]
+  },
+  {
+    id: 'REQ-003',
+    userName: 'Mike Johnson',
+    productName: 'Samsung Galaxy Watch',
+    category: 'Wearables',
+    brand: 'Samsung',
+    description: 'Smartwatch with health monitoring',
+    quantity: '1',
+    budgetRange: '$200-$400',
+    status: 'offer-made',
+    submittedDate: '2024-08-08',
+    offerExpiry: '2024-08-15',
+    notes: 'Found great deal, offer sent',
+    chatEnabled: true,
+    chatMessages: [
+      {
+        id: 'msg-3',
+        sender: 'admin',
+        message: 'We found a Samsung Galaxy Watch 6 for $299. Are you interested?',
+        timestamp: '2024-08-11T14:00:00Z'
+      }
+    ]
+  }
+];
+
+
+export const dummyTickets: SupportTicket[] = [
+  {
+    id: 'TKT-001',
+    orderNumber: 'ORD-12345',
+    customerName: 'John Doe',
+    customerEmail: 'john.doe@email.com',
+    category: 'Damaged Item',
+    status: 'open',
+    subject: 'iPhone not turning on after delivery',
+    description: 'I received my iPhone 15 Pro Max yesterday but it won\'t turn on. I tried charging it for several hours but no response. The device appears to be completely dead and unresponsive to any button combinations.',
+    createdDate: '2024-08-10',
+    lastUpdated: '2024-08-10',
+    orderDetails: {
+      productName: 'iPhone 15 Pro Max 256GB',
+      orderValue: 850000,
+      orderDate: '2024-08-08'
+    }
+  },
+  {
+    id: 'TKT-002',
+    orderNumber: 'ORD-12346',
+    customerName: 'Sarah Johnson',
+    customerEmail: 'sarah.j@email.com',
+    category: 'Wrong Item',
+    status: 'in_progress',
+    subject: 'Wrong item delivered',
+    description: 'I ordered a Samsung Galaxy S24 Ultra but received a different phone model. The package contained an older Samsung model instead of what I ordered.',
+    createdDate: '2024-08-09',
+    lastUpdated: '2024-08-11',
+    assignedTo: 'Admin User',
+    orderDetails: {
+      productName: 'Samsung Galaxy S24 Ultra 512GB',
+      orderValue: 720000,
+      orderDate: '2024-08-07'
+    }
+  },
+  {
+    id: 'TKT-003',
+    customerName: 'Mike Chen',
+    customerEmail: 'mike.chen@email.com',
+    category: 'Payment Issue',
+    status: 'resolved',
+    subject: 'Refund inquiry',
+    description: 'I need to know the status of my refund request submitted last week. The transaction was reversed but I haven\'t received the funds in my account yet.',
+    createdDate: '2024-08-05',
+    lastUpdated: '2024-08-11'
+  },
+  {
+    id: 'TKT-004',
+    orderNumber: 'ORD-12348',
+    customerName: 'Emma Wilson',
+    customerEmail: 'emma.w@email.com',
+    category: 'Damaged Item',
+    status: 'closed',
+    subject: 'MacBook warranty claim',
+    description: 'My MacBook Pro screen has developed some issues and I want to claim warranty. There are dead pixels appearing on the display.',
+    createdDate: '2024-08-01',
+    lastUpdated: '2024-08-10',
+    assignedTo: 'Tech Support',
+    orderDetails: {
+      productName: 'MacBook Pro 16-inch M3',
+      orderValue: 1200000,
+      orderDate: '2024-07-15'
+    }
+  },
+  {
+    id: 'TKT-005',
+    customerName: 'David Brown',
+    customerEmail: 'david.b@email.com',
+    category: 'General Support',
+    status: 'open',
+    subject: 'Account access issues',
+    description: 'I am having trouble logging into my account and resetting my password. The reset email is not being received.',
+    createdDate: '2024-08-12',
+    lastUpdated: '2024-08-12'
+  }
+];

@@ -29,8 +29,7 @@ interface WishlistItem {
   dateAdded: string;
   inStock: boolean;
   discount?: number;
-  isSponsored?: boolean;
-  isFeatured?: boolean;
+  productType?: "default" | "sponsored" | "featured";
   seller: {
     name: string;
     id: string;
@@ -86,8 +85,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
       dateAdded: "2024-07-20",
       inStock: true,
       discount: 11,
-      isSponsored: true,
-      isFeatured: true,
+      productType: "featured",
       seller: {
         name: "TechHub Lagos",
         id: "seller-1",
@@ -105,7 +103,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
         "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=300&fit=crop",
       dateAdded: "2024-07-18",
       inStock: true,
-      isSponsored: true,
+      productType: "featured",
       seller: {
         name: "Mobile World Abuja",
         id: "seller-2",
@@ -142,7 +140,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
         "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop",
       dateAdded: "2024-07-12",
       inStock: true,
-      isFeatured: true,
+      productType: "featured",
       seller: {
         name: "Audio Pro Kano",
         id: "seller-4",
@@ -575,12 +573,12 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                         -{item.discount}%
                       </span>
                     )}
-                    {item.isSponsored && (
+                    {item.productType === "sponsored" && (
                       <span className="bg-[#456882] text-white text-xs font-semibold px-2 py-1 rounded-full">
                         Sponsored
                       </span>
                     )}
-                    {item.isFeatured && (
+                    {item.productType === "featured" && (
                       <span className="bg-[#1B3C53] text-white text-xs font-semibold px-2 py-1 rounded-full">
                         Featured
                       </span>
@@ -803,12 +801,12 @@ const WishlistPage: React.FC<WishlistPageProps> = ({
                             {item.discount}% Off
                           </span>
                         )}
-                        {item.isFeatured && (
+                        {item.productType === "featured" && (
                           <span className="bg-[#1B3C53] text-white text-xs font-semibold px-2 py-1 rounded-full">
                             Featured
                           </span>
                         )}
-                        {item.isSponsored && (
+                        {item.productType === "sponsored" && (
                           <span className="bg-[#456882] text-white text-xs font-semibold px-2 py-1 rounded-full">
                             Sponsored
                           </span>

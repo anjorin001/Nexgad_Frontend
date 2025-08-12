@@ -32,7 +32,8 @@ export interface ProductData {
   price: number;
   originalPrice?: number;
   condition: "Brand New" | "Foreign Used" | "Nigerian Used" | "Refurbished";
-  availability: "In Stock" | "Out of Stock" | "Limited Stock";
+  availability: "In Stock" | "Out of Stock" | "Limited Stock"; //TODO implement jobber for this in the backend
+  quantity: number;
   category: string;
   description: string;
   specifications: { [key: string]: string };
@@ -289,6 +290,11 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
               className={`px-3 py-1 rounded-full text-sm font-medium ${getAvailabilityColor()}`}
             >
               {product.availability || "N/A"}
+            </span>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${getAvailabilityColor()}`}
+            >
+              {product.quantity} left
             </span>
           </div>
 
