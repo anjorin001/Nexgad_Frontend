@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import {
   complaintCategories,
   statusConfig,
-} from "../../components/support/types";
+} from "../../../components/support/types";
 
 interface TicketTableProps {
   tickets: SupportTicket[];
@@ -56,15 +56,12 @@ export const TicketTable: React.FC<TicketTableProps> = ({
   return (
     <>
       <div
-        className="bg-white rounded-lg border overflow-hidden"
+        className="bg-white rounded-lg shadow-xl border border-[#CBDCEB]/30 overflow-hidden"
         style={{ borderColor: "#CBDCEB" }}
       >
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead
-              className="border-b"
-              style={{ backgroundColor: "#CBDCEB", borderColor: "#456882" }}
-            >
+            <thead className="bg-gray-50/80">
               <tr>
                 <th
                   className="px-6 py-4 text-left text-sm font-semibold"
@@ -220,7 +217,7 @@ export const TicketTable: React.FC<TicketTableProps> = ({
 
       {/* Reply Modal */}
       {replyTicketId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed  inset-0 bg-[#263b51]/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">

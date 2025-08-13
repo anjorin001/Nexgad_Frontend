@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
-import { mockRequests } from "../helpers/dummyData";
-import { ChatPanel } from "./ChatPanel";
-import { RequestsTable, type UserRequest } from "./RequestTable";
 import { Calendar, ChevronDown, Search, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { statusColors } from "../helpers/common";
+import { mockRequests } from "../helpers/dummyData";
+import { ChatPanel } from "./Requests/ChatPanel";
+import { RequestsTable, type UserRequest } from "./Requests/RequestTable";
 
 enum Status {
   PENDING = "pending",
@@ -114,27 +114,34 @@ const AdminGadgetRequestManagement: React.FC = () => {
   };
 
   return (
-     <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2" style={{ color: '#263b51' }}>
+          <h1 className="text-3xl font-bold mb-2" style={{ color: "#263b51" }}>
             Gadget Request Management
           </h1>
-          <p style={{ color: '#456882' }}>
+          <p style={{ color: "#456882" }}>
             Manage and track all gadget requests from users
           </p>
         </div>
 
         <div className="lg:flex lg:gap-6">
           {/* Main Content */}
-          <div className={`transition-all duration-300 ${selectedRequest ? "lg:w-2/3" : "w-full"}`}>
+          <div
+            className={`transition-all duration-300 ${
+              selectedRequest ? "lg:w-2/3" : "w-full"
+            }`}
+          >
             {/* Filters Section */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Status Filter */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#263b51' }}>
+                  <label
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: "#263b51" }}
+                  >
                     Status
                   </label>
                   <div className="relative">
@@ -142,40 +149,52 @@ const AdminGadgetRequestManagement: React.FC = () => {
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
                       className="w-full appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ color: '#263b51' }}
+                      style={{ color: "#263b51" }}
                     >
                       <option value="all">All Status</option>
-                      {Object.values(Status).map(status => (
+                      {Object.values(Status).map((status) => (
                         <option key={status} value={status}>
-                          {status.replace('-', ' ').toUpperCase()}
+                          {status.replace("-", " ").toUpperCase()}
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#456882' }} />
+                    <ChevronDown
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none"
+                      style={{ color: "#456882" }}
+                    />
                   </div>
                 </div>
 
                 {/* Search Bar */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#263b51' }}>
+                  <label
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: "#263b51" }}
+                  >
                     Search
                   </label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: '#456882' }} />
+                    <Search
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4"
+                      style={{ color: "#456882" }}
+                    />
                     <input
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       placeholder="Search requests..."
                       className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ color: '#263b51' }}
+                      style={{ color: "#263b51" }}
                     />
                   </div>
                 </div>
 
                 {/* Sort Dropdown */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#263b51' }}>
+                  <label
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: "#263b51" }}
+                  >
                     Sort By
                   </label>
                   <div className="relative">
@@ -183,29 +202,38 @@ const AdminGadgetRequestManagement: React.FC = () => {
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
                       className="w-full appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ color: '#263b51' }}
+                      style={{ color: "#263b51" }}
                     >
                       <option value="date-desc">Latest First</option>
                       <option value="date-asc">Oldest First</option>
                       <option value="status">Status</option>
                       <option value="product">Product Name</option>
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: '#456882' }} />
+                    <ChevronDown
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none"
+                      style={{ color: "#456882" }}
+                    />
                   </div>
                 </div>
 
                 {/* Date Range Picker Placeholder */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#263b51' }}>
+                  <label
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: "#263b51" }}
+                  >
                     Date Range
                   </label>
                   <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: '#456882' }} />
+                    <Calendar
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4"
+                      style={{ color: "#456882" }}
+                    />
                     <input
                       type="text"
                       placeholder="Select date range"
                       className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ color: '#263b51' }}
+                      style={{ color: "#263b51" }}
                       readOnly
                     />
                   </div>
@@ -227,8 +255,14 @@ const AdminGadgetRequestManagement: React.FC = () => {
             <div className="lg:w-1/3 mt-6 lg:mt-0 transition-all duration-300">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
                 {/* Panel Header */}
-                <div className="p-4 border-b flex justify-between items-center" style={{ backgroundColor: '#CBDCEB' }}>
-                  <h2 className="text-lg font-semibold" style={{ color: '#263b51' }}>
+                <div
+                  className="p-4 border-b flex justify-between items-center"
+                  style={{ backgroundColor: "#CBDCEB" }}
+                >
+                  <h2
+                    className="text-lg font-semibold"
+                    style={{ color: "#263b51" }}
+                  >
                     Request Details
                   </h2>
                   <button
@@ -243,17 +277,81 @@ const AdminGadgetRequestManagement: React.FC = () => {
                 <div className="flex-1 flex flex-col">
                   <div className="p-4 border-b">
                     <div className="space-y-3 text-sm">
-                      <div><span className="font-medium" style={{ color: '#456882' }}>Request ID:</span> <span style={{ color: '#263b51' }}>{selectedRequest.id}</span></div>
-                      <div><span className="font-medium" style={{ color: '#456882' }}>Submitted:</span> <span style={{ color: '#263b51' }}>{new Date(selectedRequest.submittedDate).toLocaleDateString()}</span></div>
-                      <div><span className="font-medium" style={{ color: '#456882' }}>Brand:</span> <span style={{ color: '#263b51' }}>{selectedRequest.brand}</span></div>
-                      <div><span className="font-medium" style={{ color: '#456882' }}>Description:</span> <span style={{ color: '#263b51' }}>{selectedRequest.description}</span></div>
-                      <div><span className="font-medium" style={{ color: '#456882' }}>Current Status:</span> 
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2 ${statusColors[selectedRequest.status]}`}>
-                          {selectedRequest.status.replace('-', ' ').toUpperCase()}
+                      <div>
+                        <span
+                          className="font-medium"
+                          style={{ color: "#456882" }}
+                        >
+                          Request ID:
+                        </span>{" "}
+                        <span style={{ color: "#263b51" }}>
+                          {selectedRequest.id}
+                        </span>
+                      </div>
+                      <div>
+                        <span
+                          className="font-medium"
+                          style={{ color: "#456882" }}
+                        >
+                          Submitted:
+                        </span>{" "}
+                        <span style={{ color: "#263b51" }}>
+                          {new Date(
+                            selectedRequest.submittedDate
+                          ).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div>
+                        <span
+                          className="font-medium"
+                          style={{ color: "#456882" }}
+                        >
+                          Brand:
+                        </span>{" "}
+                        <span style={{ color: "#263b51" }}>
+                          {selectedRequest.brand}
+                        </span>
+                      </div>
+                      <div>
+                        <span
+                          className="font-medium"
+                          style={{ color: "#456882" }}
+                        >
+                          Description:
+                        </span>{" "}
+                        <span style={{ color: "#263b51" }}>
+                          {selectedRequest.description}
+                        </span>
+                      </div>
+                      <div>
+                        <span
+                          className="font-medium"
+                          style={{ color: "#456882" }}
+                        >
+                          Current Status:
+                        </span>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2 ${
+                            statusColors[selectedRequest.status]
+                          }`}
+                        >
+                          {selectedRequest.status
+                            .replace("-", " ")
+                            .toUpperCase()}
                         </span>
                       </div>
                       {selectedRequest.notes && (
-                        <div><span className="font-medium" style={{ color: '#456882' }}>Notes:</span> <span style={{ color: '#263b51' }}>{selectedRequest.notes}</span></div>
+                        <div>
+                          <span
+                            className="font-medium"
+                            style={{ color: "#456882" }}
+                          >
+                            Notes:
+                          </span>{" "}
+                          <span style={{ color: "#263b51" }}>
+                            {selectedRequest.notes}
+                          </span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -262,8 +360,12 @@ const AdminGadgetRequestManagement: React.FC = () => {
                   <div className="flex-1">
                     <ChatPanel
                       request={selectedRequest}
-                      onToggleChat={(enabled) => handleToggleChat(selectedRequest.id, enabled)}
-                      onCreateOffer={(price) => handleCreateOffer(selectedRequest.id, price)}
+                      onToggleChat={(enabled) =>
+                        handleToggleChat(selectedRequest.id, enabled)
+                      }
+                      onCreateOffer={(price) =>
+                        handleCreateOffer(selectedRequest.id, price)
+                      }
                       onCloseOffer={() => handleCloseOffer(selectedRequest.id)}
                     />
                   </div>

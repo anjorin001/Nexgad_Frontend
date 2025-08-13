@@ -10,7 +10,6 @@ import {
   Settings,
   Smartphone,
   TrendingUp,
-  Users,
 } from "lucide-react";
 
 export const menuItems: any = [
@@ -55,12 +54,6 @@ export const menuItems: any = [
     hasSubmenu: true,
     submenuItems: [
       {
-        id: "inquiries",
-        title: "User Inquiries",
-        icon: Users,
-        url: "/inquries",
-      },
-      {
         id: "support",
         title: "Support Tickets",
         icon: Package,
@@ -74,12 +67,6 @@ export const menuItems: any = [
     icon: Settings,
     hasSubmenu: true,
     submenuItems: [
-      {
-        id: "delivery",
-        title: "Delivery Options",
-        icon: Package,
-        url: "/delivery",
-      },
       {
         id: "promotions",
         title: "Promotions & Discounts",

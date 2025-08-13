@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 import React from "react";
-import { statusColors } from "../helpers/common";
+import { statusColors } from "../../helpers/common";
 
 // Data Interfaces
 export interface RequestFormData {

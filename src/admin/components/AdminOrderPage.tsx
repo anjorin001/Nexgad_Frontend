@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { dummyOrders } from "../helpers/dummyData";
-import { OrdersTable, type Order } from "./OrderTable";
+import { OrdersTable, type Order } from "./Order/OrderTable";
 
 import { Filter, Search } from "lucide-react";
-import { OrderDetailsModal } from "./OrderDetailsModal";
+import { OrderDetailsModal } from "./Order/OrderDetailsModal";
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>(dummyOrders);

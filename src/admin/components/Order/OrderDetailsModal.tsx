@@ -1,6 +1,10 @@
 import { ChevronDown, CreditCard, MapPin, Truck, User, X } from "lucide-react";
 import React, { useState } from "react";
-import { getStatusColor, getStatusIcon, statusFlow } from "../helpers/common";
+import {
+  getStatusColor,
+  getStatusIcon,
+  statusFlow,
+} from "../../helpers/common";
 import type { Order } from "./OrderTable";
 
 interface OrderDetailsModalProps {

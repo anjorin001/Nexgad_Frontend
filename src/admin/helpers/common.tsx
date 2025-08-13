@@ -1,5 +1,5 @@
 import { AlertCircle, Ban, Check, Clock, RefreshCw, Truck } from "lucide-react";
-import type { Order } from "../components/OrderTable";
+import type { Order } from "../components/Order/OrderTable";
 
 export const getStatusIcon = (status: Order["status"]) => {
   switch (status) {
@@ -38,7 +38,6 @@ export const getStatusColor = (status: Order["status"]) => {
       return "bg-gray-100 text-gray-800";
   }
 };
-
 
 export const statusColors = {
   pending: "bg-yellow-100 text-yellow-800 border-yellow-200",

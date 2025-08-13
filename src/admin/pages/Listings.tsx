@@ -1,4 +1,4 @@
-import GadgetManagement from "../components/GadegtManagement";
+import GadgetManagement from "../components/AdminGadegtManagement";
 
 const Listings = () => {
   return (

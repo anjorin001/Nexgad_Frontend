@@ -1,7 +1,7 @@
-import type { ProductData } from "../components/GadegtManagement";
-import type { Order } from "../components/OrderTable";
-import type { UserRequest } from "../components/RequestTable";
-import type { SupportTicket } from "../components/TicketTable";
+import type { ProductData } from "../components/AdminGadegtManagement";
+import type { Order } from "../components/Order/OrderTable";
+import type { UserRequest } from "../components/Requests/RequestTable";
+import type { SupportTicket } from "../components/Support/TicketTable";
 
 export const dummyData: ProductData[] = [
   {
@@ -172,7 +172,6 @@ export const dummyData: ProductData[] = [
   },
 ];
 
-
 export const dummyOrders: Order[] = [
   {
     id: "1",
@@ -303,152 +302,157 @@ export const dummyOrders: Order[] = [
   },
 ];
 
-
 export const mockRequests: UserRequest[] = [
   {
-    id: 'REQ-001',
-    userName: 'John Doe',
-    productName: 'iPhone 15 Pro',
-    category: 'Electronics',
-    brand: 'Apple',
-    description: 'Latest iPhone with 256GB storage',
-    quantity: '1',
-    budgetRange: '$800-$1200',
-    status: 'pending',
-    submittedDate: '2024-08-10',
-    notes: 'Customer prefers Space Black color',
+    id: "REQ-001",
+    userName: "John Doe",
+    productName: "iPhone 15 Pro",
+    category: "Electronics",
+    brand: "Apple",
+    description: "Latest iPhone with 256GB storage",
+    quantity: "1",
+    budgetRange: "$800-$1200",
+    status: "pending",
+    submittedDate: "2024-08-10",
+    notes: "Customer prefers Space Black color",
     chatEnabled: false,
-    chatMessages: []
+    chatMessages: [],
   },
   {
-    id: 'REQ-002',
-    userName: 'Jane Smith',
-    productName: 'MacBook Air M2',
-    category: 'Electronics',
-    brand: 'Apple',
-    description: '13-inch laptop for work',
-    quantity: '1',
-    budgetRange: '$1000-$1500',
-    status: 'in-progress',
-    submittedDate: '2024-08-09',
-    estimatedResponse: '2024-08-15',
-    notes: 'Urgent request for business use',
+    id: "REQ-002",
+    userName: "Jane Smith",
+    productName: "MacBook Air M2",
+    category: "Electronics",
+    brand: "Apple",
+    description: "13-inch laptop for work",
+    quantity: "1",
+    budgetRange: "$1000-$1500",
+    status: "in-progress",
+    submittedDate: "2024-08-09",
+    estimatedResponse: "2024-08-15",
+    notes: "Urgent request for business use",
     chatEnabled: true,
     chatMessages: [
       {
-        id: 'msg-1',
-        sender: 'user',
-        message: 'Hi, any updates on my MacBook request?',
-        timestamp: '2024-08-11T10:30:00Z'
+        id: "msg-1",
+        sender: "user",
+        message: "Hi, any updates on my MacBook request?",
+        timestamp: "2024-08-11T10:30:00Z",
       },
       {
-        id: 'msg-2',
-        sender: 'admin',
-        message: 'We are sourcing the best deals for you. Will update by tomorrow.',
-        timestamp: '2024-08-11T11:00:00Z'
-      }
-    ]
+        id: "msg-2",
+        sender: "admin",
+        message:
+          "We are sourcing the best deals for you. Will update by tomorrow.",
+        timestamp: "2024-08-11T11:00:00Z",
+      },
+    ],
   },
   {
-    id: 'REQ-003',
-    userName: 'Mike Johnson',
-    productName: 'Samsung Galaxy Watch',
-    category: 'Wearables',
-    brand: 'Samsung',
-    description: 'Smartwatch with health monitoring',
-    quantity: '1',
-    budgetRange: '$200-$400',
-    status: 'offer-made',
-    submittedDate: '2024-08-08',
-    offerExpiry: '2024-08-15',
-    notes: 'Found great deal, offer sent',
+    id: "REQ-003",
+    userName: "Mike Johnson",
+    productName: "Samsung Galaxy Watch",
+    category: "Wearables",
+    brand: "Samsung",
+    description: "Smartwatch with health monitoring",
+    quantity: "1",
+    budgetRange: "$200-$400",
+    status: "offer-made",
+    submittedDate: "2024-08-08",
+    offerExpiry: "2024-08-15",
+    notes: "Found great deal, offer sent",
     chatEnabled: true,
     chatMessages: [
       {
-        id: 'msg-3',
-        sender: 'admin',
-        message: 'We found a Samsung Galaxy Watch 6 for $299. Are you interested?',
-        timestamp: '2024-08-11T14:00:00Z'
-      }
-    ]
-  }
+        id: "msg-3",
+        sender: "admin",
+        message:
+          "We found a Samsung Galaxy Watch 6 for $299. Are you interested?",
+        timestamp: "2024-08-11T14:00:00Z",
+      },
+    ],
+  },
 ];
-
 
 export const dummyTickets: SupportTicket[] = [
   {
-    id: 'TKT-001',
-    orderNumber: 'ORD-12345',
-    customerName: 'John Doe',
-    customerEmail: 'john.doe@email.com',
-    category: 'Damaged Item',
-    status: 'open',
-    subject: 'iPhone not turning on after delivery',
-    description: 'I received my iPhone 15 Pro Max yesterday but it won\'t turn on. I tried charging it for several hours but no response. The device appears to be completely dead and unresponsive to any button combinations.',
-    createdDate: '2024-08-10',
-    lastUpdated: '2024-08-10',
+    id: "TKT-001",
+    orderNumber: "ORD-12345",
+    customerName: "John Doe",
+    customerEmail: "john.doe@email.com",
+    category: "Damaged Item",
+    status: "open",
+    subject: "iPhone not turning on after delivery",
+    description:
+      "I received my iPhone 15 Pro Max yesterday but it won't turn on. I tried charging it for several hours but no response. The device appears to be completely dead and unresponsive to any button combinations.",
+    createdDate: "2024-08-10",
+    lastUpdated: "2024-08-10",
     orderDetails: {
-      productName: 'iPhone 15 Pro Max 256GB',
+      productName: "iPhone 15 Pro Max 256GB",
       orderValue: 850000,
-      orderDate: '2024-08-08'
-    }
+      orderDate: "2024-08-08",
+    },
   },
   {
-    id: 'TKT-002',
-    orderNumber: 'ORD-12346',
-    customerName: 'Sarah Johnson',
-    customerEmail: 'sarah.j@email.com',
-    category: 'Wrong Item',
-    status: 'in_progress',
-    subject: 'Wrong item delivered',
-    description: 'I ordered a Samsung Galaxy S24 Ultra but received a different phone model. The package contained an older Samsung model instead of what I ordered.',
-    createdDate: '2024-08-09',
-    lastUpdated: '2024-08-11',
-    assignedTo: 'Admin User',
+    id: "TKT-002",
+    orderNumber: "ORD-12346",
+    customerName: "Sarah Johnson",
+    customerEmail: "sarah.j@email.com",
+    category: "Wrong Item",
+    status: "in_progress",
+    subject: "Wrong item delivered",
+    description:
+      "I ordered a Samsung Galaxy S24 Ultra but received a different phone model. The package contained an older Samsung model instead of what I ordered.",
+    createdDate: "2024-08-09",
+    lastUpdated: "2024-08-11",
+    assignedTo: "Admin User",
     orderDetails: {
-      productName: 'Samsung Galaxy S24 Ultra 512GB',
+      productName: "Samsung Galaxy S24 Ultra 512GB",
       orderValue: 720000,
-      orderDate: '2024-08-07'
-    }
+      orderDate: "2024-08-07",
+    },
   },
   {
-    id: 'TKT-003',
-    customerName: 'Mike Chen',
-    customerEmail: 'mike.chen@email.com',
-    category: 'Payment Issue',
-    status: 'resolved',
-    subject: 'Refund inquiry',
-    description: 'I need to know the status of my refund request submitted last week. The transaction was reversed but I haven\'t received the funds in my account yet.',
-    createdDate: '2024-08-05',
-    lastUpdated: '2024-08-11'
+    id: "TKT-003",
+    customerName: "Mike Chen",
+    customerEmail: "mike.chen@email.com",
+    category: "Payment Issue",
+    status: "resolved",
+    subject: "Refund inquiry",
+    description:
+      "I need to know the status of my refund request submitted last week. The transaction was reversed but I haven't received the funds in my account yet.",
+    createdDate: "2024-08-05",
+    lastUpdated: "2024-08-11",
   },
   {
-    id: 'TKT-004',
-    orderNumber: 'ORD-12348',
-    customerName: 'Emma Wilson',
-    customerEmail: 'emma.w@email.com',
-    category: 'Damaged Item',
-    status: 'closed',
-    subject: 'MacBook warranty claim',
-    description: 'My MacBook Pro screen has developed some issues and I want to claim warranty. There are dead pixels appearing on the display.',
-    createdDate: '2024-08-01',
-    lastUpdated: '2024-08-10',
-    assignedTo: 'Tech Support',
+    id: "TKT-004",
+    orderNumber: "ORD-12348",
+    customerName: "Emma Wilson",
+    customerEmail: "emma.w@email.com",
+    category: "Damaged Item",
+    status: "closed",
+    subject: "MacBook warranty claim",
+    description:
+      "My MacBook Pro screen has developed some issues and I want to claim warranty. There are dead pixels appearing on the display.",
+    createdDate: "2024-08-01",
+    lastUpdated: "2024-08-10",
+    assignedTo: "Tech Support",
     orderDetails: {
-      productName: 'MacBook Pro 16-inch M3',
+      productName: "MacBook Pro 16-inch M3",
       orderValue: 1200000,
-      orderDate: '2024-07-15'
-    }
+      orderDate: "2024-07-15",
+    },
   },
   {
-    id: 'TKT-005',
-    customerName: 'David Brown',
-    customerEmail: 'david.b@email.com',
-    category: 'General Support',
-    status: 'open',
-    subject: 'Account access issues',
-    description: 'I am having trouble logging into my account and resetting my password. The reset email is not being received.',
-    createdDate: '2024-08-12',
-    lastUpdated: '2024-08-12'
-  }
+    id: "TKT-005",
+    customerName: "David Brown",
+    customerEmail: "david.b@email.com",
+    category: "General Support",
+    status: "open",
+    subject: "Account access issues",
+    description:
+      "I am having trouble logging into my account and resetting my password. The reset email is not being received.",
+    createdDate: "2024-08-12",
+    lastUpdated: "2024-08-12",
+  },
 ];

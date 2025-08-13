@@ -1,6 +1,10 @@
 import { ChevronDown, Eye, Package } from "lucide-react";
 import React, { useState } from "react";
-import { getStatusColor, getStatusIcon, statusFlow } from "../helpers/common";
+import {
+  getStatusColor,
+  getStatusIcon,
+  statusFlow,
+} from "../../helpers/common";
 
 interface OrderItem {
   id: string;

@@ -1,6 +1,9 @@
-import { useState } from "react";
-import { complaintCategories, statusConfig } from "../../components/support/types";
 import { Filter, Search } from "lucide-react";
+import { useState } from "react";
+import {
+  complaintCategories,
+  statusConfig,
+} from "../../../components/support/types";
 
 export const TicketFilters: React.FC<{
   filters: {
@@ -15,16 +18,20 @@ export const TicketFilters: React.FC<{
 }> = ({ filters, onFilterChange, onClearFilters, ticketCounts }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const hasActiveFilters = filters.search || filters.status || filters.category || filters.dateRange;
+  const hasActiveFilters =
+    filters.search || filters.status || filters.category || filters.dateRange;
 
   return (
-    <div className="bg-white rounded-lg border mb-6" style={{ borderColor: '#CBDCEB' }}>
+    <div
+      className="bg-white rounded-lg border mb-6"
+      style={{ borderColor: "#CBDCEB" }}
+    >
       {/* Filter Header */}
-      <div className="px-6 py-4 border-b" style={{ borderColor: '#CBDCEB' }}>
+      <div className="px-6 py-4 border-b" style={{ borderColor: "#CBDCEB" }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Filter className="w-5 h-5" style={{ color: '#456882' }} />
-            <h3 className="text-lg font-semibold" style={{ color: '#263b51' }}>
+            <Filter className="w-5 h-5" style={{ color: "#456882" }} />
+            <h3 className="text-lg font-semibold" style={{ color: "#263b51" }}>
               Filters
             </h3>
             {hasActiveFilters && (
@@ -45,9 +52,9 @@ export const TicketFilters: React.FC<{
             <button
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-sm font-medium px-3 py-1 rounded-md"
-              style={{ backgroundColor: '#f8fafc', color: '#456882' }}
+              style={{ backgroundColor: "#f8fafc", color: "#456882" }}
             >
-              {isExpanded ? 'Collapse' : 'Expand'}
+              {isExpanded ? "Collapse" : "Expand"}
             </button>
           </div>
         </div>
@@ -61,9 +68,9 @@ export const TicketFilters: React.FC<{
             type="text"
             placeholder="Search tickets by ID, customer name, or subject..."
             value={filters.search}
-            onChange={(e) => onFilterChange('search', e.target.value)}
+            onChange={(e) => onFilterChange("search", e.target.value)}
             className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            style={{ borderColor: '#CBDCEB' }}
+            style={{ borderColor: "#CBDCEB" }}
           />
         </div>
       </div>
@@ -74,14 +81,17 @@ export const TicketFilters: React.FC<{
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#456882' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: "#456882" }}
+              >
                 Status
               </label>
               <select
                 value={filters.status}
-                onChange={(e) => onFilterChange('status', e.target.value)}
+                onChange={(e) => onFilterChange("status", e.target.value)}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style={{ borderColor: '#CBDCEB' }}
+                style={{ borderColor: "#CBDCEB" }}
               >
                 <option value="">All Statuses</option>
                 {Object.entries(statusConfig).map(([key, config]) => (
@@ -94,14 +104,17 @@ export const TicketFilters: React.FC<{
 
             {/* Category Filter */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#456882' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: "#456882" }}
+              >
                 Category
               </label>
               <select
                 value={filters.category}
-                onChange={(e) => onFilterChange('category', e.target.value)}
+                onChange={(e) => onFilterChange("category", e.target.value)}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style={{ borderColor: '#CBDCEB' }}
+                style={{ borderColor: "#CBDCEB" }}
               >
                 <option value="">All Categories</option>
                 {complaintCategories.map((category) => (
@@ -114,14 +127,17 @@ export const TicketFilters: React.FC<{
 
             {/* Date Range Filter */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#456882' }}>
+              <label
+                className="block text-sm font-medium mb-2"
+                style={{ color: "#456882" }}
+              >
                 Date Range
               </label>
               <select
                 value={filters.dateRange}
-                onChange={(e) => onFilterChange('dateRange', e.target.value)}
+                onChange={(e) => onFilterChange("dateRange", e.target.value)}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style={{ borderColor: '#CBDCEB' }}
+                style={{ borderColor: "#CBDCEB" }}
               >
                 <option value="">All Time</option>
                 <option value="today">Today</option>

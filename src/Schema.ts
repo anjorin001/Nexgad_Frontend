@@ -135,3 +135,21 @@ const wishlistSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Wishlist', wishlistSchema);
+
+
+export type PromoStatus = "active" | "disabled" | "expired" | "inactive";
+export type PromoType = "percent" | "fixed";
+export type EligibilityRule = "olduser" | "newuser";
+
+export interface fPromoCodeeee {
+  code: string; // The promo code string
+  type: PromoType; // "percent" or "fixed"
+  value: number; // % discount or fixed amount
+  startAt: string; // ISO date string (when it becomes valid)
+  endAt: string; // ISO date string (when it expires)
+  maxRedemptions: number; // Total allowed uses
+  status: PromoStatus; // active | disabled | expired | inactive
+  minOrderTotal: number; // Minimum order total required to use promo
+  applicableCategories?: string[]; // Optional: category IDs the promo applies to
+  eligibilityRules?: EligibilityRule; // Optional: target old or new users
+}

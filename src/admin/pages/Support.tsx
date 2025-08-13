@@ -1,4 +1,4 @@
-import SupportTicketsManagement from "../components/SupportTicketManagement";
+import SupportTicketsManagement from "../components/AdminSupportTicketManagement";
 
 const Support = () => {
   return (

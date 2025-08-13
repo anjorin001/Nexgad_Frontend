@@ -1,5 +1,5 @@
 import React from 'react'
-import ProductUploadForm from '../components/UploadComponent'
+import ProductUploadForm from '../components/AdminProductUpload'
 
 const UploadGadget = () => {
   return (

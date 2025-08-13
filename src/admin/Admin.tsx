@@ -1,11 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import AdminLayout from "./layout/AdminLayout";
-import DashBoard from "./pages/Overview";
-import UploadGadget from "./pages/UploadGadget";
+import Account from "./pages/Account";
+import GagdetRequest from "./pages/GagdetRequest";
 import Listings from "./pages/Listings";
 import Oders from "./pages/Oders";
-import GagdetRequest from "./pages/GagdetRequest";
+import DashBoard from "./pages/Overview";
+import PromoDiscount from "./pages/PromoDiscount";
 import Support from "./pages/Support";
+import UploadGadget from "./pages/UploadGadget";
 
 const AdminRouter = () => {
   return (
@@ -18,6 +20,8 @@ const AdminRouter = () => {
           <Route path="/orders" element={<Oders />} />
           <Route path="/requests" element={<GagdetRequest />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/promotions" element={<PromoDiscount />} />
+          <Route path="/account" element={<Account />} />
         </Route>
       </Routes>
     </>

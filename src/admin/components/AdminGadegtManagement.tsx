@@ -9,10 +9,10 @@ import {
   Trash2,
 } from "lucide-react";
 import React, { useState } from "react";
-import { DeleteModal } from "../helpers/deleteModal";
+import { DeleteModal } from "./Gadgets/deleteModal";
 import { dummyData } from "../helpers/dummyData";
-import { EditProductModal } from "../helpers/editModal";
-import { ProductDetailsModal } from "../helpers/viewProductModel";
+import { EditProductModal } from "./Gadgets/editModal";
+import { ProductDetailsModal } from "./Gadgets/viewProductModel";
 
 export interface ProductData {
   id: string;

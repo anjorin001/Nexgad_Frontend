@@ -8,9 +8,9 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { dummyTickets } from "../helpers/dummyData";
-import { TicketFilters } from "./Filter";
-import { TicketTable, type SupportTicket } from "./TicketTable";
-import { ViewTicketModal } from "./ViewTicketModal";
+import { TicketFilters } from "./Support/Filter";
+import { TicketTable, type SupportTicket } from "./Support/TicketTable";
+import { ViewTicketModal } from "./Support/ViewTicketModal";
 
 export default function SupportTicketsManagement() {
   const [tickets, setTickets] = useState<SupportTicket[]>(dummyTickets);
