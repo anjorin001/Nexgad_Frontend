@@ -1,59 +1,70 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { FaEye, FaEyeSlash, FaGoogle } from 'react-icons/fa6';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
+import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa6";
+import { NavLink } from "react-router-dom";
 
-interface LoginFormData {
+export interface LoginFormData {
   email: string;
   password: string;
-  rememberMe: boolean;
+  general?: string;
 }
 
 interface LoginProps {
   onLogin?: (formData: LoginFormData) => void;
   onGoogleLogin?: () => void;
   isLoading?: boolean;
+  backendErrors: any;
 }
 
-const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = false }) => {
+const LoginCnt: React.FC<LoginProps> = ({
+  onLogin,
+  onGoogleLogin,
+  isLoading = false,
+  backendErrors,
+}) => {
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
-    password: '',
-    rememberMe: false
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
 
+  useEffect(() => {
+    if (backendErrors) {
+      setErrors(backendErrors);
+    }
+  }, [backendErrors]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    
-    // Clear error when user starts typing
+
     if (errors[name as keyof LoginFormData]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: undefined
+        [name]: undefined,
       }));
     }
   };
 
   const validateForm = (): boolean => {
     const newErrors: Partial<LoginFormData> = {};
-    
+
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
-    
+
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -79,11 +90,14 @@ const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = fa
     <div className="min-h-screen bg-gradient-to-br from-[#CBDCEB] to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Main Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-[#456882]/10">
+        <div className="bg-white rounded-sm shadow-2xl p-8 border border-[#456882]/10">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="mb-6">
-              <NavLink to="/" className="text-3xl font-bold text-[#1B3C53] hover:text-[#456882] transition-colors duration-200">
+              <NavLink
+                to="/"
+                className="text-3xl font-bold text-[#1B3C53] hover:text-[#456882] transition-colors duration-200"
+              >
                 NexGad
               </NavLink>
             </div>
@@ -91,9 +105,9 @@ const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = fa
               Sign in to your account
             </h2>
             <p className="text-[#456882]/70">
-              Or{' '}
-              <NavLink 
-                to="/register" 
+              Or{" "}
+              <NavLink
+                to="/register"
                 className="text-[#456882] hover:text-[#1B3C53] font-semibold hover:underline transition-colors duration-200"
               >
                 create a new account
@@ -105,7 +119,10 @@ const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = fa
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-[#1B3C53] mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-[#1B3C53] mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -115,9 +132,9 @@ const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = fa
                 value={formData.email}
                 onChange={handleInputChange}
                 className={`w-full px-4 py-3 bg-[#CBDCEB]/30 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
-                  errors.email 
-                    ? 'border-red-500 focus:border-red-500' 
-                    : 'border-[#CBDCEB] focus:border-[#456882] focus:bg-white'
+                  errors.email
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#CBDCEB] focus:border-[#456882] focus:bg-white"
                 }`}
                 placeholder="Enter your email address"
               />
@@ -126,22 +143,27 @@ const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = fa
               )}
             </div>
 
+          
+
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-[#1B3C53] mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-[#1B3C53] mb-2"
+              >
                 Password
               </label>
               <div className="relative">
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 pr-12 bg-[#CBDCEB]/30 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
-                    errors.password 
-                      ? 'border-red-500 focus:border-red-500' 
-                      : 'border-[#CBDCEB] focus:border-[#456882] focus:bg-white'
+                    errors.password
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#CBDCEB] focus:border-[#456882] focus:bg-white"
                   }`}
                   placeholder="Enter your password"
                 />
@@ -160,19 +182,6 @@ const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = fa
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="rememberMe"
-                  name="rememberMe"
-                  type="checkbox"
-                  checked={formData.rememberMe}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-[#1B3C53] bg-[#CBDCEB]/30 border-[#456882] rounded focus:ring-[#1B3C53] focus:ring-2"
-                />
-                <label htmlFor="rememberMe" className="ml-2 text-sm text-[#1B3C53]">
-                  Remember me
-                </label>
-              </div>
               <NavLink
                 to="/forgot-password"
                 className="text-sm text-[#456882] hover:text-[#1B3C53] hover:underline transition-colors duration-200"
@@ -193,7 +202,7 @@ const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = fa
                   Signing in...
                 </div>
               ) : (
-                'Sign in'
+                "Sign in"
               )}
             </button>
           </form>
@@ -204,7 +213,9 @@ const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = fa
               <div className="w-full border-t border-[#CBDCEB]"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-[#456882]/70 font-medium">Or sign in with</span>
+              <span className="px-4 bg-white text-[#456882]/70 font-medium">
+                Or sign in with
+              </span>
             </div>
           </div>
 
@@ -221,7 +232,7 @@ const LoginCnt: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, isLoading = fa
           {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-sm text-[#456882]/70">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <NavLink
                 to="/register"
                 className="text-[#1B3C53] hover:text-[#456882] font-semibold hover:underline transition-colors duration-200"

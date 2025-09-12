@@ -631,7 +631,6 @@ const CheckoutComponent: React.FC = () => {
                       Payment Integration Ready
                     </h4>
                     <p className="text-gray-600 max-w-md mx-auto">
-                      This section is prepared for your Paystack integration.
                       Payment options and forms will be displayed here.
                     </p>
                   </div>

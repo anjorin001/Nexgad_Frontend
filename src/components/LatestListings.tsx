@@ -2,22 +2,13 @@ import React from "react";
 import { FaMapMarkerAlt, FaShoppingCart } from "react-icons/fa";
 import { FaHeart, FaShare } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import dummyImage from "../assets/dummyImage.jpeg";
+import { useAppContext } from "../context/AppContext";
 import { useShareProduct } from "../hooks/useShareProduct";
 import { slugifyProduct } from "../utils/Slugify";
-interface Listing {
-  id: string;
-  title: string;
-  brand: string;
-  price: number;
-  location: string;
-  image: string;
-  productType?: "default" | "sponsored" | "featured";
-}
 
 interface LatestListingsProps {
-  onViewAll?: () => void;
-  onListingClick?: (listingId: string) => void;
+  onViewAll?: () => void; 
+  onListingClick?: (listingId: string) => void; 
   onAddToCart?: (listingId: string) => void;
 }
 
@@ -28,111 +19,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
 }) => {
   const navigate = useNavigate();
   const { handleShare } = useShareProduct();
-  // Dummy data - you can replace with your actual data
-   const listings: Listing[] = [
-    {
-      id: "1",
-      title: "MacBook Pro M2 14-inch",
-      brand: "Apple",
-      price: 850000,
-      location: "Lagos, Victoria Island",
-      image: dummyImage,
-      productType: "sponsored",
-    },
-    {
-      id: "2",
-      title: "iPhone 14 Pro Max 256GB",
-      brand: "Apple",
-      price: 650000,
-      location: "Abuja, Wuse 2",
-      image: dummyImage,
-      productType: "sponsored",
-    },
-    {
-      id: "3",
-      title: "Samsung Galaxy S23 Ultra",
-      brand: "Samsung",
-      price: 580000,
-      location: "Lagos, Ikeja",
-      image: dummyImage,
-    },
-    {
-      id: "4",
-      title: "Dell XPS 13 Laptop",
-      brand: "Dell",
-      price: 420000,
-      location: "Port Harcourt, GRA",
-      image: dummyImage,
-      productType: "featured",
-    },
-    {
-      id: "5",
-      title: "Sony WH-1000XM5 Headphones",
-      brand: "Sony",
-      price: 180000,
-      location: "Kano, Fagge",
-      image: dummyImage,
-      productType: "sponsored",
-    },
-    {
-      id: "6",
-      title: "iPad Air 5th Generation",
-      brand: "Apple",
-      price: 320000,
-      location: "Lagos, Lekki",
-      image: dummyImage,
-    },
-    {
-      id: "7",
-      title: "Gaming Laptop RTX 4060",
-      brand: "ASUS",
-      price: 750000,
-      location: "Abuja, Garki",
-      image: "/api/placeholder/300/200",
-    },
-    {
-      id: "8",
-      title: "Apple Watch Series 9",
-      brand: "Apple",
-      price: 250000,
-      location: "Lagos, Maryland",
-      image: dummyImage,
-       productType: "featured",
-    },
-    {
-      id: "9",
-      title: "Nintendo Switch OLED",
-      brand: "Nintendo",
-      price: 180000,
-      location: "Ibadan, Bodija",
-      image: dummyImage,
-    },
-    {
-      id: "10",
-      title: "Canon EOS R6 Camera",
-      brand: "Canon",
-      price: 920000,
-      location: "Lagos, Surulere",
-      image: dummyImage,
-      productType: "sponsored",
-    },
-    {
-      id: "11",
-      title: "Surface Pro 9",
-      brand: "Microsoft",
-      price: 480000,
-      location: "Abuja, Maitama",
-      image: dummyImage,
-    },
-    {
-      id: "12",
-      title: "AirPods Pro 2nd Gen",
-      brand: "Apple",
-      price: 120000,
-      location: "Lagos, Yaba",
-      image: dummyImage,
-    },
-  ];
+  const { LatestListings } = useAppContext();
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("en-NG", {
@@ -151,7 +38,6 @@ const LatestListings: React.FC<LatestListingsProps> = ({
     if (listingId) {
       navigate(productUrl);
     }
-    console.log(productUrl);
   };
 
   const handleAddToCart = (e: React.MouseEvent, listingId: string) => {
@@ -165,9 +51,7 @@ const LatestListings: React.FC<LatestListingsProps> = ({
   };
 
   const handleViewAll = () => {
-    if (onViewAll) {
-      onViewAll();
-    }
+    navigate("/listings");
   };
 
   return (
@@ -193,33 +77,21 @@ const LatestListings: React.FC<LatestListingsProps> = ({
 
         {/* Listings Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {listings.map((listing) => (
+          {LatestListings.map((listing) => (
             <div
               key={listing.id}
-              onClick={() => handleListingClick(listing.title, listing.id)}
+              onClick={() =>
+                handleListingClick(listing.title, listing.productId)
+              }
               className="bg-white rounded-2xl border border-[#CBDCEB] hover:border-[#456882]/30 transition-all duration-300 hover:shadow-xl cursor-pointer group overflow-hidden"
             >
               {/* Image Container */}
               <div className="relative overflow-hidden">
                 <img
-                  src={listing.image}
-                  alt={listing.title}
+                  src={listing.images[0].url}
+                  alt={listing.images[0].alt}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-
-                {/* Badges */}
-                <div className="absolute top-3 left-3 flex flex-col gap-2">
-                  {listing.productType === "sponsored" && (
-                    <span className="bg-[#456882] text-white text-xs font-semibold px-3 py-1 rounded-full">
-                      Sponsored
-                    </span>
-                  )}
-                  {listing.productType === "featured" && (
-                    <span className="bg-[#1B3C53] text-white text-xs font-semibold px-3 py-1 rounded-full">
-                      Featured
-                    </span>
-                  )}
-                </div>
 
                 {/* Action Buttons */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -230,9 +102,12 @@ const LatestListings: React.FC<LatestListingsProps> = ({
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      const slug = slugifyProduct(listing.title, listing.id);
+                      const slug = slugifyProduct(
+                        listing.title,
+                        listing.productId
+                      );
                       handleShare(
-                        listing.id,
+                        listing.productId,
                         listing.title,
                         listing.price,
                         slug
@@ -263,15 +138,17 @@ const LatestListings: React.FC<LatestListingsProps> = ({
                   <h3 className="text-base sm:text-lg font-semibold text-[#1B3C53] mb-1 group-hover:text-[#456882] transition-colors duration-200 line-clamp-2">
                     {listing.title}
                   </h3>
-                  <p className="text-sm text-[#456882]/60 font-medium">
-                    {listing.brand}
-                  </p>
+                  {listing.brand && (
+                    <p className="text-sm text-[#456882]/60 font-medium">
+                      {listing.brand}
+                    </p>
+                  )}
                 </div>
 
                 {/* Location */}
                 <div className="flex items-center text-[#456882]/70 text-sm mb-4">
                   <FaMapMarkerAlt className="text-xs mr-2" />
-                  <span className="truncate">{listing.location}</span>
+                  <span className="truncate">{listing.location.city}</span>
                 </div>
 
                 {/* Price and Add to Cart Button */}

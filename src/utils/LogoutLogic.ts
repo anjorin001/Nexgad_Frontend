@@ -1,1 +1,9 @@
-//TODO logout logic is needed in both userprofileDropdown and user profilecnt
+export const LogoutRequest = async (setIsAuthenticated?: (value: boolean) => void) => {
+  localStorage.removeItem("token");
+  
+  if (setIsAuthenticated) {
+    setIsAuthenticated(false);
+  }
+  
+  window.location.href = "/login";
+};

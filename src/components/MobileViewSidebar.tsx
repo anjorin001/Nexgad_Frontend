@@ -1,7 +1,7 @@
 import { ArrowUpDown, ChevronDown, Filter, RotateCcw, X } from "lucide-react";
 import React, { useState } from "react";
 
-interface FilterState {
+export interface FilterState {
   category: string;
   priceRange: {
     min: string;
@@ -15,7 +15,7 @@ interface MobileFilterProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
   onApplyFilters: (filters: FilterState) => void;
-  onSortChange?: (sortOption: string) => void;
+  onSortChange: (sortOption: string) => void;
   currentSort?: string;
 }
 
@@ -144,8 +144,7 @@ const MobileFilterComponent: React.FC<MobileFilterProps> = ({
   };
 
   const handleApplyFilters = () => {
-    onFiltersChange(tempFilters);
-    onApplyFilters(tempFilters);
+    onApplyFilters(tempFilters); 
     setShowFilterModal(false);
   };
 

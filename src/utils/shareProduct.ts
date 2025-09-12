@@ -1,5 +1,3 @@
-// utils/shareProduct.ts
-
 import { formatPrice } from "./FormatPrice";
 
 interface ShareProductOptions {

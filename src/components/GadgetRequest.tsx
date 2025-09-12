@@ -9,7 +9,7 @@ interface RequestFormData {
   description: string;
   quantity: string;
   budgetRange: string;
-  purchaseDate: string;
+  purchaseDate: string; //TODO remove this guy it woudnt work
   imageLink: string;
 }
 
@@ -41,8 +41,8 @@ enum Status{
     OFFER_DECLINED = "offer-declined",
     OFFER_EXPIRED = "offer-expired",
     PAID = "paid",
-    SHIPPED = "shipped",
-    COMPLETED = "completed",
+    SHIPPED = "shipped", //TODO remove this order will handle this
+    COMPLETED = "completed",//TODO remove this order will handle this
 }
 
 const RequestGadgetComponent: React.FC = () => {
@@ -204,7 +204,7 @@ const RequestGadgetComponent: React.FC = () => {
           purchaseDate: '',
           imageLink: ''
         });
-      }, 5000);
+      }, 20000);
     }
   };
 
@@ -293,7 +293,7 @@ const RequestGadgetComponent: React.FC = () => {
 
   const isFormValid = formData.productName.trim() && formData.category;
 
-  if (isSubmitted) {
+  if (isSubmitted) { //TODO move this guy to a component
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
         <div className="max-w-2xl mx-auto">
@@ -316,7 +316,7 @@ const RequestGadgetComponent: React.FC = () => {
             <div className="space-y-3">
               <button
                 onClick={() => setIsSubmitted(false)}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-4 px-6 rounded-2xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105"
+                className="w-full bg-[#263b51] text-white font-semibold py-4 px-6 rounded-2x transition-all duration-300 transform hover:scale-105"
               >
                 Submit Another Request
               </button>
@@ -512,7 +512,7 @@ const RequestGadgetComponent: React.FC = () => {
                     disabled={!isFormValid}
                     className={`w-full font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform ${
                       isFormValid
-                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:scale-105 shadow-lg"
+                        ? "bg-[#263b51] text-white hover:scale-105 shadow-lg"
                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     }`}
                   >

@@ -1,37 +1,27 @@
-import { LogOut, User, Rotate3d, Heart, SendHorizontal } from "lucide-react";
-import  { useEffect, useRef, useState } from "react";
+import { Heart, LogOut, Rotate3d, SendHorizontal, User } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LogoutRequest } from "../utils/LogoutLogic";
+import { useAppContext } from "../context/AppContext";
 
 interface UserData {
+  _id: string;
   firstName: string;
   lastName: string;
-  profilePicture?: string;
-  email?: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  address1: string;
+  address2: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
-
 const UserProfileDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const { userData } = useAppContext()
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate()
-  // Simulate getting user data from localStorage
-  useEffect(() => {
-    // Replace this with your actual auth logic
-    const authData = localStorage.getItem("auth");
-    if (authData) {
-      try {
-        const parsedAuth = JSON.parse(authData);
-        setUserData({
-          firstName: parsedAuth.firstName || "Anjiorin",
-          lastName: parsedAuth.lastName || "Favour",
-          profilePicture: parsedAuth.profilePicture,
-          email: parsedAuth.email,
-        });
-      } catch (error) {
-        console.error("Error parsing auth data:", error);
-      }
-    }
-  }, []);
+  const navigate = useNavigate();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -48,40 +38,34 @@ const UserProfileDropdown = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
-  // Don't render if no user data
   if (!userData) {
     return null;
   }
 
-  // Generate initials for fallback avatar
   const initials = `${userData.firstName.charAt(0)}${userData.lastName.charAt(
     0
   )}`.toUpperCase();
 
-
-  
   const handleNavigation = (routeKey: string) => {
     switch (routeKey) {
-      case 'userprofile':
-        navigate('/userprofile');
+      case "userprofile":
+        navigate("/userprofile");
         break;
-      case 'orders':
-        navigate('/my-orders');
+      case "orders":
+        navigate("/my-orders");
         break;
-      case 'wishlist':
-        navigate('/wishlist');
+      case "wishlist":
+        navigate("/wishlist");
         break;
-      case 'gadget-request':
-        navigate('/gadget-request');
+      case "gadget-request":
+        navigate("/gadget-request");
         break;
-      case 'logout':
+      case "logout":
         // Optional logout logic
-        localStorage.removeItem('auth');
-        navigate('/login');
+        LogoutRequest();
         break;
       default:
-        console.warn('Unknown route:', routeKey);
+        console.warn("Unknown route:", routeKey);
     }
   };
 
@@ -100,17 +84,9 @@ const UserProfileDropdown = () => {
 
         {/* Profile Picture */}
         <div className="relative">
-          {userData.profilePicture ? (
-            <img
-              src={userData.profilePicture}
-              alt={`${userData.firstName} ${userData.lastName}`}
-              className="w-8 h-8 rounded-full object-cover border-2 border-[#CBDCEB] hover:border-[#456882] transition-colors duration-200"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-[#456882] text-white flex items-center justify-center text-xs font-semibold border-2 border-[#CBDCEB] hover:border-[#456882] transition-colors duration-200">
-              {initials}
-            </div>
-          )}
+          <div className="w-8 h-8 rounded-full bg-[#456882] text-white flex items-center justify-center text-xs font-semibold border-2 border-[#CBDCEB] hover:border-[#456882] transition-colors duration-200">
+            {initials}
+          </div>
 
           {/* Online Status Indicator */}
           <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
@@ -138,7 +114,9 @@ const UserProfileDropdown = () => {
           {/* Menu Items */}
           <div className="py-1">
             <button
-              onClick={()=>{handleNavigation("userprofile")}}
+              onClick={() => {
+                handleNavigation("userprofile");
+              }}
               className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
             >
               <User className="w-4 h-4 mr-3 text-[#456882]" />
@@ -146,7 +124,9 @@ const UserProfileDropdown = () => {
             </button>
 
             <button
-              onClick={()=>{handleNavigation("orders")}}
+              onClick={() => {
+                handleNavigation("orders");
+              }}
               className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
             >
               <Rotate3d className="w-4 h-4 mr-3 text-[#456882]" />
@@ -154,7 +134,9 @@ const UserProfileDropdown = () => {
             </button>
 
             <button
-              onClick={()=>{handleNavigation("wishlist")}}
+              onClick={() => {
+                handleNavigation("wishlist");
+              }}
               className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
             >
               <Heart className="w-4 h-4 mr-3 text-[#456882]" />
@@ -162,15 +144,19 @@ const UserProfileDropdown = () => {
             </button>
 
             <button
-              onClick={()=>{handleNavigation("gadget-request")}}
+              onClick={() => {
+                handleNavigation("gadget-request");
+              }}
               className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
             >
-              <SendHorizontal  className="w-4 h-4 mr-3 text-[#456882]" />
+              <SendHorizontal className="w-4 h-4 mr-3 text-[#456882]" />
               Gadget Request
             </button>
 
             <button
-              onClick={()=>{handleNavigation("logout")}}
+              onClick={() => {
+                handleNavigation("logout");
+              }}
               className="w-full flex items-center px-4 py-2 text-sm text-[#1B3C53] hover:bg-[#CBDCEB]/50 transition-colors duration-150"
             >
               <LogOut className="w-4 h-4 mr-3 text-[#456882]" />

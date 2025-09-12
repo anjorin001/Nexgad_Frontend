@@ -1,8 +1,8 @@
 export function slugifyProduct(name: string, id: string) {
   const slug = name
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "") // remove special chars
-    .replace(/\s+/g, "-")     // replace spaces with dashes
+    .replace(/[^\w\s-]/g, "") 
+    .replace(/\s+/g, "-")     
     .trim();
 
   return `${slug}-${id}`;

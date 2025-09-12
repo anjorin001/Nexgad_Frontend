@@ -2,8 +2,13 @@ import { ChevronDown, Filter, RotateCcw } from "lucide-react";
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { scrollbarStyles } from "../utils/ScrollBarStyle";
+import type { FilterState } from "./MobileViewSidebar";
 
-const FilterSidebar: React.FC = () => {
+interface FilterSidebarProp {
+  onApplyFilters: (filters: FilterState) => void;
+}
+
+const FilterSidebar: React.FC<FilterSidebarProp> = ({ onApplyFilters }) => {
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const { setFilters, filters } = useAppContext();
   // Electronics categories
@@ -20,7 +25,6 @@ const FilterSidebar: React.FC = () => {
     "Wearables",
   ];
 
-  // Nigerian states/locations
   const locations = [
     "Abuja (FCT)",
     "Lagos",
@@ -270,10 +274,7 @@ const FilterSidebar: React.FC = () => {
 
         {/* Apply Filters Button */}
         <button
-          onClick={() => {
-            // This would typically call a function passed as props to apply filters
-            console.log("Applying filters:", filters);
-          }}
+          onClick={() => onApplyFilters(filters)}
           className="w-full bg-[#1B3C53] text-white py-3 px-4 rounded-md hover:bg-[#456882] transition-colors font-medium"
         >
           Apply Filters

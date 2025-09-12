@@ -3,11 +3,13 @@ import { useState } from "react";
 import { FaBars, FaRegCommentDots, FaShoppingCart } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
+import { LogoutRequest } from "../utils/LogoutLogic";
 import UserProfileDropdown from "./UserProfileDropdown";
+import { useAppContext } from "../context/AppContext";
 
 const Navbar = ({ isAuthenticated = false, cartItemCount = 0 }) => {
-  // set cart Item to context file
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { setIsAuthenticated } = useAppContext();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -176,17 +178,15 @@ const Navbar = ({ isAuthenticated = false, cartItemCount = 0 }) => {
                       <SendHorizontal className="text-sm" />
                       <span>Gadget Request</span>
                     </NavLink>
-                    <NavLink
-                      to="/login"
+                    <button
                       className="flex items-center space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200"
                       onClick={() => {
-                        localStorage.removeItem("auth");
-                        closeMobileMenu();
+                        LogoutRequest(setIsAuthenticated);
                       }}
                     >
                       <LogOut className="text-sm" />
                       <span>Logout</span>
-                    </NavLink>
+                    </button>
                   </div>
                 ) : (
                   <div className="space-y-3">

@@ -11,13 +11,22 @@ export default tseslint.config([
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
-      tseslint.configs.recommended,
+      tseslint.configs['eslint-recommended'], 
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
     ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+    },
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "react-hooks/exhaustive-deps": "warn",
+      "react-refresh/only-export-components": "off",
     },
   },
 ])

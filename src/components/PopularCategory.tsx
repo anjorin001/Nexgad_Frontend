@@ -1,22 +1,25 @@
-import React from "react";
-import {
-  FaLaptop,
-  FaHeadphones,
-  FaGamepad,
-  FaCamera,
-  FaClock,
-  FaTv,
-} from "react-icons/fa6";
-import { FaMobile, FaTablet } from "react-icons/fa";
+import React, { type JSX } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
+import { ProductCategory } from "../enum/products.enum";
+import { 
+  FaMobile, 
+  FaLaptop, 
+  FaHeadphones, 
+  FaGamepad, 
+  FaCamera, 
+  FaClock, 
+  FaTablet, 
+  FaTv 
+} from "react-icons/fa";
 
-interface Category {
+type Category = {
   id: string;
-  name: string;
-  icon: React.ReactNode;
+  name: ProductCategory;
+  icon: JSX.Element;
   count: number;
   color: string;
-}
+};
 
 interface PopularCategoriesProps {
   onCategoryClick?: (categoryId: string) => void;
@@ -24,68 +27,85 @@ interface PopularCategoriesProps {
 
 const PopularCategories: React.FC<PopularCategoriesProps> = () => {
   const navigate = useNavigate();
-  
-  const categories: Category[] = [
-    {
+  const { categoryData } = useAppContext();
+
+  const categoryConfig: Record<ProductCategory, { id: string; icon: JSX.Element; color: string }> = {
+    [ProductCategory.SMARTPHONES_TABLETS]: {
       id: "smartphones",
-      name: "Smartphones",
       icon: <FaMobile className="text-2xl" />,
-      count: 245,
       color: "from-blue-500 to-blue-600",
     },
-    {
+    [ProductCategory.LAPTOPS_COMPUTERS]: {
       id: "laptops",
-      name: "Laptops",
       icon: <FaLaptop className="text-2xl" />,
-      count: 180,
       color: "from-purple-500 to-purple-600",
     },
-    {
+    [ProductCategory.AUDIO_HEADPHONES]: {
       id: "headphones",
-      name: "Audio & Headphones",
       icon: <FaHeadphones className="text-2xl" />,
-      count: 320,
       color: "from-green-500 to-green-600",
     },
-    {
+    [ProductCategory.GAMING_CONSOLES]: {
       id: "gaming",
-      name: "Gaming",
       icon: <FaGamepad className="text-2xl" />,
-      count: 150,
       color: "from-red-500 to-red-600",
     },
-    {
+    [ProductCategory.CAMERAS_PHOTOGRAPHY]: {
       id: "cameras",
-      name: "Cameras",
       icon: <FaCamera className="text-2xl" />,
-      count: 85,
       color: "from-yellow-500 to-orange-500",
     },
-    {
+    [ProductCategory.WEARABLES]: {
       id: "wearables",
-      name: "Smartwatches",
       icon: <FaClock className="text-2xl" />,
-      count: 120,
       color: "from-pink-500 to-pink-600",
     },
-    {
-      id: "tablets",
-      name: "Tablets",
-      icon: <FaTablet className="text-2xl" />,
-      count: 95,
-      color: "from-indigo-500 to-indigo-600",
-    },
-    {
+    [ProductCategory.TV_ENTERTAINMENT]: {
       id: "tvs",
-      name: "Smart TVs",
       icon: <FaTv className="text-2xl" />,
-      count: 75,
       color: "from-teal-500 to-teal-600",
     },
-  ];
+    [ProductCategory.HOME_APPLIANCES]: {
+      id: "",
+      icon: undefined,
+      color: ""
+    },
+    [ProductCategory.ACCESSORIES]: {
+      id: "",
+      icon: undefined,
+      color: ""
+    },
+    [ProductCategory.SMART_HOME]: {
+      id: "",
+      icon: undefined,
+      color: ""
+    }
+  };
+
+  const categories: Category[] = categoryData
+    .map((c) => {
+      const config = categoryConfig[c.category];
+      if (!config) {
+        return {
+          id: c.category.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "and"),
+          name: c.category,
+          icon: <FaTablet className="text-2xl" />, 
+          count: c.count ?? 0,
+          color: "from-gray-500 to-gray-600", 
+        };
+      }
+      
+      return {
+        id: config.id,
+        name: c.category,
+        icon: config.icon,
+        count: c.count ?? 0,
+        color: config.color,
+      };
+    })
+    .filter(category => category.count > 0 || category.name === "Smartphones & Tablets" || category.name === "Laptops & Computers") // Show categories with products or popular ones
 
   const handleCategoryClick = (categoryId: string) => {
-    // Example: Navigate to listings with category as a query param
     if (categoryId === "all") {
       navigate("/listings");
     } else {

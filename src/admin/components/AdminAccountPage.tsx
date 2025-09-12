@@ -4,6 +4,7 @@ import { PasswordChangeModal } from "./Account/PasswordChange";
 import { ProfileForm } from "./Account/ProfileForm";
 import { SecurityActions } from "./Account/SecurityAction";
 import type { AdminUser, PasswordChangeData } from "./Account/types";
+import { LogoutRequest } from "../../utils/LogoutLogic";
 
 const AdminAccountPage: React.FC = () => {
   const [user, setUser] = useState<AdminUser>({
@@ -34,11 +35,7 @@ const AdminAccountPage: React.FC = () => {
     // Show success message or handle response
   };
 
-  const handleLogout = () => {
-    // Here you would typically clear authentication tokens and redirect
-    console.log("User logged out");
-    // Example: localStorage.removeItem('authToken'); navigate('/login');
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-[#CBDCEB]/10 p-4 lg:p-8">
@@ -50,7 +47,7 @@ const AdminAccountPage: React.FC = () => {
 
           <SecurityActions
             onChangePassword={() => setIsPasswordModalOpen(true)}
-            onLogout={handleLogout}
+            onLogout={LogoutRequest}
           />
         </div>
 

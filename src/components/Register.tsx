@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { FaEye, FaEyeSlash, FaGoogle } from 'react-icons/fa6';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
+import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa6";
+import { NavLink } from "react-router-dom";
 
-interface RegisterFormData {
+export interface RegisterFormData {
   firstName: string;
   lastName: string;
+  phoneNumber: string;
   email: string;
   password: string;
 }
@@ -13,63 +15,76 @@ interface RegisterProps {
   onRegister?: (formData: RegisterFormData) => void;
   onGoogleRegister?: () => void;
   isLoading?: boolean;
+  backendErrors: any;
 }
 
-const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, isLoading = false }) => {
+const RegisterCnt: React.FC<RegisterProps> = ({
+  onRegister,
+  onGoogleRegister,
+  isLoading = false,
+  backendErrors,
+}) => {
   const [formData, setFormData] = useState<RegisterFormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: ''
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    phoneNumber: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Partial<RegisterFormData>>({});
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
-    // Clear error when user starts typing
+
     if (errors[name as keyof RegisterFormData]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: undefined
+        [name]: undefined,
       }));
     }
   };
 
+  useEffect(() => {
+    if (backendErrors) {
+      setErrors(backendErrors);
+    }
+  }, [backendErrors]);
+
   const validateForm = (): boolean => {
     const newErrors: Partial<RegisterFormData> = {};
-    
+
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = "First name is required";
     } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = 'First name must be at least 2 characters';
+      newErrors.firstName = "First name must be at least 2 characters";
     }
-    
+
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = "Last name is required";
     } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = 'Last name must be at least 2 characters';
+      newErrors.lastName = "Last name must be at least 2 characters";
     }
-    
+
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
-    
+
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      newErrors.password = "Password must be at least 8 characters";
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Password must contain uppercase, lowercase and number';
+      newErrors.password =
+        "Password must contain uppercase, lowercase and number";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -95,11 +110,14 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
     <div className="min-h-screen bg-gradient-to-br from-[#CBDCEB] to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Main Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-[#456882]/10">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-[#456882]/10">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="mb-6">
-              <NavLink to="/" className="text-3xl font-bold text-[#1B3C53] hover:text-[#456882] transition-colors duration-200">
+              <NavLink
+                to="/"
+                className="text-3xl font-bold text-[#1B3C53] hover:text-[#456882] transition-colors duration-200"
+              >
                 NexGad
               </NavLink>
             </div>
@@ -107,9 +125,9 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
               Create your account
             </h2>
             <p className="text-[#456882]/70">
-              Or{' '}
-              <NavLink 
-                to="/login" 
+              Or{" "}
+              <NavLink
+                to="/login"
                 className="text-[#456882] hover:text-[#1B3C53] font-semibold hover:underline transition-colors duration-200"
               >
                 sign in to existing account
@@ -123,7 +141,10 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
             <div className="grid grid-cols-2 gap-4">
               {/* First Name */}
               <div>
-                <label htmlFor="firstName" className="block text-sm font-semibold text-[#1B3C53] mb-2">
+                <label
+                  htmlFor="firstName"
+                  className="block text-sm font-semibold text-[#1B3C53] mb-2"
+                >
                   First Name
                 </label>
                 <input
@@ -133,20 +154,25 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
                   value={formData.firstName}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 bg-[#CBDCEB]/30 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
-                    errors.firstName 
-                      ? 'border-red-500 focus:border-red-500' 
-                      : 'border-[#CBDCEB] focus:border-[#456882] focus:bg-white'
+                    errors.firstName
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#CBDCEB] focus:border-[#456882] focus:bg-white"
                   }`}
                   placeholder="John"
                 />
                 {errors.firstName && (
-                  <p className="mt-1 text-xs text-red-600">{errors.firstName}</p>
+                  <p className="mt-1 text-xs text-red-600">
+                    {errors.firstName}
+                  </p>
                 )}
               </div>
 
               {/* Last Name */}
               <div>
-                <label htmlFor="lastName" className="block text-sm font-semibold text-[#1B3C53] mb-2">
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm font-semibold text-[#1B3C53] mb-2"
+                >
                   Last Name
                 </label>
                 <input
@@ -156,9 +182,9 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
                   value={formData.lastName}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 bg-[#CBDCEB]/30 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
-                    errors.lastName 
-                      ? 'border-red-500 focus:border-red-500' 
-                      : 'border-[#CBDCEB] focus:border-[#456882] focus:bg-white'
+                    errors.lastName
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#CBDCEB] focus:border-[#456882] focus:bg-white"
                   }`}
                   placeholder="Doe"
                 />
@@ -170,7 +196,10 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-[#1B3C53] mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-[#1B3C53] mb-2"
+              >
                 Email Address
               </label>
               <input
@@ -180,9 +209,9 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
                 value={formData.email}
                 onChange={handleInputChange}
                 className={`w-full px-4 py-3 bg-[#CBDCEB]/30 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
-                  errors.email 
-                    ? 'border-red-500 focus:border-red-500' 
-                    : 'border-[#CBDCEB] focus:border-[#456882] focus:bg-white'
+                  errors.email
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#CBDCEB] focus:border-[#456882] focus:bg-white"
                 }`}
                 placeholder="john@example.com"
               />
@@ -191,22 +220,44 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
               )}
             </div>
 
+            {/* Phone Number Field */}
+            <div>
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm font-semibold text-[#1B3C53] mb-2"
+              >
+                Phone Number
+              </label>
+              <input
+                id="phoneNumber"
+                name="phoneNumber"
+                type="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 bg-[#CBDCEB]/30 border-2 rounded-xl focus:outline-none transition-all duration-200 ${"border-[#CBDCEB] focus:border-[#456882] focus:bg-white"}`}
+                placeholder="Enter your Phone Number"
+              />
+            </div>
+
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-[#1B3C53] mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-[#1B3C53] mb-2"
+              >
                 Password
               </label>
               <div className="relative">
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 pr-12 bg-[#CBDCEB]/30 border-2 rounded-xl focus:outline-none transition-all duration-200 ${
-                    errors.password 
-                      ? 'border-red-500 focus:border-red-500' 
-                      : 'border-[#CBDCEB] focus:border-[#456882] focus:bg-white'
+                    errors.password
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#CBDCEB] focus:border-[#456882] focus:bg-white"
                   }`}
                   placeholder="Create a strong password"
                 />
@@ -228,14 +279,14 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
 
             {/* Terms and Conditions */}
             <div className="text-sm text-[#456882]/70 leading-relaxed">
-              By creating an account, you agree to our{' '}
+              By creating an account, you agree to our{" "}
               <NavLink
                 to="/terms"
                 className="text-[#1B3C53] hover:text-[#456882] font-semibold hover:underline transition-colors duration-200"
               >
                 Terms of Service
-              </NavLink>
-              {' '}and{' '}
+              </NavLink>{" "}
+              and{" "}
               <NavLink
                 to="/privacy"
                 className="text-[#1B3C53] hover:text-[#456882] font-semibold hover:underline transition-colors duration-200"
@@ -256,7 +307,7 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
                   Creating account...
                 </div>
               ) : (
-                'Create Account'
+                "Create Account"
               )}
             </button>
           </form>
@@ -267,7 +318,9 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
               <div className="w-full border-t border-[#CBDCEB]"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-[#456882]/70 font-medium">Or sign up with</span>
+              <span className="px-4 bg-white text-[#456882]/70 font-medium">
+                Or sign up with
+              </span>
             </div>
           </div>
 
@@ -284,7 +337,7 @@ const RegisterCnt: React.FC<RegisterProps> = ({ onRegister, onGoogleRegister, is
           {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-sm text-[#456882]/70">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <NavLink
                 to="/login"
                 className="text-[#1B3C53] hover:text-[#456882] font-semibold hover:underline transition-colors duration-200"
