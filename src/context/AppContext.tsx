@@ -4,6 +4,7 @@ import React, {
   useState,
   type ReactNode,
 } from "react";
+import { useSearchParams, type URLSearchParamsInit } from "react-router-dom";
 interface FilterState {
   category: string;
   priceRange: {
@@ -31,16 +32,21 @@ export type SortState = "newest" | "oldest" | "price-low" | "price-high";
 
 interface AppContextType {
   linkCopied: boolean;
+  isListingLikeLoading: boolean;
   filters: FilterState;
   sort: SortState;
   isAuthenticated: boolean;
   isLandingPageLoading: boolean;
   userData: UserData | null;
-  LatestListings: any[];
+  latestListings: any[];
   Listings: any[];
   categoryData: any[];
   appliedFilter: FilterState;
+  searchTerm: string;
+  searchParams: URLSearchParams;
+  wishlistProductIds: string[];
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsListingLikeLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setLinkCopied: React.Dispatch<React.SetStateAction<boolean>>;
   setIsLandingPageLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
@@ -50,6 +56,12 @@ interface AppContextType {
   setLatestListings: React.Dispatch<React.SetStateAction<any[]>>;
   setListings: React.Dispatch<React.SetStateAction<any[]>>;
   setCategoryData: React.Dispatch<React.SetStateAction<any[]>>;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  setWishlistProductIds: React.Dispatch<React.SetStateAction<string[]>>;
+  setSearchParams: (
+    nextInit: URLSearchParamsInit,
+    navigateOptions?: { replace?: boolean; state?: any }
+  ) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -63,19 +75,25 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     condition: "",
   });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isListingLikeLoading, setIsListingLikeLoading] = useState<boolean>(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [sort, setSort] = useState<SortState>("newest");
   const [isLandingPageLoading, setIsLandingPageLoading] =
     useState<boolean>(false);
-  const [LatestListings, setLatestListings] = useState<any[]>([]);
+  const [latestListings, setLatestListings] = useState<any[]>([]);
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [Listings, setListings] = useState<any[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") ?? ""
+  );
   const [appliedFilter, setAppliedFilter] = useState({
     category: "",
     priceRange: { min: "", max: "" },
     location: "",
     condition: "",
   });
+  const [wishlistProductIds, setWishlistProductIds] = useState<string[]>([]);
 
   return (
     <AppContext.Provider
@@ -93,13 +111,21 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         isLandingPageLoading,
         setIsLandingPageLoading,
         setLatestListings,
-        LatestListings,
+        latestListings,
         setCategoryData,
         categoryData,
         Listings,
         setListings,
         appliedFilter,
-        setAppliedFilter
+        setAppliedFilter,
+        searchTerm,
+        setSearchTerm,
+        searchParams,
+        setSearchParams,
+        wishlistProductIds,
+        setWishlistProductIds,
+        isListingLikeLoading,
+        setIsListingLikeLoading
       }}
     >
       {children}

@@ -41,9 +41,9 @@ const Login = () => {
     try {
       const request = await api.post("/auth/login", formData);
       const response = request.data;
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("nexgad_token", response.data.token);
       toast.success("Login", "Login Successful");
-      setIsAuthenticated(true)
+      setIsAuthenticated(true);
       navigate("/");
     } catch (err: any) {
       if (err.response && err.response.data) {

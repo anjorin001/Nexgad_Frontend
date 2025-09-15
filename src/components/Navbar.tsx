@@ -7,9 +7,9 @@ import { LogoutRequest } from "../utils/LogoutLogic";
 import UserProfileDropdown from "./UserProfileDropdown";
 import { useAppContext } from "../context/AppContext";
 
-const Navbar = ({ isAuthenticated = false, cartItemCount = 0 }) => {
+const Navbar = ({ cartItemCount = 0 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { setIsAuthenticated } = useAppContext();
+  const { setIsAuthenticated, isAuthenticated } = useAppContext();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

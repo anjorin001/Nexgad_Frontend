@@ -11,7 +11,7 @@ export default function UserLayout() {
   const shouldShowNav = hideNavbarOn.includes(location.pathname);
   return (
     <div className="flex flex-col min-h-screen">
-      {isLandingPageLoading || shouldShowNav ? "" : <Navbar isAuthenticated={isAuthenticated} />}
+      { shouldShowNav ? "" : <Navbar isAuthenticated={isAuthenticated} />}
       <main className="flex-1">
         <Outlet />
       </main>

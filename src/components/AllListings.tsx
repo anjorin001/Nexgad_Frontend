@@ -1,5 +1,5 @@
 import React from "react";
-import { FaMapMarkerAlt, FaShoppingCart } from "react-icons/fa";
+import { FaMapMarkerAlt, FaRegHeart, FaShoppingCart } from "react-icons/fa";
 import { FaHeart, FaShare } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
@@ -17,21 +17,22 @@ interface LatestListingsProps {
   onSortChange: (sortOption: string) => void;
   loadMore: () => void;
   resetFilter: () => void;
+  onListingLike: (listingId: string, currentlyLiked: boolean) => void;
 }
 
-const LatestListings: React.FC<LatestListingsProps> = ({
+const AllListings: React.FC<LatestListingsProps> = ({
   onListingClick,
   onAddToCart,
   isLoading,
   hasMore,
   onSortChange,
   loadMore,
-  resetFilter
+  resetFilter,
+  onListingLike,
 }) => {
   const navigate = useNavigate();
   const { handleShare } = useShareProduct();
-  const { sort, Listings } = useAppContext();
-
+  const { sort, Listings, isListingLikeLoading } = useAppContext();
   const formatPrice = (price: number) => {
     return price.toLocaleString("en-NG", {
       style: "currency",
@@ -110,17 +111,19 @@ const LatestListings: React.FC<LatestListingsProps> = ({
 
         {isLoading ? (
           <>
-            <Loader />
+            <div className="h-80 flex items-center justify-center">
+              <Loader size={64} thickness={1} />
+            </div>
           </>
         ) : Listings.length === 0 ? (
           <>
-            <NotFoundListings onResetFilters={resetFilter}/>
+            <NotFoundListings onResetFilters={resetFilter} />
           </>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {Listings.map((listing) => (
               <div
-                key={listing.id}
+                key={listing._id}
                 onClick={() => handleListingClick(listing.title, listing.id)}
                 className="bg-white rounded-2xl border border-[#CBDCEB] hover:border-[#456882]/30 transition-all duration-300 hover:shadow-xl cursor-pointer group overflow-hidden"
               >
@@ -134,8 +137,24 @@ const LatestListings: React.FC<LatestListingsProps> = ({
 
                   {/* Action Buttons */}
                   <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-[#456882] hover:text-[#1B3C53] transition-colors duration-200">
-                      <FaHeart className="text-sm" />
+                    <button
+                      disabled={isListingLikeLoading}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onListingLike(listing._id, listing?.liked);
+                      }}
+                      className={`w-8 h-8 rounded-full cursor-pointer flex items-center justify-center transition-colors duration-200  ${
+                        listing.liked
+                          ? "bg-[#1B3C53] text-white hover:bg-[#456882]"
+                          : "bg-white border-2 border-[#456882] text-[#456882] hover:bg-white/95"
+                      }`}
+                    >
+                      {listing.liked ? (
+                        <FaHeart className="text-sm" />
+                      ) : (
+                        <FaRegHeart className="text-sm" />
+                      )}
                     </button>
                     <button
                       onClick={(e) => {
@@ -227,4 +246,4 @@ const LatestListings: React.FC<LatestListingsProps> = ({
   );
 };
 
-export default LatestListings;
+export default AllListings;

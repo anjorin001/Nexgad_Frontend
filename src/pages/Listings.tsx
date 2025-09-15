@@ -1,6 +1,7 @@
 import qs from "qs";
-import { useEffect, useState } from "react";
-import LatestListings from "../components/AllListings";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import AllListings from "../components/AllListings";
 import FilterSidebar from "../components/CategorySidebar";
 import Footer from "../components/Footer";
 import MobileFilterComponent, {
@@ -10,6 +11,7 @@ import SearchBar from "../components/SearcBar";
 import { useAppContext } from "../context/AppContext";
 import api from "../utils/api";
 import { useToast } from "../utils/ToastNotification";
+import { AddToWishlistRequest } from "../utils/AddToWishlistRequest";
 
 const Listings = () => {
   const {
@@ -18,75 +20,189 @@ const Listings = () => {
     setFilters,
     setSort,
     setListings,
-    Listings,
     setAppliedFilter,
     appliedFilter,
+    searchTerm,
+    setSearchTerm,
+    searchParams,
+    setSearchParams,
+    isAuthenticated,
+    setWishlistProductIds,
   } = useAppContext();
+
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const limit: number = 12;
-
-  const handleSearch = (searchTerm: string) => {
-    console.log("Searching for:", searchTerm);
-  };
+  const navigate = useNavigate();
 
   const handleFilterChange = async (filters: FilterState) => {
     setFilters(filters);
   };
 
+    const { handleLikeListing } = AddToWishlistRequest();
+
   const handleSortChange = (sortOption: string) => {
     setSort(sortOption as any);
     setPage(1);
+    setListings([]);
   };
 
-  const handleGetListings = async () => {
-    setIsLoading(true);
-    try {
-      const queryParams: Record<string, any> = {
-        page,
-        limit,
-        ...(appliedFilter.category && { category: appliedFilter.category }),
-        ...(appliedFilter.priceRange.min && {
-          priceMin: Number(appliedFilter.priceRange.min),
-        }),
-        ...(appliedFilter.priceRange.max && {
-          priceMax: Number(appliedFilter.priceRange.max),
-        }),
-        ...(appliedFilter.location && { location: appliedFilter.location }),
-        ...(appliedFilter.condition && { condition: appliedFilter.condition }),
-      };
+  const handleGetListings = useCallback(
+    async (pageArg = page) => {
+      setIsLoading(true)
+      if (isAuthenticated) {
+        try {
+          const queryParams: Record<string, any> = {
+            page: pageArg,
+            limit,
+            ...(searchTerm ? { search: searchTerm } : {}),
+            ...(sort ? { sort } : {}),
+            ...(appliedFilter?.category
+              ? { category: appliedFilter.category }
+              : {}),
+            ...(appliedFilter?.priceRange?.min !== "" &&
+            appliedFilter?.priceRange?.min != null
+              ? { priceMin: Number(appliedFilter.priceRange.min) }
+              : {}),
+            ...(appliedFilter?.priceRange?.max !== "" &&
+            appliedFilter?.priceRange?.max != null
+              ? { priceMax: Number(appliedFilter.priceRange.max) }
+              : {}),
+            ...(appliedFilter?.location
+              ? { location: appliedFilter.location }
+              : {}),
+            ...(appliedFilter?.condition
+              ? { condition: appliedFilter.condition }
+              : {}),
+          };
 
-      const queryString = qs.stringify(queryParams);
-      const request = await api.get(`/product?${queryString}`);
-      const response = request.data;
+          const queryString = qs.stringify(queryParams);
+          console.log("querystring", queryString);
+          const [productRes, wishlistRes] = await Promise.all([
+            api.get(`/product?${queryString}`),
+            api.get("/wishlist/ids"),
+          ]);
 
-      setListings(response.data?.products);
-      setHasMore(response?.data?.pagination?.hasMore);
-    } catch (err) {
-      console.error(err);
-      toast.error("", "An error occurred, try again later");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+          const wishlistIds: string[] = wishlistRes.data.data.products ?? [];
+
+          setWishlistProductIds(wishlistIds);
+          const payload = productRes?.data?.data ?? productRes?.data ?? {};
+          const products = payload?.products ?? [];
+          const pagination = payload?.pagination ?? {};
+
+          setListings((prev = []) =>
+            pageArg === 1
+              ? products.map((p: any) => ({
+                  ...p,
+                  liked: wishlistIds.includes(p._id),
+                }))
+              : [
+                  ...prev,
+                  ...products.map((p: any) => ({
+                    ...p,
+                    liked: wishlistIds.includes(p._id),
+                  })),
+                ]
+          );
+          setHasMore(Boolean(pagination?.hasMore));
+        } catch (err) {
+          console.error(err);
+          toast.error("", "An error occurred, try again later");
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        try {
+          const queryParams: Record<string, any> = {
+            page: pageArg,
+            limit,
+            ...(searchTerm ? { search: searchTerm } : {}),
+            ...(sort ? { sort } : {}),
+            ...(appliedFilter?.category
+              ? { category: appliedFilter.category }
+              : {}),
+            ...(appliedFilter?.priceRange?.min !== "" &&
+            appliedFilter?.priceRange?.min != null
+              ? { priceMin: Number(appliedFilter.priceRange.min) }
+              : {}),
+            ...(appliedFilter?.priceRange?.max !== "" &&
+            appliedFilter?.priceRange?.max != null
+              ? { priceMax: Number(appliedFilter.priceRange.max) }
+              : {}),
+            ...(appliedFilter?.location
+              ? { location: appliedFilter.location }
+              : {}),
+            ...(appliedFilter?.condition
+              ? { condition: appliedFilter.condition }
+              : {}),
+          };
+
+          const queryString = qs.stringify(queryParams);
+          console.log("querystring", queryString);
+          const res = await api.get(`/product?${queryString}`);
+
+          const payload = res?.data?.data ?? res?.data ?? {};
+          const products = payload?.products ?? [];
+          const pagination = payload?.pagination ?? {};
+
+          setListings((prev = []) =>
+            pageArg === 1
+              ? products.map((p: any) => ({ ...p, liked: false }))
+              : [...prev, ...products.map((p: any) => ({ ...p, liked: false }))]
+          );
+          setHasMore(Boolean(pagination?.hasMore));
+        } catch (err) {
+          console.error(err);
+          toast.error("", "An error occurred, try again later");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    },
+    [appliedFilter, sort, searchTerm]
+  );
 
   useEffect(() => {
-    handleGetListings();
+    handleGetListings(page);
   }, [page, sort, appliedFilter]);
 
-  const handleApplyFilters = async (newFilters: FilterState) => {
+  const handleApplyFilters = (newFilters: FilterState) => {
+    const updatedParams = new URLSearchParams(searchParams);
+
+    if (newFilters.category) updatedParams.set("category", newFilters.category);
+    else updatedParams.delete("category");
+
+    if (newFilters.priceRange?.min)
+      updatedParams.set("priceMin", newFilters.priceRange.min.toString());
+    else updatedParams.delete("priceMin");
+
+    if (newFilters.priceRange?.max)
+      updatedParams.set("priceMax", newFilters.priceRange.max.toString());
+    else updatedParams.delete("priceMax");
+
+    if (newFilters.location) updatedParams.set("location", newFilters.location);
+    else updatedParams.delete("location");
+
+    if (newFilters.condition)
+      updatedParams.set("condition", newFilters.condition);
+    else updatedParams.delete("condition");
+
+    setSearchParams(updatedParams);
+
     setAppliedFilter(newFilters);
     setPage(1);
-    handleGetListings();
+    setListings([]);
   };
 
   const handleLoadMore = () => {
+    if (isLoading || !hasMore) return;
     setPage((prev) => prev + 1);
-    handleGetListings();
   };
+
   const handleResetFilter = () => {
+    navigate("/listings");
     setAppliedFilter({
       category: "",
       priceRange: { min: "", max: "" },
@@ -99,12 +215,18 @@ const Listings = () => {
       location: "",
       condition: "",
     });
+    setSearchTerm("");
+    setPage(1);
+    setListings([]);
   };
 
   return (
     <>
       <div className="flex gap-6 p-3 overflow-y-auto">
-        <FilterSidebar onApplyFilters={handleApplyFilters} />
+        <FilterSidebar
+          onApplyFilters={handleApplyFilters}
+          resetFilters={handleResetFilter}
+        />
         <div className="flex-1">
           <MobileFilterComponent
             filters={filters}
@@ -113,8 +235,9 @@ const Listings = () => {
             onSortChange={handleSortChange}
             currentSort={sort}
           />
-          <SearchBar onSearch={handleSearch} />
-          <LatestListings
+          <SearchBar onSearch={handleGetListings} />
+          <AllListings
+            onListingLike={handleLikeListing}
             isLoading={isLoading}
             hasMore={hasMore}
             onSortChange={handleSortChange}

@@ -1,20 +1,24 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { type ChangeEvent, type FormEvent } from "react";
 import { FaSearch } from "react-icons/fa";
+import { useAppContext } from "../context/AppContext";
 
 interface SearchBarProps {
-  onSearch: (query: string) => void;
+  onSearch: () => void;
   placeholder?: string;
 }
 const SearchBar = ({
   onSearch,
   placeholder = "What are you looking for?",
 }: SearchBarProps) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const { searchTerm, searchParams, setSearchTerm, setSearchParams } =
+    useAppContext();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSearch) {
-      onSearch(searchTerm);
+      searchParams.set("search", searchTerm);
+      setSearchParams(searchParams);
+      onSearch();
     }
   };
 

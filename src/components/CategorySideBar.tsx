@@ -6,12 +6,16 @@ import type { FilterState } from "./MobileViewSidebar";
 
 interface FilterSidebarProp {
   onApplyFilters: (filters: FilterState) => void;
+  resetFilters: () => void;
 }
 
-const FilterSidebar: React.FC<FilterSidebarProp> = ({ onApplyFilters }) => {
+const FilterSidebar: React.FC<FilterSidebarProp> = ({
+  onApplyFilters,
+  resetFilters,
+}) => {
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const { setFilters, filters } = useAppContext();
-  // Electronics categories
+ 
   const categories = [
     "Smartphones & Tablets",
     "Laptops & Computers",
@@ -88,14 +92,6 @@ const FilterSidebar: React.FC<FilterSidebarProp> = ({ onApplyFilters }) => {
     setFilters((prev) => ({ ...prev, condition }));
   };
 
-  const resetFilters = () => {
-    setFilters({
-      category: "",
-      priceRange: { min: "", max: "" },
-      location: "",
-      condition: "",
-    });
-  };
 
   const hasActiveFilters = () => {
     return (

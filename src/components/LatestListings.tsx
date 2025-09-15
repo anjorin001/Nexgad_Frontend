@@ -1,5 +1,5 @@
-import React from "react";
-import { FaMapMarkerAlt, FaShoppingCart } from "react-icons/fa";
+import React, { useEffect } from "react";
+import { FaMapMarkerAlt, FaRegHeart, FaShoppingCart } from "react-icons/fa";
 import { FaHeart, FaShare } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
@@ -7,19 +7,28 @@ import { useShareProduct } from "../hooks/useShareProduct";
 import { slugifyProduct } from "../utils/Slugify";
 
 interface LatestListingsProps {
-  onViewAll?: () => void; 
-  onListingClick?: (listingId: string) => void; 
+  onViewAll?: () => void;
+  onListingClick?: (listingId: string) => void;
   onAddToCart?: (listingId: string) => void;
+  onListingLike: (listingId: string, currentlyLiked: boolean) => void;
+  isListingLikeLoading: boolean;
 }
 
 const LatestListings: React.FC<LatestListingsProps> = ({
   onViewAll,
   onListingClick,
   onAddToCart,
+  onListingLike,
+  isListingLikeLoading,
 }) => {
   const navigate = useNavigate();
   const { handleShare } = useShareProduct();
-  const { LatestListings } = useAppContext();
+  const { Listings, wishlistProductIds } = useAppContext();
+
+  // useEffect(() => {
+  //   console.log("listi", latestListings);
+  //   console.log("wishlist", wishlistProductIds);
+  // }, []);
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("en-NG", {
@@ -77,9 +86,9 @@ const LatestListings: React.FC<LatestListingsProps> = ({
 
         {/* Listings Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {LatestListings.map((listing) => (
+          {Listings.map((listing) => (
             <div
-              key={listing.id}
+              key={listing._id}
               onClick={() =>
                 handleListingClick(listing.title, listing.productId)
               }
@@ -95,8 +104,24 @@ const LatestListings: React.FC<LatestListingsProps> = ({
 
                 {/* Action Buttons */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-[#456882] hover:text-[#1B3C53] transition-colors duration-200">
-                    <FaHeart className="text-sm" />
+                  <button
+                    disabled={isListingLikeLoading}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onListingLike(listing._id, listing?.liked);
+                    }}
+                    className={`w-8 h-8 rounded-full cursor-pointer flex items-center justify-center transition-colors duration-200  ${
+                      listing.liked
+                        ? "bg-[#1B3C53] text-white hover:bg-[#456882]"
+                        : "bg-white border-2 border-[#456882] text-[#456882] hover:bg-white/95"
+                    }`}
+                  >
+                    {listing.liked ? (
+                      <FaHeart className="text-sm" />
+                    ) : (
+                      <FaRegHeart className="text-sm" />
+                    )}
                   </button>
                   <button
                     onClick={(e) => {

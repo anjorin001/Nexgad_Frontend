@@ -1,17 +1,20 @@
 import React, { type JSX } from "react";
+import {
+  FaAssistiveListeningSystems,
+  FaCamera,
+  FaClock,
+  FaGamepad,
+  FaHeadphones,
+  FaLaptop,
+  FaMobile,
+  FaTv,
+} from "react-icons/fa";
+import { TvMinimal, HousePlug, TicketsPlane } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { ProductCategory } from "../enum/products.enum";
-import { 
-  FaMobile, 
-  FaLaptop, 
-  FaHeadphones, 
-  FaGamepad, 
-  FaCamera, 
-  FaClock, 
-  FaTablet, 
-  FaTv 
-} from "react-icons/fa";
+import { FaHouse } from "react-icons/fa6";
+import { MdTv } from "react-icons/md";
 
 type Category = {
   id: string;
@@ -27,89 +30,94 @@ interface PopularCategoriesProps {
 
 const PopularCategories: React.FC<PopularCategoriesProps> = () => {
   const navigate = useNavigate();
-  const { categoryData } = useAppContext();
+  const { categoryData, setAppliedFilter, setFilters } = useAppContext();
 
-  const categoryConfig: Record<ProductCategory, { id: string; icon: JSX.Element; color: string }> = {
+  const categoryConfig: Record<
+    ProductCategory,
+    { id: string; icon: JSX.Element; color: string }
+  > = {
     [ProductCategory.SMARTPHONES_TABLETS]: {
-      id: "smartphones",
+      id: "Smartphones & Tablets",
       icon: <FaMobile className="text-2xl" />,
       color: "from-blue-500 to-blue-600",
     },
     [ProductCategory.LAPTOPS_COMPUTERS]: {
-      id: "laptops",
-      icon: <FaLaptop className="text-2xl" />,
+      id: "Laptops & Computers",
+      icon: <FaLaptop className="Audio & Headphones" />,
       color: "from-purple-500 to-purple-600",
     },
     [ProductCategory.AUDIO_HEADPHONES]: {
-      id: "headphones",
+      id: "Audio & Headphones",
       icon: <FaHeadphones className="text-2xl" />,
       color: "from-green-500 to-green-600",
     },
     [ProductCategory.GAMING_CONSOLES]: {
-      id: "gaming",
+      id: "Gaming & Consoles",
       icon: <FaGamepad className="text-2xl" />,
       color: "from-red-500 to-red-600",
     },
     [ProductCategory.CAMERAS_PHOTOGRAPHY]: {
-      id: "cameras",
+      id: "Cameras & Photography",
       icon: <FaCamera className="text-2xl" />,
       color: "from-yellow-500 to-orange-500",
     },
     [ProductCategory.WEARABLES]: {
-      id: "wearables",
+      id: "Wearables",
       icon: <FaClock className="text-2xl" />,
       color: "from-pink-500 to-pink-600",
     },
     [ProductCategory.TV_ENTERTAINMENT]: {
-      id: "tvs",
+      id: "TV & Entertainment",
       icon: <FaTv className="text-2xl" />,
       color: "from-teal-500 to-teal-600",
     },
     [ProductCategory.HOME_APPLIANCES]: {
-      id: "",
-      icon: undefined,
-      color: ""
+      id: "Home Appliances",
+      icon: <FaHouse className="text-2xl" />,
+      color: "from-yellow-500 to-orange-500",
     },
     [ProductCategory.ACCESSORIES]: {
-      id: "",
-      icon: undefined,
-      color: ""
+      id: "Accessories",
+      icon: <FaAssistiveListeningSystems className="text-2xl" />,
+      color: "from-pink-500 to-pink-600",
     },
     [ProductCategory.SMART_HOME]: {
-      id: "",
-      icon: undefined,
-      color: ""
-    }
+      id: "Smart Home",
+      icon:  <MdTv className="text-2xl"/>,
+      color: "from-teal-500 to-teal-600",
+    },
   };
 
-  const categories: Category[] = categoryData
-    .map((c) => {
-      const config = categoryConfig[c.category];
-      if (!config) {
-        return {
-          id: c.category.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "and"),
-          name: c.category,
-          icon: <FaTablet className="text-2xl" />, 
-          count: c.count ?? 0,
-          color: "from-gray-500 to-gray-600", 
-        };
-      }
-      
-      return {
-        id: config.id,
-        name: c.category,
-        icon: config.icon,
-        count: c.count ?? 0,
-        color: config.color,
-      };
-    })
-    .filter(category => category.count > 0 || category.name === "Smartphones & Tablets" || category.name === "Laptops & Computers") // Show categories with products or popular ones
+  console.log("catcong", categoryConfig);
+  const categories: Category[] = categoryData.map((c) => {
+    const config = categoryConfig[c.category];
+
+    return {
+      id: config.id,
+      name: c.category,
+      icon: config.icon,
+      count: c.count ?? 0,
+      color: config.color,
+    };
+  });
 
   const handleCategoryClick = (categoryId: string) => {
     if (categoryId === "all") {
       navigate("/listings");
     } else {
       navigate(`/listings?category=${categoryId}`);
+      setFilters({
+        category: categoryId,
+        priceRange: { min: "", max: "" },
+        location: "",
+        condition: "",
+      });
+      setAppliedFilter({
+        category: categoryId,
+        priceRange: { min: "", max: "" },
+        location: "",
+        condition: "",
+      });
     }
   };
 

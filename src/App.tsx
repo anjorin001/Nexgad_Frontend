@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import AdminRouter from "./admin/Admin";
+import NexgadLoader from "./components/nexgad-loader";
 import { AppProvider } from "./context/AppContext";
 import useAuthCheck from "./hooks/useAuthCheck";
 import UserLayout from "./layout/UserLayout";
@@ -17,10 +19,32 @@ import Register from "./pages/Register";
 import Support from "./pages/Support";
 import Wishlist from "./pages/Wishlist";
 import { ToastDemo, ToastProvider } from "./utils/ToastNotification";
+import ScrollToTop from "./helper/ScrollToTop";
 
+let hasVisited = false;
 const AppContent = () => {
-  useAuthCheck(); 
+  const [showFirstLoader, setShowFirstLoader] = useState(!hasVisited);
+  useAuthCheck();
 
+  useEffect(() => {
+    if (!hasVisited) {
+      const timer = setTimeout(() => {
+        setShowFirstLoader(false);
+        hasVisited = true;
+      }, 1200);
+      return () => clearTimeout(timer);
+    } else {
+      setShowFirstLoader(false);
+    }
+  }, []);
+
+  if (showFirstLoader) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <NexgadLoader />
+      </div>
+    );
+  }
   return (
     <Routes>
       <Route element={<UserLayout />}>
@@ -47,12 +71,12 @@ const AppContent = () => {
 const App = () => {
   return (
     <ToastProvider>
+      <ScrollToTop/>
       <AppProvider>
         <AppContent />
       </AppProvider>
     </ToastProvider>
   );
 };
-
 
 export default App;

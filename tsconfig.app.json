@@ -16,10 +16,10 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true, 
-    "strictNullChecks": false, 
-    "noImplicitAny": false, 
-    "strictPropertyInitialization": false 
+    "strict": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictPropertyInitialization": false
   },
-  "include": ["src"]
+  "include": ["src", "src/utils/.tsx"]
 }

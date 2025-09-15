@@ -5,10 +5,9 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
 });
 
-
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("nexgad_token");
     if (token) {
       config.headers.set("Authorization", `Bearer ${token}`);
     }
@@ -16,7 +15,7 @@ api.interceptors.request.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      LogoutRequest()
+      LogoutRequest();
       window.location.href = "/login";
     }
     return Promise.reject(error);

@@ -19,10 +19,9 @@ interface UserData {
 }
 const UserProfileDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { userData } = useAppContext()
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
+ const userData = JSON.parse(localStorage.getItem("nexgad_user"))
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
