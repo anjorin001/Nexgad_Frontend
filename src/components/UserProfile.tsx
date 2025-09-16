@@ -1,34 +1,31 @@
-import React, { useState, useRef } from 'react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Globe, 
-  DollarSign,
-  Edit2, 
-  Lock, 
-  LogOut, 
-  Trash2,
-  Camera,
+import {
+  CheckCircle,
+  Edit2,
+  Globe,
+  Lock,
+  LogOut,
+  Mail,
+  MapPin,
+  Phone,
   Save,
+  Trash2,
+  User,
   X,
-  Eye,
-  EyeOff
-} from 'lucide-react';
+} from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { useToast } from "../utils/ToastNotification";
+import Loader from "./nexgadMidPageLoader";
+import ChangePasswordModal from "./userProfileComponents/ChangePasswordModal";
+import CircularProgress from "./userProfileComponents/CircularProgress";
+import ConfirmModal from "./userProfileComponents/DeleteAccountModal";
 
-interface UserData {
-  id: string;
+export interface UserData {
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
-  profilePicture?: string;
-  defaultLocation: {
-    city: string;
-    state: string;
-  };
-  currency: string;
+  phoneNumber: string;
+  address1?: string;
+  address2?: string;
   language: string;
   joinedDate: string;
 }
@@ -39,7 +36,7 @@ interface UserProfileProps {
   onChangePassword?: (currentPassword: string, newPassword: string) => void;
   onLogout?: () => void;
   onDeleteAccount?: () => void;
-  onUploadProfilePicture?: (file: File) => void;
+  isLoading: boolean;
 }
 
 export const UserProfile: React.FC<UserProfileProps> = ({
@@ -48,7 +45,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   onChangePassword,
   onLogout,
   onDeleteAccount,
-  onUploadProfilePicture
+  isLoading,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -56,37 +53,39 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
-    confirm: false
+    confirm: false,
   });
+  const toast = useToast();
 
   const [editData, setEditData] = useState<Partial<UserData>>(userData);
   const [passwordData, setPasswordData] = useState({
-    current: '',
-    new: '',
-    confirm: ''
+    current: "",
+    new: "",
+    confirm: "",
   });
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const profileCompletion = useMemo(() => {
+    const requiredFields = [
+      userData.firstName,
+      userData.lastName,
+      userData.email,
+      userData.phoneNumber,
+    ];
 
-  const nigerianStates = [
-    'Abuja (FCT)', 'Lagos', 'Kano', 'Kaduna', 'Port Harcourt', 'Ibadan',
-    'Benin City', 'Jos', 'Enugu', 'Aba', 'Warri', 'Calabar', 'Ilorin',
-    'Akure', 'Sokoto', 'Maiduguri', 'Zaria', 'Owerri', 'Uyo', 'Asaba'
-  ];
+    const optionalFields = [userData.address1, userData.address2];
 
-  const currencies = [
-    { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
-    { code: 'USD', name: 'US Dollar', symbol: '$' },
-    { code: 'EUR', name: 'Euro', symbol: '€' },
-    { code: 'GBP', name: 'British Pound', symbol: '£' }
-  ];
+    const completedRequired = requiredFields.filter(
+      (field) => field && field.trim() !== ""
+    ).length;
+    const completedOptional = optionalFields.filter(
+      (field) => field && field.trim() !== ""
+    ).length;
 
-  const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'ha', name: 'Hausa' },
-    { code: 'yo', name: 'Yoruba' },
-    { code: 'ig', name: 'Igbo' }
-  ];
+    const requiredScore = (completedRequired / requiredFields.length) * 80;
+    const optionalScore = (completedOptional / optionalFields.length) * 20;
+
+    return Math.round(requiredScore + optionalScore);
+  }, [userData]);
 
   const handleEditSave = () => {
     if (onUpdateProfile) {
@@ -102,25 +101,18 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
   const handlePasswordChange = () => {
     if (passwordData.new !== passwordData.confirm) {
-      alert('New passwords do not match');
+      alert("New passwords do not match");
       return;
     }
     if (passwordData.new.length < 8) {
-      alert('Password must be at least 8 characters long');
+      alert("Password must be at least 8 characters long");
       return;
     }
     if (onChangePassword) {
       onChangePassword(passwordData.current, passwordData.new);
     }
-    setPasswordData({ current: '', new: '', confirm: '' });
+    setPasswordData({ current: "", new: "", confirm: "" });
     setIsChangingPassword(false);
-  };
-
-  const handleProfilePictureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && onUploadProfilePicture) {
-      onUploadProfilePicture(file);
-    }
   };
 
   const handleDeleteAccount = () => {
@@ -131,407 +123,311 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   };
 
   const getInitials = () => {
-    return `${userData.firstName.charAt(0)}${userData.lastName.charAt(0)}`.toUpperCase();
-  };
-
-  const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
-    setShowPasswords(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
+    return `${userData.firstName.charAt(0)}${userData.lastName.charAt(
+      0
+    )}`.toUpperCase();
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg border border-[#CBDCEB] p-6 mb-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-          {/* Profile Picture */}
-          <div className="relative">
-            {userData.profilePicture ? (
-              <img
-                src={userData.profilePicture}
-                alt={`${userData.firstName} ${userData.lastName}`}
-                className="w-20 h-20 rounded-full object-cover border-4 border-[#CBDCEB]"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-full bg-[#456882] text-white flex items-center justify-center text-2xl font-bold border-4 border-[#CBDCEB]">
+    <>
+      {isLoading ? (
+        <Loader
+          fullScreen={true}
+          size={64}
+          thickness={1}
+          label="updating profile info"
+        />
+      ) : (
+        <div className="max-w-6xl mx-auto p-4 sm:p-6">
+          <div className="bg-[#1B3C53] rounded-md p-8 mb-6 text-white">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
+              <div className="w-24 h-24 rounded-full bg-white/20 text-white flex items-center justify-center text-3xl font-bold border-4 border-white/30">
                 {getInitials()}
               </div>
-            )}
-            
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#1B3C53] text-white rounded-full flex items-center justify-center hover:bg-[#456882] transition-colors duration-200"
-            >
-              <Camera className="w-4 h-4" />
-            </button>
-            
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleProfilePictureUpload}
-              className="hidden"
+
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold mb-2">
+                  {userData.firstName} {userData.lastName}
+                </h1>
+                <p className="text-white/80 text-lg mb-3">{userData.email}</p>
+                <p className="text-white/70">
+                  Member since{" "}
+                  {new Date(userData.joinedDate).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                  })}
+                </p>
+              </div>
+
+              <div className="flex flex-col items-center gap-3">
+                <CircularProgress percentage={profileCompletion} />
+                <div className="text-center">
+                  <p className="text-sm text-white/80">Profile Complete</p>
+                  {profileCompletion === 100 && (
+                    <div className="flex items-center gap-1 text-green-300">
+                      <CheckCircle className="w-4 h-4" />
+                      <span className="text-xs">All done!</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-all duration-200 font-medium border border-white/30"
+                >
+                  <Edit2 className="w-4 h-4" />
+                  Edit Profile
+                </button>
+                <button
+                  onClick={() => setIsChangingPassword(true)}
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#1B3C53] rounded-lg hover:bg-white/90 transition-all duration-200 font-medium"
+                >
+                  <Lock className="w-4 h-4" />
+                  Change Password
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-2 bg-white rounded-md border border-[#CBDCEB] p-8 shadow-sm">
+              <h2 className="text-2xl font-bold text-[#1B3C53] mb-8 flex items-center gap-3">
+                <User className="w-6 h-6" />
+                Personal Information
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-[#456882] mb-3">
+                    First Name <span className="text-red-500">*</span>
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editData.firstName || ""}
+                      onChange={(e) =>
+                        setEditData((prev) => ({
+                          ...prev,
+                          firstName: e.target.value,
+                        }))
+                      }
+                      className="w-full px-4 py-3 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent transition-all duration-200"
+                      placeholder="Enter your first name"
+                    />
+                  ) : (
+                    <p className="text-[#1B3C53] font-medium text-lg bg-gray-50 p-3 rounded-lg">
+                      {userData.firstName}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#456882] mb-3">
+                    Last Name <span className="text-red-500">*</span>
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editData.lastName || ""}
+                      onChange={(e) =>
+                        setEditData((prev) => ({
+                          ...prev,
+                          lastName: e.target.value,
+                        }))
+                      }
+                      className="w-full px-4 py-3 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent transition-all duration-200"
+                      placeholder="Enter your last name"
+                    />
+                  ) : (
+                    <p className="text-[#1B3C53] font-medium text-lg bg-gray-50 p-3 rounded-lg">
+                      {userData.lastName}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-[#456882] mb-3 flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+
+                  <p className="text-[#1B3C53] font-medium text-lg bg-gray-50 p-3 rounded-lg">
+                    {userData.email}
+                  </p>
+                </div>
+
+                <div>
+                  <label className=" text-sm font-semibold text-[#456882] mb-3 flex items-center gap-2">
+                    <Phone className="w-4 h-4" />
+                    Phone number <span className="text-red-500">*</span>
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={editData.phoneNumber || ""}
+                      onChange={(e) =>
+                        setEditData((prev) => ({
+                          ...prev,
+                          phoneNumber: e.target.value,
+                        }))
+                      }
+                      placeholder="+234 xxx xxx xxxx"
+                      className="w-full px-4 py-3 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent transition-all duration-200"
+                    />
+                  ) : (
+                    <p className="text-[#1B3C53] font-medium text-lg bg-gray-50 p-3 rounded-lg">
+                      {userData.phoneNumber}
+                    </p>
+                  )}
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className=" text-sm font-semibold text-[#456882] mb-3 flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Address 1{" "}
+                    <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editData.address1 || ""}
+                      onChange={(e) =>
+                        setEditData((prev) => ({
+                          ...prev,
+                          address1: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter your primary address"
+                      className="w-full px-4 py-3 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent transition-all duration-200"
+                    />
+                  ) : (
+                    <p className="text-[#1B3C53] font-medium text-lg bg-gray-50 p-3 rounded-lg">
+                      {userData.address1 || "Not provided"}
+                    </p>
+                  )}
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className=" text-sm font-semibold text-[#456882] mb-3 flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Address 2{" "}
+                    <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editData.address2 || ""}
+                      onChange={(e) =>
+                        setEditData((prev) => ({
+                          ...prev,
+                          address2: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter your secondary address"
+                      className="w-full px-4 py-3 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent transition-all duration-200"
+                    />
+                  ) : (
+                    <p className="text-[#1B3C53] font-medium text-lg bg-gray-50 p-3 rounded-lg">
+                      {userData.address2 || "Not provided"}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {isEditing && (
+                <div className="flex gap-4 mt-8 pt-8 border-t border-[#CBDCEB]">
+                  <button
+                    onClick={handleEditSave}
+                    className="flex items-center gap-2 px-6 py-3 bg-[#1B3C53] text-white rounded-lg hover:bg-[#456882] transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={handleEditCancel}
+                    className="flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium"
+                  >
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-6">
+              <div className="bg-white rounded-xl border border-[#CBDCEB] p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-[#1B3C53] mb-6 flex items-center gap-2">
+                  <Globe className="w-5 h-5" />
+                  Preferences
+                </h2>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-[#456882] mb-3">
+                      Language
+                    </label>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-[#1B3C53] font-medium">English</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Default language
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl border border-[#CBDCEB] p-6 shadow-sm">
+                <h2 className="text-xl font-bold text-[#1B3C53] mb-6">
+                  Account Actions
+                </h2>
+
+                <div className="space-y-3">
+                  <button
+                    onClick={onLogout}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#456882] text-white rounded-lg hover:bg-[#1B3C53] transition-all duration-200 font-medium"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Logout
+                  </button>
+
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 font-medium"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                    Delete Account
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {isChangingPassword && (
+            <ChangePasswordModal
+              isOpen={isChangingPassword}
+              onClose={() => setIsChangingPassword(false)}
+              onSubmit={(data) => {
+                console.log("Password change request:", data);
+                // call API here...
+              }}
             />
-          </div>
+          )}
 
-          {/* User Info */}
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-[#1B3C53] mb-1">
-              {userData.firstName} {userData.lastName}
-            </h1>
-            <p className="text-[#456882] mb-2">{userData.email}</p>
-            <p className="text-sm text-[#456882]/70">
-              Member since {new Date(userData.joinedDate).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long'
-              })}
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#1B3C53] text-white rounded-lg hover:bg-[#456882] transition-colors duration-200 font-medium"
-            >
-              <Edit2 className="w-4 h-4" />
-              Edit Profile
-            </button>
-            <button
-              onClick={() => setIsChangingPassword(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#CBDCEB] text-[#1B3C53] rounded-lg hover:bg-[#456882] hover:text-white transition-colors duration-200 font-medium"
-            >
-              <Lock className="w-4 h-4" />
-              Change Password
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Account Information */}
-        <div className="bg-white rounded-lg border border-[#CBDCEB] p-6">
-          <h2 className="text-xl font-bold text-[#1B3C53] mb-6 flex items-center gap-2">
-            <User className="w-5 h-5" />
-            Account Information
-          </h2>
-
-          <div className="space-y-4">
-            {/* First Name */}
-            <div>
-              <label className="block text-sm font-medium text-[#456882] mb-2">First Name</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editData.firstName || ''}
-                  onChange={(e) => setEditData(prev => ({ ...prev, firstName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                />
-              ) : (
-                <p className="text-[#1B3C53] font-medium">{userData.firstName}</p>
-              )}
-            </div>
-
-            {/* Last Name */}
-            <div>
-              <label className="block text-sm font-medium text-[#456882] mb-2">Last Name</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editData.lastName || ''}
-                  onChange={(e) => setEditData(prev => ({ ...prev, lastName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                />
-              ) : (
-                <p className="text-[#1B3C53] font-medium">{userData.lastName}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-[#456882] mb-2 flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                Email Address
-              </label>
-              {isEditing ? (
-                <input
-                  type="email"
-                  value={editData.email || ''}
-                  onChange={(e) => setEditData(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-3 py-2 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                />
-              ) : (
-                <p className="text-[#1B3C53] font-medium">{userData.email}</p>
-              )}
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-[#456882] mb-2 flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                Phone Number (Optional)
-              </label>
-              {isEditing ? (
-                <input
-                  type="tel"
-                  value={editData.phone || ''}
-                  onChange={(e) => setEditData(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="+234 xxx xxx xxxx"
-                  className="w-full px-3 py-2 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                />
-              ) : (
-                <p className="text-[#1B3C53] font-medium">{userData.phone || 'Not provided'}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Edit Actions */}
-          {isEditing && (
-            <div className="flex gap-3 mt-6 pt-6 border-t border-[#CBDCEB]">
-              <button
-                onClick={handleEditSave}
-                className="flex items-center gap-2 px-4 py-2 bg-[#1B3C53] text-white rounded-lg hover:bg-[#456882] transition-colors duration-200 font-medium"
-              >
-                <Save className="w-4 h-4" />
-                Save Changes
-              </button>
-              <button
-                onClick={handleEditCancel}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
-              >
-                <X className="w-4 h-4" />
-                Cancel
-              </button>
-            </div>
+          {showDeleteConfirm && (
+            <ConfirmModal
+              title="Delete Account"
+              message="Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed."
+              confirmText="Yes, Delete Account"
+              cancelText="Cancel"
+              confirmColor="red"
+              onConfirm={handleDeleteAccount}
+              onCancel={() => setShowDeleteConfirm(false)}
+            />
           )}
         </div>
-
-        {/* Preferences */}
-        <div className="bg-white rounded-lg border border-[#CBDCEB] p-6">
-          <h2 className="text-xl font-bold text-[#1B3C53] mb-6 flex items-center gap-2">
-            <Globe className="w-5 h-5" />
-            Preferences
-          </h2>
-
-          <div className="space-y-4">
-            {/* Default Location */}
-            <div>
-              <label className="block text-sm font-medium text-[#456882] mb-2 flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Default Location
-              </label>
-              {isEditing ? (
-                <select
-                  value={`${editData.defaultLocation?.city}, ${editData.defaultLocation?.state}`}
-                  onChange={(e) => {
-                    const [city, state] = e.target.value.split(', ');
-                    setEditData(prev => ({ 
-                      ...prev, 
-                      defaultLocation: { city, state }
-                    }));
-                  }}
-                  className="w-full px-3 py-2 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                >
-                  {nigerianStates.map(state => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <p className="text-[#1B3C53] font-medium">
-                  {userData.defaultLocation.city}, {userData.defaultLocation.state}
-                </p>
-              )}
-            </div>
-
-            {/* Currency */}
-            <div>
-              <label className="block text-sm font-medium text-[#456882] mb-2 flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Preferred Currency
-              </label>
-              {isEditing ? (
-                <select
-                  value={editData.currency || ''}
-                  onChange={(e) => setEditData(prev => ({ ...prev, currency: e.target.value }))}
-                  className="w-full px-3 py-2 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                >
-                  {currencies.map(currency => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.symbol} {currency.name} ({currency.code})
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <p className="text-[#1B3C53] font-medium">
-                  {currencies.find(c => c.code === userData.currency)?.name} ({userData.currency})
-                </p>
-              )}
-            </div>
-
-            {/* Language */}
-            <div>
-              <label className="block text-sm font-medium text-[#456882] mb-2">Language</label>
-              {isEditing ? (
-                <select
-                  value={editData.language || ''}
-                  onChange={(e) => setEditData(prev => ({ ...prev, language: e.target.value }))}
-                  className="w-full px-3 py-2 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                >
-                  {languages.map(language => (
-                    <option key={language.code} value={language.code}>
-                      {language.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <p className="text-[#1B3C53] font-medium">
-                  {languages.find(l => l.code === userData.language)?.name}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Account Actions */}
-      <div className="bg-white rounded-lg border border-[#CBDCEB] p-6 mt-6">
-        <h2 className="text-xl font-bold text-[#1B3C53] mb-6">Account Actions</h2>
-        
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={onLogout}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-[#456882] text-white rounded-lg hover:bg-[#1B3C53] transition-colors duration-200 font-medium"
-          >
-            <LogOut className="w-5 h-5" />
-            Logout
-          </button>
-          
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium"
-          >
-            <Trash2 className="w-5 h-5" />
-            Delete Account
-          </button>
-        </div>
-      </div>
-
-      {/* Change Password Modal */}
-      {isChangingPassword && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold text-[#1B3C53] mb-4">Change Password</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[#456882] mb-2">Current Password</label>
-                <div className="relative">
-                  <input
-                    type={showPasswords.current ? "text" : "password"}
-                    value={passwordData.current}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, current: e.target.value }))}
-                    className="w-full px-3 py-2 pr-10 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => togglePasswordVisibility('current')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#456882]"
-                  >
-                    {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-[#456882] mb-2">New Password</label>
-                <div className="relative">
-                  <input
-                    type={showPasswords.new ? "text" : "password"}
-                    value={passwordData.new}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, new: e.target.value }))}
-                    className="w-full px-3 py-2 pr-10 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => togglePasswordVisibility('new')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#456882]"
-                  >
-                    {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-[#456882] mb-2">Confirm New Password</label>
-                <div className="relative">
-                  <input
-                    type={showPasswords.confirm ? "text" : "password"}
-                    value={passwordData.confirm}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirm: e.target.value }))}
-                    className="w-full px-3 py-2 pr-10 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => togglePasswordVisibility('confirm')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#456882]"
-                  >
-                    {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={handlePasswordChange}
-                className="flex-1 bg-[#1B3C53] text-white py-2 px-4 rounded-lg hover:bg-[#456882] transition-colors duration-200 font-medium"
-              >
-                Update Password
-              </button>
-              <button
-                onClick={() => {
-                  setIsChangingPassword(false);
-                  setPasswordData({ current: '', new: '', confirm: '' });
-                }}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
       )}
-
-      {/* Delete Account Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold text-red-600 mb-4">Delete Account</h3>
-            <p className="text-[#456882] mb-6">
-              Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.
-            </p>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={handleDeleteAccount}
-                className="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium"
-              >
-                Yes, Delete Account
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </>
   );
 };

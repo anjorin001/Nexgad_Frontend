@@ -1,16 +1,14 @@
-import React from "react";
-
 type LoaderProps = {
-  size?: number; 
-  thickness?: number; 
+  size?: number;
+  thickness?: number;
   color?: string;
   label?: string | null;
   className?: string;
-  fullScreen?: boolean; 
-  inline?: boolean; 
+  fullScreen?: boolean;
+  inline?: boolean;
 };
 
-const DEFAULT_COLOR = "#1B3C53"; 
+const DEFAULT_COLOR = "#1B3C53";
 
 export default function Loader({
   size = 32,
@@ -25,11 +23,17 @@ export default function Loader({
     <div
       role="status"
       aria-live="polite"
-      className={`flex items-center justify-center ${fullScreen ? "min-h-screen" : ""} ${inline ? "" : ""} ${className}`}
+      className={`flex items-center justify-center 
+    ${
+      fullScreen
+        ? "fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+        : ""
+    } 
+    ${inline ? "" : ""} 
+    ${className}`}
     >
-      {label !== null && <span className="sr-only">{label}</span>}
+      {label !== null && <span className="sr-only text-[#0000]">{label}</span>}
 
-    
       <svg
         className="animate-spin"
         width={size}
