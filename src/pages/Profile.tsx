@@ -6,7 +6,7 @@ import { useToast } from "../utils/ToastNotification";
 import api from "../utils/api";
 
 const Profile = () => {
-  const { setIsAuthenticated } = useAppContext();
+  const { setIsAuthenticated, setIsChangingPasswordLoading } = useAppContext();
   const userRawData = JSON.parse(localStorage.getItem("nexgad_user"));
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
@@ -39,18 +39,17 @@ const Profile = () => {
         Object.entries(editedData).filter(([key, value]) => {
           const originalValue = originalData[key as keyof typeof originalData];
           const hasChanged = originalValue !== value;
-          
-        
-          const requiredFields = ['firstName', 'lastName', 'phoneNumber'];
+
+          const requiredFields = ["firstName", "lastName", "phoneNumber"];
           if (requiredFields.includes(key)) {
             return hasChanged && Boolean(value);
           }
-          
-          const optionalFields = ['address1', 'address2'];
+
+          const optionalFields = ["address1", "address2"];
           if (optionalFields.includes(key)) {
             return hasChanged;
           }
-          
+
           return hasChanged && Boolean(value);
         })
       );
@@ -68,9 +67,57 @@ const Profile = () => {
       toast.success("", "Profile updated successfully");
     } catch (err) {
       console.error(err);
-      toast.error("", "An error occurred while updating profile, try again later");
+      toast.error(
+        "",
+        "An error occurred while updating profile, try again later"
+      );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleUpdatePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ) => {
+    setIsChangingPasswordLoading(true);
+    try {
+      const request = await api.post("/auth/change-password", {
+        oldPassword: currentPassword,
+        newPassword: newPassword,
+      });
+      toast.success(
+        "Password Update",
+        "Your password has been updated successfully"
+      );
+    } catch (err: any) {
+      console.error(err);
+      toast.error(
+        "Password Update",
+        err.response?.data?.message || "An error occurred"
+      );
+    } finally {
+      setIsChangingPasswordLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsChangingPasswordLoading(true);
+    try {
+      const request = await api.delete("/auth/delete-account");
+      LogoutRequest();
+      toast.success(
+        "Account Deletion",
+        "Your account has been deleted successfully"
+      );
+    } catch (err: any) {
+      console.error(err);
+      toast.error(
+        "Account Deletion",
+        err.response?.data?.message || "An error occurred"
+      );
+    } finally {
+      setIsChangingPasswordLoading(false);
     }
   };
 
@@ -80,9 +127,9 @@ const Profile = () => {
       <UserProfile
         userData={userData}
         onUpdateProfile={hanldeUpdateUser}
-        onChangePassword={(current, newPass) => console.log("Change password")}
+        onChangePassword={handleUpdatePassword}
         onLogout={() => LogoutRequest(setIsAuthenticated)}
-        onDeleteAccount={() => console.log("Delete account")}
+        onDeleteAccount={handleDeleteAccount}
         isLoading={isLoading}
       />
     </div>

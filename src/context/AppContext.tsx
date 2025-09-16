@@ -45,8 +45,10 @@ interface AppContextType {
   searchTerm: string;
   searchParams: URLSearchParams;
   wishlistProductIds: string[];
+  isChangingPasswordLoading: boolean
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   setIsListingLikeLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsChangingPasswordLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setLinkCopied: React.Dispatch<React.SetStateAction<boolean>>;
   setIsLandingPageLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
@@ -75,7 +77,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     condition: "",
   });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isListingLikeLoading, setIsListingLikeLoading] = useState<boolean>(false);
+  const [isListingLikeLoading, setIsListingLikeLoading] =
+    useState<boolean>(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [sort, setSort] = useState<SortState>("newest");
   const [isLandingPageLoading, setIsLandingPageLoading] =
@@ -94,6 +97,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     condition: "",
   });
   const [wishlistProductIds, setWishlistProductIds] = useState<string[]>([]);
+  const [isChangingPasswordLoading, setIsChangingPasswordLoading] =
+    useState(false);
 
   return (
     <AppContext.Provider
@@ -125,7 +130,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         wishlistProductIds,
         setWishlistProductIds,
         isListingLikeLoading,
-        setIsListingLikeLoading
+        setIsListingLikeLoading,
+        isChangingPasswordLoading,
+        setIsChangingPasswordLoading
       }}
     >
       {children}

@@ -46,9 +46,10 @@ const Register = () => {
         title: "Registration",
         message: "Registration succesfull proceed to login page to login",
         action: {
-          label: "Login",
+          label: "Click here to login",
           onClick: () => navigate("/login"),
         },
+        duration: 0
       });
     } catch (err: any) {
       console.log(err);

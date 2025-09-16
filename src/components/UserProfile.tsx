@@ -50,19 +50,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
+  const [isDeleting, setIsDeleting] = useState(false);
   const toast = useToast();
 
   const [editData, setEditData] = useState<Partial<UserData>>(userData);
-  const [passwordData, setPasswordData] = useState({
-    current: "",
-    new: "",
-    confirm: "",
-  });
 
   const profileCompletion = useMemo(() => {
     const requiredFields = [
@@ -99,27 +90,36 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     setIsEditing(false);
   };
 
-  const handlePasswordChange = () => {
-    if (passwordData.new !== passwordData.confirm) {
-      alert("New passwords do not match");
+  const handlePasswordChange = (data: {
+    current: string;
+    new: string;
+    confirm: string;
+  }) => {
+    setIsChangingPassword(true);
+    if (data.new !== data.confirm) {
+      toast.error(
+        "Password Update",
+        "New passwords do not match confirm password"
+      );
       return;
     }
-    if (passwordData.new.length < 8) {
-      alert("Password must be at least 8 characters long");
+    if (data.new.length < 8) {
+      toast.error(
+        "Password Update",
+        "Password must be at least 8 characters long"
+      );
       return;
     }
     if (onChangePassword) {
-      onChangePassword(passwordData.current, passwordData.new);
+      onChangePassword(data.current, data.new);
     }
-    setPasswordData({ current: "", new: "", confirm: "" });
-    setIsChangingPassword(false);
   };
 
   const handleDeleteAccount = () => {
     if (onDeleteAccount) {
       onDeleteAccount();
     }
-    setShowDeleteConfirm(false);
+    setIsDeleting(true);
   };
 
   const getInitials = () => {
@@ -408,23 +408,28 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             <ChangePasswordModal
               isOpen={isChangingPassword}
               onClose={() => setIsChangingPassword(false)}
-              onSubmit={(data) => {
-                console.log("Password change request:", data);
-                // call API here...
-              }}
+              onSubmit={handlePasswordChange}
             />
           )}
 
           {showDeleteConfirm && (
-            <ConfirmModal
-              title="Delete Account"
-              message="Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed."
-              confirmText="Yes, Delete Account"
-              cancelText="Cancel"
-              confirmColor="red"
-              onConfirm={handleDeleteAccount}
-              onCancel={() => setShowDeleteConfirm(false)}
-            />
+            <>
+              {isDeleting ? (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                  <Loader />
+                </div>
+              ) : (
+                <ConfirmModal
+                  title="Delete Account"
+                  message="Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed."
+                  confirmText="Yes, Delete Account"
+                  cancelText="Cancel"
+                  confirmColor="red"
+                  onConfirm={handleDeleteAccount}
+                  onCancel={() => setShowDeleteConfirm(false)}
+                />
+              )}
+            </>
           )}
         </div>
       )}
