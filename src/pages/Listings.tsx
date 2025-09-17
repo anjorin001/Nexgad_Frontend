@@ -9,9 +9,9 @@ import MobileFilterComponent, {
 } from "../components/MobileViewSidebar";
 import SearchBar from "../components/SearcBar";
 import { useAppContext } from "../context/AppContext";
+import { AddToWishlistRequest } from "../utils/AddToWishlistRequest";
 import api from "../utils/api";
 import { useToast } from "../utils/ToastNotification";
-import { AddToWishlistRequest } from "../utils/AddToWishlistRequest";
 
 const Listings = () => {
   const {
@@ -41,7 +41,7 @@ const Listings = () => {
     setFilters(filters);
   };
 
-    const { handleLikeListing } = AddToWishlistRequest();
+  const { handleLikeListing } = AddToWishlistRequest();
 
   const handleSortChange = (sortOption: string) => {
     setSort(sortOption as any);
@@ -51,7 +51,7 @@ const Listings = () => {
 
   const handleGetListings = useCallback(
     async (pageArg = page) => {
-      setIsLoading(true)
+      setIsLoading(true);
       if (isAuthenticated) {
         try {
           const queryParams: Record<string, any> = {
@@ -110,6 +110,7 @@ const Listings = () => {
         } catch (err) {
           console.error(err);
           toast.error("", "An error occurred, try again later");
+          window.dispatchEvent(new CustomEvent("network-error"));
         } finally {
           setIsLoading(false);
         }
@@ -227,6 +228,7 @@ const Listings = () => {
           onApplyFilters={handleApplyFilters}
           resetFilters={handleResetFilter}
         />
+        
         <div className="flex-1">
           <MobileFilterComponent
             filters={filters}
@@ -236,6 +238,7 @@ const Listings = () => {
             currentSort={sort}
           />
           <SearchBar onSearch={handleGetListings} />
+
           <AllListings
             onListingLike={handleLikeListing}
             isLoading={isLoading}

@@ -49,7 +49,7 @@ const Register = () => {
           label: "Click here to login",
           onClick: () => navigate("/login"),
         },
-        duration: 0
+        duration: 0,
       });
     } catch (err: any) {
       console.log(err);
@@ -61,6 +61,7 @@ const Register = () => {
           "Registeration Error",
           "something went wrong, try again later"
         );
+        window.dispatchEvent(new CustomEvent("network-error"));
       }
     } finally {
       setIsLoading(false);

@@ -5,7 +5,6 @@ import NexgadLoader from "./components/nexgad-loader";
 import { AppProvider } from "./context/AppContext";
 import useAuthCheck from "./hooks/useAuthCheck";
 import UserLayout from "./layout/UserLayout";
-import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import GadgetRequest from "./pages/GadgetRequest";
 import Home from "./pages/Home";
@@ -20,6 +19,7 @@ import Support from "./pages/Support";
 import Wishlist from "./pages/Wishlist";
 import { ToastDemo, ToastProvider } from "./utils/ToastNotification";
 import ScrollToTop from "./helper/ScrollToTop";
+import Cart from "./pages/Cart";
 
 let hasVisited = false;
 const AppContent = () => {

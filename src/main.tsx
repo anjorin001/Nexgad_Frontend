@@ -1,21 +1,13 @@
-// TODO clear this nigga
-localStorage.setItem(
-  "auth",
-  JSON.stringify({
-    firstName: "Anjiorin",
-    lastName: "Favour",
-    email: "user@example.com",
-    profilePicture: "https://example.com/profile.jpg",
-  })
-);
-
-import { createRoot } from 'react-dom/client'
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import './index.css'
-import App from './App.tsx'
+import App from "./App.tsx";
+import NetworkErrorBoundary from "./components/NetworkBoundary.tsx";
+import "./index.css";
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-    <App />
-  </BrowserRouter>,
-)
+    <NetworkErrorBoundary>
+      <App />
+    </NetworkErrorBoundary>
+  </BrowserRouter>
+);

@@ -3,13 +3,15 @@ import { useState } from "react";
 import { FaBars, FaRegCommentDots, FaShoppingCart } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 import { LogoutRequest } from "../utils/LogoutLogic";
 import UserProfileDropdown from "./UserProfileDropdown";
-import { useAppContext } from "../context/AppContext";
 
-const Navbar = ({ cartItemCount = 0 }) => {
+const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { setIsAuthenticated, isAuthenticated } = useAppContext();
+  const { setIsAuthenticated, isAuthenticated, cart } = useAppContext();
+
+  const cartItemCount = cart?.items?.length || 0;
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

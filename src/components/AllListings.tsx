@@ -4,11 +4,12 @@ import { FaHeart, FaShare } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { useShareProduct } from "../hooks/useShareProduct";
+import { AddToCartRequest } from "../utils/AddToCartRequest";
 import { slugifyProduct } from "../utils/Slugify";
 import Loader from "./nexgadMidPageLoader";
 import NotFoundListings from "./NotFoundProduct";
 
-interface LatestListingsProps {
+interface AllListingsProps {
   onViewAll?: () => void;
   onListingClick?: (listingId: string) => void;
   onAddToCart?: (listingId: string) => void;
@@ -20,7 +21,7 @@ interface LatestListingsProps {
   onListingLike: (listingId: string, currentlyLiked: boolean) => void;
 }
 
-const AllListings: React.FC<LatestListingsProps> = ({
+const AllListings: React.FC<AllListingsProps> = ({
   onListingClick,
   onAddToCart,
   isLoading,
@@ -32,7 +33,10 @@ const AllListings: React.FC<LatestListingsProps> = ({
 }) => {
   const navigate = useNavigate();
   const { handleShare } = useShareProduct();
-  const { sort, Listings, isListingLikeLoading } = useAppContext();
+  const { handleAddToCart } = AddToCartRequest();
+  const { sort, Listings, isListingLikeLoading, cart, isAddToCartLoading } =
+    useAppContext();
+
   const formatPrice = (price: number) => {
     return price.toLocaleString("en-NG", {
       style: "currency",
@@ -62,16 +66,6 @@ const AllListings: React.FC<LatestListingsProps> = ({
       navigate(productUrl);
     }
     console.log(productUrl);
-  };
-
-  const handleAddToCart = (e: React.MouseEvent, listingId: string) => {
-    e.stopPropagation();
-    // Add your cart logic here
-    console.log("Adding to cart:", listingId);
-    // Call the prop function if provided
-    if (onAddToCart) {
-      onAddToCart(listingId);
-    }
   };
 
   return (
@@ -124,12 +118,15 @@ const AllListings: React.FC<LatestListingsProps> = ({
             {Listings.map((listing) => (
               <div
                 key={listing._id}
-                onClick={() => handleListingClick(listing.title, listing.id)}
+                onClick={() =>
+                  handleListingClick(listing.title, listing.productId)
+                }
                 className="bg-white rounded-2xl border border-[#CBDCEB] hover:border-[#456882]/30 transition-all duration-300 hover:shadow-xl cursor-pointer group overflow-hidden"
               >
                 {/* Image Container */}
                 <div className="relative overflow-hidden">
                   <img
+                    id={listing.images[0].id}
                     src={listing.images[0].url}
                     alt={listing.images[0].alt}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
@@ -179,13 +176,53 @@ const AllListings: React.FC<LatestListingsProps> = ({
 
                   {/* Quick Add to Cart - appears on hover */}
                   <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button
-                      onClick={(e) => handleAddToCart(e, listing.id)}
-                      className="w-full bg-[#1B3C53] hover:bg-[#456882] text-white py-2 px-4 rounded-lg transition-all duration-200 font-medium text-sm flex items-center justify-center space-x-2"
-                    >
-                      <FaShoppingCart className="text-sm" />
-                      <span>Quick Add</span>
-                    </button>
+                    {cart?.items?.find((p) => p.product._id === listing._id) ? (
+                      <div className="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-medium text-sm flex items-center justify-center space-x-2">
+                        <FaShoppingCart className="text-sm" />
+                        <span>In Cart</span>
+                      </div>
+                    ) : (
+                      <button
+                        disabled={isAddToCartLoading.includes(listing._id)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAddToCart([listing._id]);
+                        }}
+                        className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] disabled:bg-[#456882]/70 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 font-medium text-xs sm:text-sm min-w-[100px] sm:min-w-[120px]"
+                      >
+                        {isAddToCartLoading.includes(listing._id) ? (
+                          <>
+                            <svg
+                              className="animate-spin h-4 w-4 text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              />
+                            </svg>
+                            <span>Adding...</span>
+                          </>
+                        ) : (
+                          <>
+                            <FaShoppingCart className="text-xs" />
+                            <span>Quick Add</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -215,13 +252,45 @@ const AllListings: React.FC<LatestListingsProps> = ({
                       {formatPrice(listing.price)}
                     </div>
 
-                    {/* Main Add to Cart Button */}
                     <button
-                      onClick={(e) => handleAddToCart(e, listing.id)}
-                      className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm w-full"
+                      disabled={isAddToCartLoading.includes(listing._id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddToCart([listing._id]);
+                      }}
+                      className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] disabled:bg-[#456882]/70 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 font-medium text-xs sm:text-sm min-w-[100px] sm:min-w-[120px]"
                     >
-                      <FaShoppingCart className="text-xs" />
-                      <span>Add to Cart</span>
+                      {isAddToCartLoading.includes(listing._id) ? (
+                        <>
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          <span>Adding...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FaShoppingCart className="text-xs" />
+                          <span>Add to Cart</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

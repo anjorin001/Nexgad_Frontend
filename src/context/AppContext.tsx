@@ -5,30 +5,12 @@ import React, {
   type ReactNode,
 } from "react";
 import { useSearchParams, type URLSearchParamsInit } from "react-router-dom";
-interface FilterState {
-  category: string;
-  priceRange: {
-    min: string;
-    max: string;
-  };
-  location: string;
-  condition: string;
-}
-interface UserData {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  address1: string;
-  address2: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-export type SortState = "newest" | "oldest" | "price-low" | "price-high";
+import type {
+  CartData,
+  FilterState,
+  SortState,
+  UserData,
+} from "./AppContextInterface";
 
 interface AppContextType {
   linkCopied: boolean;
@@ -36,26 +18,30 @@ interface AppContextType {
   filters: FilterState;
   sort: SortState;
   isAuthenticated: boolean;
+  isAddToCartLoading: string[];
   isLandingPageLoading: boolean;
   userData: UserData | null;
   latestListings: any[];
   Listings: any[];
   categoryData: any[];
+  cart: CartData | null;
   appliedFilter: FilterState;
   searchTerm: string;
   searchParams: URLSearchParams;
   wishlistProductIds: string[];
-  isChangingPasswordLoading: boolean
+  isChangingPasswordLoading: boolean;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   setIsListingLikeLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsChangingPasswordLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setLinkCopied: React.Dispatch<React.SetStateAction<boolean>>;
   setIsLandingPageLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsAddToCartLoading: React.Dispatch<React.SetStateAction<string[]>>;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
   setAppliedFilter: React.Dispatch<React.SetStateAction<FilterState>>;
   setSort: React.Dispatch<React.SetStateAction<SortState>>;
   setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
   setLatestListings: React.Dispatch<React.SetStateAction<any[]>>;
+  setCart: React.Dispatch<React.SetStateAction<CartData | null>>;
   setListings: React.Dispatch<React.SetStateAction<any[]>>;
   setCategoryData: React.Dispatch<React.SetStateAction<any[]>>;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
@@ -79,6 +65,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isListingLikeLoading, setIsListingLikeLoading] =
     useState<boolean>(false);
+  const [isAddToCartLoading, setIsAddToCartLoading] = useState<string[]>([]);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [sort, setSort] = useState<SortState>("newest");
   const [isLandingPageLoading, setIsLandingPageLoading] =
@@ -99,10 +86,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [wishlistProductIds, setWishlistProductIds] = useState<string[]>([]);
   const [isChangingPasswordLoading, setIsChangingPasswordLoading] =
     useState(false);
+  const [cart, setCart] = useState<CartData | null>(null);
 
   return (
     <AppContext.Provider
       value={{
+        cart,
+        setCart,
         linkCopied,
         setLinkCopied,
         setFilters,
@@ -132,7 +122,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         isListingLikeLoading,
         setIsListingLikeLoading,
         isChangingPasswordLoading,
-        setIsChangingPasswordLoading
+        setIsChangingPasswordLoading,
+        isAddToCartLoading,
+        setIsAddToCartLoading,
       }}
     >
       {children}

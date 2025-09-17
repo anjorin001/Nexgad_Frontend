@@ -14,9 +14,17 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.log("err",error)
     if (error.response?.status === 401) {
       LogoutRequest();
       window.location.href = "/login";
+    }
+    if (
+      error.code === "ERR_NETWORK" ||
+      error.code === "ECONNABORTED" ||
+      error.message.includes("Network Error")
+    ) {
+      window.dispatchEvent(new CustomEvent("network-error"));
     }
     return Promise.reject(error);
   }

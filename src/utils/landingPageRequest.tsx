@@ -1,6 +1,5 @@
 import { useAppContext } from "../context/AppContext";
 import api from "./api";
-import { getRequest } from "./getDataRequest";
 import { useToast } from "./ToastNotification";
 
 export const useLandingPageRequest = () => {
@@ -8,10 +7,10 @@ export const useLandingPageRequest = () => {
     setIsLandingPageLoading,
     setListings,
     setCategoryData,
-    wishlistProductIds,
     setWishlistProductIds,
     setIsAuthenticated,
-    setUserData
+    setUserData,
+    setCart,
   } = useAppContext();
 
   const toast = useToast();
@@ -22,22 +21,25 @@ const handleFetchAll = async () => {
     const token = localStorage.getItem("nexgad_token");
 
     if (token) {
-      const [userRes, wishlistRes, productRes, categoryRes] = await Promise.all([
+      const [userRes, wishlistRes, productRes, categoryRes, cartRes] = await Promise.all([
         api.get("/user"),
         api.get("/wishlist/ids"),
         api.get("/product?page=1&limit=12"),
         api.get("/product/categories"),
+        api.get("/cart")
       ]);
 
       const userData = userRes.data.data;
       const wishlistIds: string[] = wishlistRes.data.data.products ?? [];
       const products = productRes.data.data.products;
       const categories = categoryRes.data.data;
+      const cart = cartRes.data.data
 
      
       localStorage.setItem("nexgad_user", JSON.stringify(userData));
       setWishlistProductIds(wishlistIds);
       setUserData(userData);
+      setCart(cart)
       setIsAuthenticated(true);
 
       setListings(
@@ -56,6 +58,7 @@ const handleFetchAll = async () => {
   } catch (err) {
     console.error(err);
     toast.error("", "An error occurred, try again later");
+     window.dispatchEvent(new CustomEvent('network-error'));
   } finally {
     setIsLandingPageLoading(false);
   }

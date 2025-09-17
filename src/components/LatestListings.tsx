@@ -1,15 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FaMapMarkerAlt, FaRegHeart, FaShoppingCart } from "react-icons/fa";
 import { FaHeart, FaShare } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { useShareProduct } from "../hooks/useShareProduct";
+import { AddToCartRequest } from "../utils/AddToCartRequest";
 import { slugifyProduct } from "../utils/Slugify";
 
 interface LatestListingsProps {
   onViewAll?: () => void;
   onListingClick?: (listingId: string) => void;
-  onAddToCart?: (listingId: string) => void;
   onListingLike: (listingId: string, currentlyLiked: boolean) => void;
   isListingLikeLoading: boolean;
 }
@@ -17,18 +17,13 @@ interface LatestListingsProps {
 const LatestListings: React.FC<LatestListingsProps> = ({
   onViewAll,
   onListingClick,
-  onAddToCart,
   onListingLike,
   isListingLikeLoading,
 }) => {
   const navigate = useNavigate();
   const { handleShare } = useShareProduct();
-  const { Listings, wishlistProductIds } = useAppContext();
-
-  // useEffect(() => {
-  //   console.log("listi", latestListings);
-  //   console.log("wishlist", wishlistProductIds);
-  // }, []);
+  const { handleAddToCart } = AddToCartRequest();
+  const { Listings, cart, isAddToCartLoading } = useAppContext();
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("en-NG", {
@@ -46,16 +41,6 @@ const LatestListings: React.FC<LatestListingsProps> = ({
     }
     if (listingId) {
       navigate(productUrl);
-    }
-  };
-
-  const handleAddToCart = (e: React.MouseEvent, listingId: string) => {
-    e.stopPropagation();
-    // Add your cart logic here
-    console.log("Adding to cart:", listingId);
-    // Call the prop function if provided
-    if (onAddToCart) {
-      onAddToCart(listingId);
     }
   };
 
@@ -146,13 +131,54 @@ const LatestListings: React.FC<LatestListingsProps> = ({
 
                 {/* Quick Add to Cart - appears on hover */}
                 <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button
-                    onClick={(e) => handleAddToCart(e, listing.id)}
-                    className="w-full bg-[#1B3C53] hover:bg-[#456882] text-white py-2 px-4 rounded-lg transition-all duration-200 font-medium text-sm flex items-center justify-center space-x-2"
-                  >
-                    <FaShoppingCart className="text-sm" />
-                    <span>Quick Add</span>
-                  </button>
+                  {cart?.items?.find((p) => p.product._id === listing._id) ? (
+                    <div className="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-medium text-sm flex items-center justify-center space-x-2">
+                      <FaShoppingCart className="text-sm" />
+                      <span>In Cart</span>
+                    </div>
+                  ) : (
+                    <button
+                      disabled={isAddToCartLoading.includes(listing._id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddToCart([listing._id]);
+                      }}
+                      className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] disabled:bg-[#456882]/70 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 font-medium text-xs sm:text-sm min-w-[100px] sm:min-w-[120px]"
+                    >
+                      {isAddToCartLoading.includes(listing._id) ? (
+                        <>
+                          
+                          <svg
+                            className="animate-spin h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          <span>Adding...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FaShoppingCart className="text-xs" />
+                          <span>Quick Add</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -176,19 +202,50 @@ const LatestListings: React.FC<LatestListingsProps> = ({
                   <span className="truncate">{listing.location.city}</span>
                 </div>
 
-                {/* Price and Add to Cart Button */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="text-xl sm:text-2xl font-bold text-[#1B3C53]">
                     {formatPrice(listing.price)}
                   </div>
 
-                  {/* Main Add to Cart Button */}
                   <button
-                    onClick={(e) => handleAddToCart(e, listing.id)}
-                    className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 font-medium text-xs sm:text-sm min-w-[100px] sm:min-w-[120px]"
+                    disabled={isAddToCartLoading.includes(listing._id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleAddToCart([listing._id]);
+                    }}
+                    className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] disabled:bg-[#456882]/70 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 font-medium text-xs sm:text-sm min-w-[100px] sm:min-w-[120px]"
                   >
-                    <FaShoppingCart className="text-xs" />
-                    <span>Add to Cart</span>
+                    {isAddToCartLoading.includes(listing._id) ? (
+                      <>
+                        <svg
+                          className="animate-spin h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        <span>Adding...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaShoppingCart className="text-xs" />
+                        <span>Add to Cart</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

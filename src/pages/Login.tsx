@@ -54,6 +54,7 @@ const Login = () => {
           "Registeration Error",
           "something went wrong, try again later"
         );
+        window.dispatchEvent(new CustomEvent("network-error"));
       }
     } finally {
       setIsLoading(false);
