@@ -56,6 +56,13 @@ const Login = () => {
         );
         window.dispatchEvent(new CustomEvent("network-error"));
       }
+      if (
+        err.code === "ERR_NETWORK" ||
+        err.code === "ECONNABORTED" ||
+        err.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      }
     } finally {
       setIsLoading(false);
     }

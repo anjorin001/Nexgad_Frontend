@@ -3,9 +3,12 @@ import { Route, Routes } from "react-router-dom";
 import AdminRouter from "./admin/Admin";
 import NexgadLoader from "./components/nexgad-loader";
 import { AppProvider } from "./context/AppContext";
+import ScrollToTop from "./helper/ScrollToTop";
 import useAuthCheck from "./hooks/useAuthCheck";
 import UserLayout from "./layout/UserLayout";
+import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import ForgotPasswordFlow from "./pages/ForgetPassword";
 import GadgetRequest from "./pages/GadgetRequest";
 import Home from "./pages/Home";
 import Listings from "./pages/Listings";
@@ -18,8 +21,6 @@ import Register from "./pages/Register";
 import Support from "./pages/Support";
 import Wishlist from "./pages/Wishlist";
 import { ToastDemo, ToastProvider } from "./utils/ToastNotification";
-import ScrollToTop from "./helper/ScrollToTop";
-import Cart from "./pages/Cart";
 
 let hasVisited = false;
 const AppContent = () => {
@@ -50,6 +51,7 @@ const AppContent = () => {
       <Route element={<UserLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPasswordFlow />} />
         <Route path="/register" element={<Register />} />
         <Route path="/listings" element={<Listings />} />
         <Route path="/userprofile" element={<Profile />} />
@@ -71,7 +73,7 @@ const AppContent = () => {
 const App = () => {
   return (
     <ToastProvider>
-      <ScrollToTop/>
+      <ScrollToTop />
       <AppProvider>
         <AppContent />
       </AppProvider>

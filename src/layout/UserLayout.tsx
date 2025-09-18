@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 export default function UserLayout() {
   const location = useLocation();
 
-  const hideNavbarOn = ["/register", "/login"];
+  const hideNavbarOn = [];
 
   const shouldShowNav = hideNavbarOn.includes(location.pathname);
   return (

@@ -21,12 +21,20 @@ export const AddToCartRequest = () => {
         ids: listingIds,
       });
       toast.success("", "product added to cart");
-    } catch (err) {
-      console.error(err);
-      toast.error(
-        "",
-        "An error occurred while adding to cart, try again later"
-      );
+    } catch (err: any) {
+      console.error("Error sending reset token:", err);
+
+      if (err.response) {
+        toast.error(err.response.data.message || "Something went wrong");
+      } else if (
+        err.code === "ERR_NETWORK" ||
+        err.code === "ECONNABORTED" ||
+        err.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
     } finally {
       setIsAddToCartLoading([]);
     }

@@ -107,10 +107,20 @@ const Listings = () => {
                 ]
           );
           setHasMore(Boolean(pagination?.hasMore));
-        } catch (err) {
-          console.error(err);
-          toast.error("", "An error occurred, try again later");
-          window.dispatchEvent(new CustomEvent("network-error"));
+        } catch (err: any) {
+          console.error("Error sending reset token:", err);
+
+          if (err.response) {
+            toast.error(err.response.data.message || "Something went wrong");
+          } else if (
+            err.code === "ERR_NETWORK" ||
+            err.code === "ECONNABORTED" ||
+            err.message.includes("Network Error")
+          ) {
+            window.dispatchEvent(new CustomEvent("network-error"));
+          } else {
+            toast.error("Unexpected error occurred.");
+          }
         } finally {
           setIsLoading(false);
         }
@@ -154,9 +164,20 @@ const Listings = () => {
               : [...prev, ...products.map((p: any) => ({ ...p, liked: false }))]
           );
           setHasMore(Boolean(pagination?.hasMore));
-        } catch (err) {
-          console.error(err);
-          toast.error("", "An error occurred, try again later");
+        } catch (err: any) {
+          console.error("Error sending reset token:", err);
+
+          if (err.response) {
+            toast.error(err.response.data.message || "Something went wrong");
+          } else if (
+            err.code === "ERR_NETWORK" ||
+            err.code === "ECONNABORTED" ||
+            err.message.includes("Network Error")
+          ) {
+            window.dispatchEvent(new CustomEvent("network-error"));
+          } else {
+            toast.error("Unexpected error occurred.");
+          }
         } finally {
           setIsLoading(false);
         }
@@ -228,7 +249,7 @@ const Listings = () => {
           onApplyFilters={handleApplyFilters}
           resetFilters={handleResetFilter}
         />
-        
+
         <div className="flex-1">
           <MobileFilterComponent
             filters={filters}

@@ -61,6 +61,14 @@ const Register = () => {
           "Registeration Error",
           "something went wrong, try again later"
         );
+      }
+      console.error("Error sending reset token:", err);
+
+      if (
+        err.code === "ERR_NETWORK" ||
+        err.code === "ECONNABORTED" ||
+        err.message.includes("Network Error")
+      ) {
         window.dispatchEvent(new CustomEvent("network-error"));
       }
     } finally {

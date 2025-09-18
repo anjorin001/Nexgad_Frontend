@@ -65,12 +65,20 @@ const Profile = () => {
 
       localStorage.setItem("nexgad_user", JSON.stringify(response.data));
       toast.success("", "Profile updated successfully");
-    } catch (err) {
-      console.error(err);
-      toast.error(
-        "",
-        "An error occurred while updating profile, try again later"
-      );
+    } catch (err: any) {
+      console.error("Error sending reset token:", err);
+
+      if (err.response) {
+        toast.error(err.response.data.message || "Something went wrong");
+      } else if (
+        err.code === "ERR_NETWORK" ||
+        err.code === "ECONNABORTED" ||
+        err.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -91,11 +99,19 @@ const Profile = () => {
         "Your password has been updated successfully"
       );
     } catch (err: any) {
-      console.error(err);
-      toast.error(
-        "Password Update",
-        err.response?.data?.message || "An error occurred"
-      );
+      console.error("Error sending reset token:", err);
+
+      if (err.response) {
+        toast.error(err.response.data.message || "Something went wrong");
+      } else if (
+        err.code === "ERR_NETWORK" ||
+        err.code === "ECONNABORTED" ||
+        err.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
     } finally {
       setIsChangingPasswordLoading(false);
     }
@@ -111,11 +127,19 @@ const Profile = () => {
         "Your account has been deleted successfully"
       );
     } catch (err: any) {
-      console.error(err);
-      toast.error(
-        "Account Deletion",
-        err.response?.data?.message || "An error occurred"
-      );
+      console.error("Error sending reset token:", err);
+
+      if (err.response) {
+        toast.error(err.response.data.message || "Something went wrong");
+      } else if (
+        err.code === "ERR_NETWORK" ||
+        err.code === "ECONNABORTED" ||
+        err.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
     } finally {
       setIsChangingPasswordLoading(false);
     }

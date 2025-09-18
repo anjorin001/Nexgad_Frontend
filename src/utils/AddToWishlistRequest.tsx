@@ -30,12 +30,20 @@ export const AddToWishlistRequest = () => {
           prev.map((p) => (p._id === listingId ? { ...p, liked: false } : p))
         );
         toast.success("", "product removed from wishlist");
-      } catch (err) {
-        console.error(err);
-        toast.error(
-          "",
-          "An error occurred while removing from wishlist, try again later"
-        );
+      } catch (err: any) {
+        console.error("Error sending reset token:", err);
+
+        if (err.response) {
+          toast.error(err.response.data.message || "Something went wrong");
+        } else if (
+          err.code === "ERR_NETWORK" ||
+          err.code === "ECONNABORTED" ||
+          err.message.includes("Network Error")
+        ) {
+          window.dispatchEvent(new CustomEvent("network-error"));
+        } else {
+          toast.error("Unexpected error occurred.");
+        }
       } finally {
         setIsListingLikeLoading(false);
       }
@@ -47,12 +55,20 @@ export const AddToWishlistRequest = () => {
           prev.map((p) => (p._id === listingId ? { ...p, liked: true } : p))
         );
         toast.success("", "product added to wishlist");
-      } catch (err) {
-        console.error(err);
-        toast.error(
-          "",
-          "An error occurred while adding to wishlist, try again later"
-        );
+      } catch (err: any) {
+        console.error("Error sending reset token:", err);
+
+        if (err.response) {
+          toast.error(err.response.data.message || "Something went wrong");
+        } else if (
+          err.code === "ERR_NETWORK" ||
+          err.code === "ECONNABORTED" ||
+          err.message.includes("Network Error")
+        ) {
+          window.dispatchEvent(new CustomEvent("network-error"));
+        } else {
+          toast.error("Unexpected error occurred.");
+        }
       } finally {
         setIsListingLikeLoading(false);
       }

@@ -15,54 +15,67 @@ export const useLandingPageRequest = () => {
 
   const toast = useToast();
 
-const handleFetchAll = async () => {
-  setIsLandingPageLoading(true);
-  try {
-    const token = localStorage.getItem("nexgad_token");
+  const handleFetchAll = async () => {
+    setIsLandingPageLoading(true);
+    try {
+      const token = localStorage.getItem("nexgad_token");
 
-    if (token) {
-      const [userRes, wishlistRes, productRes, categoryRes, cartRes] = await Promise.all([
-        api.get("/user"),
-        api.get("/wishlist/ids"),
-        api.get("/product?page=1&limit=12"),
-        api.get("/product/categories"),
-        api.get("/cart")
-      ]);
+      if (token) {
+        const [userRes, wishlistRes, productRes, categoryRes, cartRes] =
+          await Promise.all([
+            api.get("/user"),
+            api.get("/wishlist/ids"),
+            api.get("/product?page=1&limit=12"),
+            api.get("/product/categories"),
+            api.get("/cart"),
+          ]);
 
-      const userData = userRes.data.data;
-      const wishlistIds: string[] = wishlistRes.data.data.products ?? [];
-      const products = productRes.data.data.products;
-      const categories = categoryRes.data.data;
-      const cart = cartRes.data.data
+        const userData = userRes.data.data;
+        const wishlistIds: string[] = wishlistRes.data.data.products ?? [];
+        const products = productRes.data.data.products;
+        const categories = categoryRes.data.data;
+        const cart = cartRes.data.data;
 
-     
-      localStorage.setItem("nexgad_user", JSON.stringify(userData));
-      setWishlistProductIds(wishlistIds);
-      setUserData(userData);
-      setCart(cart)
-      setIsAuthenticated(true);
+        localStorage.setItem("nexgad_user", JSON.stringify(userData));
+        setWishlistProductIds(wishlistIds);
+        setUserData(userData);
+        setCart(cart);
+        setIsAuthenticated(true);
 
-      setListings(
-        products.map((p: any) => ({ ...p, liked: wishlistIds.includes(p._id) }))
-      );
-      setCategoryData(categories);
-    } else {
-      const [productRes, categoryRes] = await Promise.all([
-        api.get("/product?page=1&limit=12"),
-        api.get("/product/categories"),
-      ]);
-      const products = productRes.data.data.products;
-      setListings(products.map((p: any) => ({ ...p, liked: false })));
-      setCategoryData(categoryRes.data.data);
+        setListings(
+          products.map((p: any) => ({
+            ...p,
+            liked: wishlistIds.includes(p._id),
+          }))
+        );
+        setCategoryData(categories);
+      } else {
+        const [productRes, categoryRes] = await Promise.all([
+          api.get("/product?page=1&limit=12"),
+          api.get("/product/categories"),
+        ]);
+        const products = productRes.data.data.products;
+        setListings(products.map((p: any) => ({ ...p, liked: false })));
+        setCategoryData(categoryRes.data.data);
+      }
+    } catch (err: any) {
+      console.error("Error sending reset token:", err);
+
+      if (err.response) {
+        toast.error(err.response.data.message || "Something went wrong");
+      } else if (
+        err.code === "ERR_NETWORK" ||
+        err.code === "ECONNABORTED" ||
+        err.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
+    } finally {
+      setIsLandingPageLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("", "An error occurred, try again later");
-     window.dispatchEvent(new CustomEvent('network-error'));
-  } finally {
-    setIsLandingPageLoading(false);
-  }
-};
+  };
 
   return { handleFetchAll };
 };

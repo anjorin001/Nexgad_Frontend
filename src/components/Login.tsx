@@ -87,7 +87,7 @@ const LoginCnt: React.FC<LoginProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#CBDCEB] to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#CBDCEB] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Main Card */}
         <div className="bg-white rounded-sm shadow-2xl p-8 border border-[#456882]/10">
