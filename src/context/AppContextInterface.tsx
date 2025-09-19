@@ -20,7 +20,6 @@ export interface DeliveryOptions {
   delivery: boolean;
 }
 
-
 export interface Product {
   _id: string;
   productId: string;
@@ -30,13 +29,23 @@ export interface Product {
   category: string;
   images: ProductImage[];
   originalPrice: number;
-  deliveryOptions: DeliveryOptions
+  deliveryOptions: DeliveryOptions;
 }
 
 export interface CartItem {
   product: Product;
   quantity: number;
   price: number;
+}
+
+export interface DeliveryAddress {
+  firstName: string;
+  lastName: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: number | null;
+  phone: string;
 }
 
 export interface CartData {

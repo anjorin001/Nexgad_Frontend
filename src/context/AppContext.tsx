@@ -5,8 +5,10 @@ import React, {
   type ReactNode,
 } from "react";
 import { useSearchParams, type URLSearchParamsInit } from "react-router-dom";
+import type { ICheckOut } from "../components/checkoutComponents/CheckoutInterface";
 import type {
   CartData,
+  DeliveryAddress,
   FilterState,
   SortState,
   UserData,
@@ -30,6 +32,8 @@ interface AppContextType {
   searchParams: URLSearchParams;
   wishlistProductIds: string[];
   isChangingPasswordLoading: boolean;
+  checkout: ICheckOut;
+  deliveryAddress: DeliveryAddress;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   setIsListingLikeLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsChangingPasswordLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -37,6 +41,8 @@ interface AppContextType {
   setIsLandingPageLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsAddToCartLoading: React.Dispatch<React.SetStateAction<string[]>>;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+  setDeliveryAddress: React.Dispatch<React.SetStateAction<DeliveryAddress>>;
+  setCheckout: React.Dispatch<React.SetStateAction<ICheckOut>>;
   setAppliedFilter: React.Dispatch<React.SetStateAction<FilterState>>;
   setSort: React.Dispatch<React.SetStateAction<SortState>>;
   setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
@@ -87,6 +93,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isChangingPasswordLoading, setIsChangingPasswordLoading] =
     useState(false);
   const [cart, setCart] = useState<CartData | null>(null);
+  const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddress>({
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: null,
+    phone: "",
+  });
+  const [checkout, setCheckout] = useState<ICheckOut | null>(null);
 
   return (
     <AppContext.Provider
@@ -125,6 +141,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setIsChangingPasswordLoading,
         isAddToCartLoading,
         setIsAddToCartLoading,
+        setDeliveryAddress,
+        deliveryAddress,
+        setCheckout,
+        checkout,
       }}
     >
       {children}
