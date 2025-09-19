@@ -11,7 +11,7 @@ import {
   Tag,
   Truck,
 } from "lucide-react";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import type { DeliveryAddress } from "../../context/AppContextInterface";
@@ -50,6 +50,14 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
 
     const { setDeliveryAddress, deliveryAddress } = useAppContext();
     const navigate = useNavigate();
+
+    useEffect(() => {
+      if (checkout) {
+        const deliveryOption =
+          checkout.deliveryFee === 950 ? "standard" : "express";
+        setSelectedDeliveryOption(deliveryOption);
+      }
+    }, []);
 
     // Memoize static delivery options
     const deliveryOptions = useMemo(
@@ -222,21 +230,22 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
     }
 
     return (
-      <div className="min-h-screen bg-[#ffff] py-8 px-4">
+      <div className="min-h-screen bg-white py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold text-[#1B3C53] mb-2">
+          <div className="mb-6 sm:mb-8 lg:mb-12 text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1B3C53] mb-2 sm:mb-4 tracking-tight">
               Secure Checkout
             </h1>
-            <p className="text-[#456882] text-lg">
+            <p className="text-[#456882] text-base sm:text-lg lg:text-xl font-medium">
               Complete your order with confidence
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              <div className="bg-white rounded-2xl shadow-sm p-8 border border-white/20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
+            <div className="lg:col-span-8 space-y-4 sm:space-y-6 lg:space-y-8">
+              {/* Step 1: Delivery Address */}
+              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 border border-[#CBDCEB]/30 hover:shadow-xl transition-shadow duration-300">
                 <StepHeader
                   step={1}
                   title="DELIVERY ADDRESS"
@@ -244,19 +253,20 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                   isCompleted={isAddressComplete}
                 />
 
-                <div className="ml-12">
+                <div className="ml-0 sm:ml-8 lg:ml-14">
                   {!isAddressComplete && (
-                    <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                      <p className="text-amber-800 text-sm font-medium">
+                    <div className="mb-4 sm:mb-6 p-3 sm:p-4 lg:p-5 bg-amber-50 border-l-4 border-amber-400 rounded">
+                      <p className="text-amber-800 font-semibold text-sm sm:text-base flex items-center gap-2">
+                        <span className="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0"></span>
                         Please complete your delivery address to proceed
                       </p>
                     </div>
                   )}
 
-                  <div className="mb-6">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <MapPin className="w-5 h-5 text-[#456882]" />
-                      <p className="font-semibold text-[#1B3C53] text-lg">
+                  <div className="mb-4 sm:mb-6 lg:mb-8">
+                    <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
+                      <MapPin className="w-4 h-4 sm:w-5 h-5 lg:w-6 h-6 text-[#456882] flex-shrink-0" />
+                      <p className="font-bold text-[#1B3C53] text-base sm:text-lg lg:text-xl break-words">
                         {`${
                           deliveryAddress.firstName || checkout.firstName || ""
                         } ${
@@ -267,11 +277,11 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                   </div>
 
                   {isEditingAddress ? (
-                    <div className="space-y-6 bg-gray-50 p-6 rounded-xl border">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4 sm:space-y-6 lg:space-y-8 bg-[#CBDCEB]/10 p-4 sm:p-6 lg:p-8 rounded-lg border border-[#CBDCEB]/30">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                         <div>
-                          <label className="block text-sm font-semibold text-[#456882] mb-2">
-                            First Name
+                          <label className="block text-xs sm:text-sm font-bold text-[#456882] mb-2 sm:mb-3">
+                            First Name *
                           </label>
                           <input
                             type="text"
@@ -283,13 +293,13 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                             onChange={(e) =>
                               handleAddressChange("firstName", e.target.value)
                             }
-                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-transparent transition-all duration-200"
+                            className="w-full p-3 sm:p-4 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 font-medium text-sm sm:text-base"
                             placeholder="Enter first name"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-[#456882] mb-2">
-                            Last Name
+                          <label className="block text-xs sm:text-sm font-bold text-[#456882] mb-2 sm:mb-3">
+                            Last Name *
                           </label>
                           <input
                             type="text"
@@ -297,123 +307,117 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                               deliveryAddress.lastName ||
                               checkout.lastName ||
                               ""
-                            }
+                            } //TODO fix auto generation of feilds
                             onChange={(e) =>
                               handleAddressChange("lastName", e.target.value)
                             }
-                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-transparent transition-all duration-200"
+                            className="w-full p-3 sm:p-4 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 font-medium text-sm sm:text-base"
                             placeholder="Enter last name"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-[#456882] mb-2">
-                          Phone Number
+                        <label className="block text-xs sm:text-sm font-bold text-[#456882] mb-2 sm:mb-3">
+                          Phone Number *
                         </label>
                         <input
                           type="tel"
-                          value={deliveryAddress.phone || checkout?.phone || ""}
+                          value={deliveryAddress.phone || ""}
                           onChange={(e) =>
                             handleAddressChange("phone", e.target.value)
                           }
-                          className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-transparent transition-all duration-200"
+                          className="w-full p-3 sm:p-4 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 font-medium text-sm sm:text-base"
                           placeholder="Enter phone number"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-[#456882] mb-2">
-                          Street Address
+                        <label className="block text-xs sm:text-sm font-bold text-[#456882] mb-2 sm:mb-3">
+                          Street Address *
                         </label>
                         <textarea
-                          value={
-                            deliveryAddress.address || checkout?.address || ""
-                          }
+                          value={deliveryAddress.address || ""}
                           onChange={(e) =>
                             handleAddressChange("address", e.target.value)
                           }
-                          className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-transparent resize-none transition-all duration-200"
+                          className="w-full p-3 sm:p-4 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] resize-none transition-all duration-200 font-medium text-sm sm:text-base"
                           rows={3}
                           placeholder="Enter your full address"
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         <div>
-                          <label className="block text-sm font-semibold text-[#456882] mb-2">
-                            City
+                          <label className="block text-xs sm:text-sm font-bold text-[#456882] mb-2 sm:mb-3">
+                            City *
                           </label>
                           <input
                             type="text"
-                            value={deliveryAddress.city || checkout?.city || ""}
+                            value={deliveryAddress.city || ""}
                             onChange={(e) =>
                               handleAddressChange("city", e.target.value)
                             }
-                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-transparent transition-all duration-200"
+                            className="w-full p-3 sm:p-4 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 font-medium text-sm sm:text-base"
                             placeholder="Enter city"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-[#456882] mb-2">
-                            State
+                          <label className="block text-xs sm:text-sm font-bold text-[#456882] mb-2 sm:mb-3">
+                            State *
                           </label>
                           <input
                             type="text"
-                            value={
-                              deliveryAddress.state || checkout?.state || ""
-                            }
+                            value={deliveryAddress.state || ""}
                             onChange={(e) =>
                               handleAddressChange("state", e.target.value)
                             }
-                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-transparent transition-all duration-200"
+                            className="w-full p-3 sm:p-4 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 font-medium text-sm sm:text-base"
                             placeholder="Enter state"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-[#456882] mb-2">
+                        <div className="sm:col-span-2 lg:col-span-1">
+                          <label className="block text-xs sm:text-sm font-bold text-[#456882] mb-2 sm:mb-3">
                             ZIP Code
                           </label>
                           <input
                             type="text"
-                            value={
-                              deliveryAddress.zipCode || checkout?.zipCode || ""
-                            }
+                            value={deliveryAddress.zipCode || ""}
                             onChange={(e) =>
                               handleAddressChange("zipCode", e.target.value)
                             }
-                            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-transparent transition-all duration-200"
+                            className="w-full p-3 sm:p-4 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 font-medium text-sm sm:text-base"
                             placeholder="Enter ZIP"
                           />
                         </div>
                       </div>
 
-                      <div className="flex space-x-4 pt-4">
+                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
                         <button
                           onClick={handleSaveAddress}
-                          className="px-8 py-3 bg-[#1B3C53] text-white font-semibold rounded-lg hover:bg-[#2d4f68] transition-colors duration-200"
+                          className="flex-1 sm:flex-none px-6 sm:px-8 py-3 sm:py-4 bg-[#1B3C53] text-white font-bold rounded-lg hover:bg-[#456882] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm sm:text-base"
                         >
                           Save Address
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="px-8 py-3 border-2 border-[#456882] text-[#456882] font-semibold rounded-lg hover:bg-[#456882] hover:text-white transition-all duration-200"
+                          className="flex-1 sm:flex-none px-6 sm:px-8 py-3 sm:py-4 border border-[#456882] text-[#456882] font-bold rounded-lg hover:bg-[#456882] hover:text-white transition-all duration-200 text-sm sm:text-base"
                         >
                           Cancel
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-gray-50 rounded-xl p-6 border">
-                      <div className="space-y-2">
-                        <p className="text-[#1B3C53] font-medium text-lg">
+                    <div className="bg-[#CBDCEB]/10 rounded-lg p-4 sm:p-6 lg:p-8 border border-[#CBDCEB]/30">
+                      <div className="space-y-2 sm:space-y-3">
+                        <p className="text-[#1B3C53] font-bold text-base sm:text-lg lg:text-xl break-words">
                           {deliveryAddress.address || "Address not set"}
                         </p>
-                        <p className="text-[#456882]">
+                        <p className="text-[#456882] font-semibold text-sm sm:text-base lg:text-lg">
                           {deliveryAddress.city}, {deliveryAddress.state}{" "}
                           {deliveryAddress.zipCode}
                         </p>
-                        <p className="text-[#456882] font-medium">
+                        <p className="text-[#456882] font-semibold text-sm sm:text-base">
                           {deliveryAddress.phone}
                         </p>
                       </div>
@@ -422,108 +426,110 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm p-8 border border-white/20">
+              {/* Step 2: Delivery Options */}
+              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 border border-[#CBDCEB]/30 hover:shadow-xl transition-shadow duration-300">
                 <StepHeader step={2} title="DELIVERY OPTIONS" />
 
-                <div className="ml-12 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="ml-0 sm:ml-8 lg:ml-14 space-y-4 sm:space-y-6 lg:space-y-8">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                     <div
-                      className={`border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      className={`border-2 rounded-lg p-4 sm:p-6 lg:p-8 cursor-pointer transition-all duration-300 hover:shadow-lg transform hover:scale-[1.02] ${
                         selectedDeliveryOption === "standard"
-                          ? "border-[#456882] bg-[#456882]/5"
-                          : "border-gray-200 hover:border-[#CBDCEB]"
+                          ? "border-[#456882] bg-[#456882]/5 shadow-md"
+                          : "border-[#CBDCEB] hover:border-[#456882]/50"
                       }`}
                       onClick={handleStandardDelivery}
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-bold text-[#1B3C53] text-lg">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+                        <h3 className="font-bold text-[#1B3C53] text-lg sm:text-xl">
                           Standard Delivery
                         </h3>
-                        <span className="font-bold text-[#456882] text-lg">
+                        <span className="font-bold text-[#456882] text-lg sm:text-xl">
                           {formatCurrency(deliveryOptions.standard.fee)}
                         </span>
                       </div>
-                      <div className="flex items-center space-x-3 text-[#456882]">
-                        <Clock className="w-5 h-5" />
-                        <span className="font-medium">
+                      <div className="flex items-center gap-2 sm:gap-4 text-[#456882]">
+                        <Clock className="w-4 h-4 sm:w-5 h-5 lg:w-6 h-6 flex-shrink-0" />
+                        <span className="font-semibold text-sm sm:text-base lg:text-lg">
                           {deliveryOptions.standard.days}
                         </span>
                       </div>
                     </div>
 
                     <div
-                      className={`border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      className={`border-2 rounded-lg p-4 sm:p-6 lg:p-8 cursor-pointer transition-all duration-300 hover:shadow-lg transform hover:scale-[1.02] ${
                         selectedDeliveryOption === "express"
-                          ? "border-[#456882] bg-[#456882]/5"
-                          : "border-gray-200 hover:border-[#CBDCEB]"
+                          ? "border-[#456882] bg-[#456882]/5 shadow-md"
+                          : "border-[#CBDCEB] hover:border-[#456882]/50"
                       }`}
                       onClick={handleExpressDelivery}
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-bold text-[#1B3C53] text-lg">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+                        <h3 className="font-bold text-[#1B3C53] text-lg sm:text-xl">
                           Express Delivery
                         </h3>
-                        <span className="font-bold text-[#456882] text-lg">
+                        <span className="font-bold text-[#456882] text-lg sm:text-xl">
                           {formatCurrency(deliveryOptions.express.fee)}
                         </span>
                       </div>
-                      <div className="flex items-center space-x-3 text-[#456882]">
-                        <Clock className="w-5 h-5" />
-                        <span className="font-medium">
+                      <div className="flex items-center gap-2 sm:gap-4 text-[#456882]">
+                        <Clock className="w-4 h-4 sm:w-5 h-5 lg:w-6 h-6 flex-shrink-0" />
+                        <span className="font-semibold text-sm sm:text-base lg:text-lg">
                           {deliveryOptions.express.days}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-green-50 rounded-xl p-6 border border-green-200">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <Package className="w-5 h-5 text-green-600" />
-                      <p className="font-bold text-green-800 text-lg">
+                  <div className="bg-green-50 rounded-lg p-4 sm:p-6 lg:p-8 border-2 border-green-200">
+                    <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 mb-2 sm:mb-3">
+                      <Package className="w-4 h-4 sm:w-5 h-5 lg:w-6 h-6 text-green-600 flex-shrink-0" />
+                      <p className="font-bold text-green-800 text-base sm:text-lg lg:text-xl">
                         Estimated Delivery Date
                       </p>
                     </div>
-                    <p className="text-green-700 font-semibold">
+                    <p className="text-green-700 font-bold text-sm sm:text-base lg:text-lg ml-6 sm:ml-8 lg:ml-10">
                       {formatDate(deliveryRange.end)}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm p-8 border border-white/20">
-                <div className="flex items-center justify-between mb-6">
+              {/* Step 3: Order Review */}
+              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 border border-[#CBDCEB]/30 hover:shadow-xl transition-shadow duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
                   <StepHeader step={3} title="ORDER REVIEW" />
                   <button
                     onClick={toggleOrderDetails}
-                    className="flex items-center space-x-2 text-[#456882] font-semibold hover:text-[#1B3C53] transition-colors duration-200"
+                    className="flex items-center gap-2 sm:gap-3 text-[#456882] font-bold hover:text-[#1B3C53] transition-colors duration-200 px-3 sm:px-4 py-2 border border-[#CBDCEB] hover:border-[#456882] rounded-lg text-sm sm:text-base"
                   >
                     <span>{showOrderDetails ? "Hide" : "Show"} Details</span>
                     {showOrderDetails ? (
-                      <ChevronUp className="w-5 h-5" />
+                      <ChevronUp className="w-4 h-4 sm:w-5 h-5" />
                     ) : (
-                      <ChevronDown className="w-5 h-5" />
+                      <ChevronDown className="w-4 h-4 sm:w-5 h-5" />
                     )}
                   </button>
                 </div>
 
-                <div className="ml-12">
-                  <div className="bg-gray-50 rounded-xl p-6 border">
-                    <div className="flex items-center justify-between mb-4">
-                      <p className="font-bold text-[#1B3C53] text-lg">
+                <div className="ml-0 sm:ml-8 lg:ml-14">
+                  <div className="bg-[#CBDCEB]/10 rounded-lg p-4 sm:p-6 lg:p-8 border border-[#CBDCEB]/30">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+                      <p className="font-bold text-[#1B3C53] text-base sm:text-lg lg:text-xl">
                         Order Summary ({checkout?.cart?.items?.length || 0}{" "}
                         items)
                       </p>
-                      <span className="font-bold text-[#456882] text-xl">
+                      <span className="font-bold text-[#456882] text-lg sm:text-xl lg:text-2xl">
                         {formatCurrency(checkout?.total || 0)}
                       </span>
                     </div>
 
                     {showOrderDetails && checkout?.cart?.items && (
-                      <div className="space-y-4 border-t border-gray-200 pt-4">
+                      <div className="space-y-4 sm:space-y-6 border-t border-[#CBDCEB] pt-4 sm:pt-6">
                         {checkout.cart.items.map((item) => (
                           <div
                             key={item.product._id}
-                            className="flex items-center space-x-4 p-4 bg-white rounded-lg border"
+                            className="flex items-start sm:items-center gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 bg-white rounded-lg border border-[#CBDCEB]/30 hover:shadow-md transition-shadow duration-200"
                           >
                             <img
                               src={item?.product?.images[0]?.url}
@@ -531,18 +537,18 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                                 item.product?.images[0]?.alt ||
                                 item.product.title
                               }
-                              className="w-16 h-16 object-cover rounded-lg"
+                              className="w-12 h-12 sm:w-16 h-16 lg:w-20 h-20 object-cover rounded-lg border border-[#CBDCEB]/30 flex-shrink-0"
                             />
-                            <div className="flex-1">
-                              <p className="font-semibold text-[#1B3C53] text-lg">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-[#1B3C53] text-sm sm:text-base lg:text-lg mb-1 sm:mb-2 break-words">
                                 {item?.product?.title}
                               </p>
-                              <p className="text-[#456882] font-medium">
+                              <p className="text-[#456882] font-semibold text-xs sm:text-sm">
                                 Quantity: {item.quantity}
                               </p>
                             </div>
-                            <div className="text-right">
-                              <p className="font-bold text-[#456882] text-lg">
+                            <div className="text-right flex-shrink-0">
+                              <p className="font-bold text-[#456882] text-sm sm:text-base lg:text-xl">
                                 {formatCurrency(item.price || 0)}
                               </p>
                             </div>
@@ -555,48 +561,47 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
               </div>
             </div>
 
-            <div className="lg:col-span-1">
-              <div className="lg:sticky lg:top-8">
-                <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-white/20">
-                  <div className="bg-[#1B3C53] p-6">
-                    <h3 className="text-xl font-bold text-white">
+            {/* Order Summary Sidebar */}
+            <div className="lg:col-span-4">
+              <div className="lg:sticky lg:top-4 space-y-4 sm:space-y-6 lg:space-y-8">
+                <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-[#CBDCEB]/30">
+                  <div className="bg-[#1B3C53] p-4 sm:p-6 lg:p-8">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">
                       Order Summary
                     </h3>
                   </div>
 
-                  <div className="p-6 space-y-4">
-                    <div className="flex justify-between text-lg">
-                      <span className="text-[#456882]">
+                  <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+                    <div className="flex justify-between text-base sm:text-lg">
+                      <span className="text-[#456882] font-semibold">
                         Subtotal ({checkout?.cart?.items?.length || 0} items)
                       </span>
-                      <span className="font-semibold text-[#1B3C53]">
+                      <span className="font-bold text-[#1B3C53]">
                         {formatCurrency(checkout?.total || 0)}
                       </span>
                     </div>
-                    <div className="flex justify-between text-lg">
-                      <span className="text-[#456882]">
+                    <div className="flex justify-between text-base sm:text-lg">
+                      <span className="text-[#456882] font-semibold">
                         Delivery ({selectedDeliveryOption})
                       </span>
-                      <span className="font-semibold text-[#1B3C53]">
-                        {formatCurrency(
-                          deliveryOptions[selectedDeliveryOption].fee
-                        )}
+                      <span className="font-bold text-[#1B3C53]">
+                        {formatCurrency(deliveryOptions[selectedDeliveryOption].fee || 0)}
                       </span>
                     </div>
                     {checkout?.appliedPromo && (
-                      <div className="flex justify-between text-lg text-green-600">
-                        <div className="flex items-center space-x-2">
-                          <Tag className="w-4 h-4" />
-                          <span className="font-medium">
+                      <div className="flex justify-between text-base sm:text-lg text-green-600">
+                        <div className="flex items-center gap-2">
+                          <Tag className="w-4 h-4 sm:w-5 h-5 flex-shrink-0" />
+                          <span className="font-semibold break-words">
                             {checkout.appliedPromo.code}
                           </span>
                         </div>
-                        <span className="font-semibold">
+                        <span className="font-bold flex-shrink-0">
                           -{formatCurrency(checkout.discountInPrice || 0)}
                         </span>
                       </div>
                     )}
-                    <div className="border-t-2 border-[#CBDCEB] pt-4 flex justify-between font-bold text-xl text-[#1B3C53]">
+                    <div className="border-t-2 border-[#CBDCEB] pt-4 sm:pt-6 flex justify-between font-bold text-xl sm:text-2xl text-[#1B3C53]">
                       <span>Total</span>
                       <span>
                         {formatCurrency(
@@ -607,40 +612,40 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                     </div>
                   </div>
 
-                  <div className="p-6 border-t border-gray-100">
+                  <div className="p-4 sm:p-6 lg:p-8 border-t border-[#CBDCEB]/30">
                     {checkout?.appliedPromo ? (
-                      <div className="flex items-center justify-between bg-green-50 p-4 rounded-lg border border-green-200">
-                        <div className="flex items-center space-x-3">
-                          <Tag className="w-5 h-5 text-green-600" />
-                          <span className="font-semibold text-green-800">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-green-50 p-4 sm:p-6 rounded-lg border-2 border-green-200 gap-3">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <Tag className="w-5 h-5 sm:w-6 h-6 text-green-600 flex-shrink-0" />
+                          <span className="font-bold text-green-800 text-base sm:text-lg break-words">
                             {checkout.appliedPromo.code} Applied
                           </span>
                         </div>
                         <button
                           onClick={handleRemovePromo}
                           disabled={isActionLoading}
-                          className="text-red-600 hover:text-red-800 font-semibold disabled:opacity-50 transition-colors duration-200"
+                          className="text-red-600 hover:text-red-800 font-bold disabled:opacity-50 transition-colors duration-200 text-sm sm:text-base flex-shrink-0"
                         >
                           {isActionLoading ? "Removing..." : "Remove"}
                         </button>
                       </div>
                     ) : (
-                      <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-[#456882]">
+                      <div className="space-y-3 sm:space-y-4">
+                        <label className="block text-xs sm:text-sm font-bold text-[#456882]">
                           Promo Code
                         </label>
-                        <div className="flex space-x-3">
+                        <div className="flex flex-col sm:flex-row gap-3">
                           <input
                             type="text"
                             placeholder="Enter code"
                             value={promoCode}
                             onChange={handlePromoCodeChange}
-                            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-transparent transition-all duration-200"
+                            className="flex-1 px-3 sm:px-4 py-3 sm:py-4 border border-[#CBDCEB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 font-medium text-sm sm:text-base"
                           />
                           <button
                             onClick={handleApplyPromo}
                             disabled={!promoCode.trim() || isActionLoading}
-                            className="px-6 py-3 bg-[#CBDCEB] text-[#1B3C53] font-semibold rounded-lg hover:bg-[#b5cde3] disabled:opacity-50 transition-all duration-200"
+                            className="px-4 sm:px-6 py-3 sm:py-4 bg-[#CBDCEB] text-[#1B3C53] font-bold rounded-lg hover:bg-[#456882] hover:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base whitespace-nowrap"
                           >
                             {isActionLoading ? "Applying..." : "Apply"}
                           </button>
@@ -649,33 +654,38 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                     )}
                   </div>
 
-                  <div className="p-6 border-t border-gray-100">
+                  <div className="p-4 sm:p-6 lg:p-8 border-t border-[#CBDCEB]/30">
                     <button
                       onClick={handleConfirmOrder}
                       disabled={!isAddressComplete}
-                      className="w-full py-4 px-6 bg-[#1B3C53] text-white font-bold text-lg rounded-xl hover:bg-[#2d4f68] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+                      className="w-full py-4 sm:py-5 px-4 sm:px-6 bg-[#1B3C53] text-white font-bold text-base sm:text-lg lg:text-xl rounded-lg hover:bg-[#456882] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                     >
-                      {isSubmitCheckoutLoading
-                        ? `Completing Order ${formatCurrency(
-                            checkout?.total || 0
-                          )}`
-                        : `Complete Order ${formatCurrency(
-                            checkout?.total || 0
-                          )}`}
+                      <span className="block sm:hidden">Complete Order</span>
+                      <span className="hidden sm:block">
+                        {isSubmitCheckoutLoading
+                          ? `Completing Order ${formatCurrency(
+                              checkout?.total +
+                                deliveryOptions[selectedDeliveryOption].fee || 0
+                            )}`
+                          : `Complete Order ${formatCurrency(
+                              checkout?.total +
+                                deliveryOptions[selectedDeliveryOption].fee || 0
+                            )}`}
+                      </span>
                     </button>
 
-                    <p className="text-xs text-center text-gray-500 mt-4 leading-relaxed">
+                    <p className="text-xs text-center text-[#456882] mt-4 sm:mt-6 leading-relaxed px-2">
                       By completing your order, you agree to our{" "}
                       <a
                         href="#"
-                        className="text-[#456882] hover:text-[#1B3C53] underline transition-colors duration-200"
+                        className="text-[#1B3C53] hover:underline font-semibold transition-colors duration-200"
                       >
                         Terms of Service
                       </a>{" "}
                       and{" "}
                       <a
                         href="#"
-                        className="text-[#456882] hover:text-[#1B3C53] underline transition-colors duration-200"
+                        className="text-[#1B3C53] hover:underline font-semibold transition-colors duration-200"
                       >
                         Privacy Policy
                       </a>
@@ -683,28 +693,35 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                   </div>
                 </div>
 
-                <div className="mt-6 bg-white rounded-2xl p-6 border border-white/20">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="flex flex-col items-center space-y-2">
-                      <Shield className="w-8 h-8 text-[#456882]" />
-                      <span className="text-sm font-semibold text-[#1B3C53]">
+                {/* Trust Badges */}
+                <div className="bg-white rounded-lg p-4 sm:p-6 lg:p-8 border border-[#CBDCEB]/30 shadow-lg">
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-6 text-center">
+                    <div className="flex flex-col items-center gap-2 sm:gap-3">
+                      <div className="w-8 h-8 sm:w-10 lg:w-12 bg-[#CBDCEB]/20 rounded-lg flex items-center justify-center">
+                        <Shield className="w-4 sm:w-6 lg:w-8 h-8 text-[#456882]" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-[#1B3C53] leading-tight">
                         Secure Payment
                       </span>
                     </div>
-                    <div className="flex flex-col items-center space-y-2">
-                      <Truck className="w-8 h-8 text-[#456882]" />
-                      <span className="text-sm font-semibold text-[#1B3C53]">
+                    <div className="flex flex-col items-center gap-2 sm:gap-3">
+                      <div className="w-8 sm:w-10 h-10 lg:w-12 bg-[#CBDCEB]/20 rounded-lg flex items-center justify-center">
+                        <Truck className="w-4 h-4 sm:w-6 lg:w-8 text-[#456882]" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-[#1B3C53] leading-tight">
                         Fast Delivery
                       </span>
                     </div>
-                    <div className="flex flex-col items-center space-y-2">
-                      <RotateCcw className="w-8 h-8 text-[#456882]" />
-                      <span className="text-sm font-semibold text-[#1B3C53]">
+                    <div className="flex flex-col items-center gap-2 sm:gap-3">
+                      <div className="w-8 sm:w-10 h-10 lg:w-12 bg-[#CBDCEB]/20 rounded-lg flex items-center justify-center">
+                        <RotateCcw className="w-4 h-4 sm:w-6 lg:w-8 text-[#456882]" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-[#1B3C53] leading-tight">
                         Easy Returns
                       </span>
                     </div>
                   </div>
-                  <p className="text-center text-xs text-gray-500 mt-4">
+                  <p className="text-center text-xs text-[#456882] mt-4 sm:mt-6 font-medium px-2">
                     Your information is encrypted and secure
                   </p>
                 </div>

@@ -51,11 +51,11 @@ const Checkout = () => {
 
   // Fetch checkout data
   const handleCheckout = useCallback(async () => {
-    // if (!isAuthenticated) {
-    //   toast.info("Please login to access checkout");
-    //   navigate("/login");
-    //   return;
-    // }
+    if (!isAuthenticated) {
+      toast.info("Please login to access checkout");
+      navigate("/login");
+      return;
+    }
 
     setIsLoading(true);
     setHasError(false);
@@ -251,7 +251,7 @@ const Checkout = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#CBDCEB]">
+      <div className="min-h-screen flex items-center justify-center bg-[#ffff]">
         <div className="text-center">
           <Loader fullScreen={false} size={64} thickness={1} />
           <p className="mt-4 text-[#456882] font-medium">Loading checkout...</p>
@@ -263,7 +263,7 @@ const Checkout = () => {
   // Error state
   if (hasError || !checkout) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#CBDCEB]">
+      <div className="min-h-screen flex items-center justify-center bg-[#ffff]">
         <div className="text-center bg-white rounded-2xl p-8 shadow-lg max-w-md mx-4">
           <div className="mb-6">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -310,7 +310,7 @@ const Checkout = () => {
 
   // Main render
   return (
-    <div className="min-h-screen bg-[#CBDCEB]">
+    <div className="min-h-screen bg-[#ffff]">
       <CheckoutComponent
         checkout={checkout}
         removePromoCode={handleRemovePromoCode}
