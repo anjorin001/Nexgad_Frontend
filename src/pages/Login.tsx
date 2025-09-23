@@ -41,10 +41,18 @@ const Login = () => {
     try {
       const request = await api.post("/auth/login", formData);
       const response = request.data;
+
       localStorage.setItem("nexgad_token", response.data.token);
+
       toast.success("Login", "Login Successful");
+
       setIsAuthenticated(true);
-      navigate("/");
+
+      if (response.data.role === "admin") {
+        window.location.href = "/admin";
+      } else {
+        navigate("/");
+      }
     } catch (err: any) {
       if (err.response && err.response.data) {
         handleBackendErrors(err.response.data);
@@ -56,6 +64,7 @@ const Login = () => {
         );
         window.dispatchEvent(new CustomEvent("network-error"));
       }
+      
       if (
         err.code === "ERR_NETWORK" ||
         err.code === "ECONNABORTED" ||

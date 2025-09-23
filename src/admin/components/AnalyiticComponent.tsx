@@ -1,4 +1,5 @@
-import React from 'react';
+import React from "react";
+import { CardSkeleton } from "./SkeletonLoader/CardSkeleton";
 
 interface MetricCardProps {
   title: string;
@@ -7,26 +8,33 @@ interface MetricCardProps {
     count: number;
     label: string;
   };
-  growth: string;
-  lastUpdated: string;
   isRevenue?: boolean;
 }
 
-const MetricCard: React.FC<MetricCardProps> = ({ 
-  title, 
-  value, 
-  indicator, 
-  growth, 
-  lastUpdated, 
-  isRevenue = false 
+const MetricCard: React.FC<MetricCardProps> = ({
+  title,
+  value,
+  indicator,
+  isRevenue = false,
 }) => {
   return (
-    <div className={`p-6 rounded-lg border ${isRevenue ? 'text-white' : 'bg-white'}`} 
-         style={isRevenue ? { backgroundColor: '#1B3C53', borderColor: '#456882' } : { borderColor: '#CBDCEB' }}>
-      
+    <div
+      className={`p-6 rounded-lg border ${
+        isRevenue ? "text-white" : "bg-white"
+      }`}
+      style={
+        isRevenue
+          ? { backgroundColor: "#1B3C53", borderColor: "#456882" }
+          : { borderColor: "#CBDCEB" }
+      }
+    >
       {/* Header with title and icon */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className={`text-sm font-medium ${isRevenue ? 'text-gray-300' : 'text-gray-600'}`}>
+        <h3
+          className={`text-sm font-medium ${
+            isRevenue ? "text-gray-300" : "text-gray-600"
+          }`}
+        >
           {title}
         </h3>
         {isRevenue && (
@@ -38,8 +46,10 @@ const MetricCard: React.FC<MetricCardProps> = ({
 
       {/* Main value */}
       <div className="mb-4">
-        <span className={`text-3xl font-bold ${isRevenue ? 'text-white' : ''}`} 
-              style={!isRevenue ? { color: '#1B3C53' } : {}}>
+        <span
+          className={`text-3xl font-bold ${isRevenue ? "text-white" : ""}`}
+          style={!isRevenue ? { color: "#1B3C53" } : {}}
+        >
           {value}
         </span>
       </div>
@@ -47,70 +57,83 @@ const MetricCard: React.FC<MetricCardProps> = ({
       {/* Indicator */}
       <div className="mb-4">
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${isRevenue ? 'bg-pink-400' : 'bg-pink-500'}`}></div>
-          <span className={`text-sm font-medium ${isRevenue ? 'text-gray-300' : ''}`}
-                style={!isRevenue ? { color: '#456882' } : {}}>
+          <div
+            className={`w-2 h-2 rounded-full ${
+              isRevenue ? "bg-pink-400" : "bg-pink-500"
+            }`}
+          ></div>
+          <span
+            className={`text-sm font-medium ${
+              isRevenue ? "text-gray-300" : ""
+            }`}
+            style={!isRevenue ? { color: "#456882" } : {}}
+          >
             {indicator.count} {indicator.label}
           </span>
         </div>
-      </div>
-
-      {/* Growth indicator */}
-      <div className="mb-3">
-        <span className={`text-sm font-semibold ${isRevenue ? 'text-green-400' : 'text-green-600'}`}>
-          {growth}
-        </span>
-        <span className={`text-sm ml-2 ${isRevenue ? 'text-gray-400' : 'text-gray-500'}`}>
-          Compared to last week
-        </span>
-      </div>
-
-      {/* Last updated */}
-      <div className="text-xs" style={{ color: isRevenue ? 'rgba(255,255,255,0.6)' : '#456882' }}>
-        Last updated on {lastUpdated}
       </div>
     </div>
   );
 };
 
-export default function AnalyticsMetrics() {
+export interface IrawMetricsData {
+  totalOrders: number;
+  pendingOrders: number;
+  totalSales: number;
+  newSales: number;
+  totalProfit: number;
+  newOrders: number;
+}
+
+interface AnalyticsMetricsProps {
+  rawMetricsData: IrawMetricsData;
+  isLoading: boolean;
+}
+
+export const AnalyticsMetrics: React.FC<AnalyticsMetricsProps> = ({
+  rawMetricsData,
+  isLoading,
+}) => {
   const metrics = [
     {
       title: "Total Orders",
-      value: "690",
-      indicator: { count: 3, label: "pending orders" },
-      growth: "+28%",
-      lastUpdated: "Jan 10, 6:30:59 AM"
+      value: rawMetricsData?.totalOrders.toString() || (0).toString(),
+      indicator: {
+        count: rawMetricsData?.pendingOrders,
+        label: "pending orders",
+      },
     },
     {
-      title: "Total Sales", 
-      value: "$600",
-      indicator: { count: 4, label: "new sales" },
-      growth: "+28%",
-      lastUpdated: "Jan 12, 8:20:30 AM"
+      title: "Total Sales",
+      value: rawMetricsData?.totalSales.toString() || (0).toString(),
+      indicator: { count: rawMetricsData?.newSales, label: "new sales" },
     },
     {
       title: "Total Profit",
-      value: "$800", 
-      indicator: { count: 5, label: "new orders" },
-      growth: "+36%",
-      lastUpdated: "Jan 14, 9:45:35 AM"
+      value: `₦${rawMetricsData?.totalProfit}` || (0).toString(),
+      indicator: { count: rawMetricsData?.newOrders, label: "new orders" },
     },
-    {
-      title: "Total Revenue",
-      value: "$900",
-      indicator: { count: 7, label: "new outlets" },
-      growth: "+36%", 
-      lastUpdated: "Jan 18, 9:29:59 AM",
-      isRevenue: true
-    }
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-      {metrics.map((metric, index) => (
-        <MetricCard key={index} {...metric} />
-      ))}
-    </div>
+    <>
+      {isLoading ? (
+        <>
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, index) => (
+                <CardSkeleton key={index} />
+              ))}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+          {metrics.map((metric, index) => (
+            <MetricCard key={index} {...metric} isRevenue={false} />
+          ))}
+        </div>
+      )}
+    </>
   );
-}
+};

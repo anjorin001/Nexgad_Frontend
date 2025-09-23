@@ -177,10 +177,16 @@ const AllListings: React.FC<AllListingsProps> = ({
                   {/* Quick Add to Cart - appears on hover */}
                   <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     {cart?.items?.find((p) => p.product._id === listing._id) ? (
-                      <div className="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-medium text-sm flex items-center justify-center space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        className="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-medium text-sm flex items-center justify-center space-x-2"
+                      >
                         <FaShoppingCart className="text-sm" />
                         <span>In Cart</span>
-                      </div>
+                      </button>
                     ) : (
                       <button
                         disabled={isAddToCartLoading.includes(listing._id)}
@@ -252,46 +258,59 @@ const AllListings: React.FC<AllListingsProps> = ({
                       {formatPrice(listing.price)}
                     </div>
 
-                    <button
-                      disabled={isAddToCartLoading.includes(listing._id)}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleAddToCart([listing._id]);
-                      }}
-                      className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] disabled:bg-[#456882]/70 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 font-medium text-xs sm:text-sm min-w-[100px] sm:min-w-[120px]"
-                    >
-                      {isAddToCartLoading.includes(listing._id) ? (
-                        <>
-                          <svg
-                            className="animate-spin h-4 w-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            />
-                          </svg>
-                          <span>Adding...</span>
-                        </>
-                      ) : (
-                        <>
-                          <FaShoppingCart className="text-xs" />
-                          <span>Add to Cart</span>
-                        </>
-                      )}
-                    </button>
+                    {cart?.items?.find((p) => p.product._id === listing._id) ? (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        className="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-medium text-sm flex items-center justify-center space-x-2"
+                      >
+                        <FaShoppingCart className="text-sm" />
+                        <span>In Cart</span>
+                      </button>
+                    ) : (
+                      <button
+                        disabled={isAddToCartLoading.includes(listing._id)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAddToCart([listing._id]);
+                        }}
+                        className="flex items-center justify-center space-x-2 bg-[#1B3C53] hover:bg-[#456882] disabled:bg-[#456882]/70 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 font-medium text-xs sm:text-sm min-w-[100px] sm:min-w-[120px]"
+                      >
+                        {isAddToCartLoading.includes(listing._id) ? (
+                          <>
+                            <svg
+                              className="animate-spin h-4 w-4 text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              />
+                            </svg>
+                            <span>Adding...</span>
+                          </>
+                        ) : (
+                          <>
+                            <FaShoppingCart className="text-xs" />
+                            <span>Add to Cart</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

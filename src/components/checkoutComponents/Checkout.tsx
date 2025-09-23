@@ -265,7 +265,7 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
 
                   <div className="mb-4 sm:mb-6 lg:mb-8">
                     <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
-                      <MapPin className="w-4 h-4 sm:w-5 h-5 lg:w-6 h-6 text-[#456882] flex-shrink-0" />
+                      <MapPin className="w-4 h-4 sm:w-5 lg:w-6 text-[#456882] flex-shrink-0" />
                       <p className="font-bold text-[#1B3C53] text-base sm:text-lg lg:text-xl break-words">
                         {`${
                           deliveryAddress.firstName || checkout.firstName || ""

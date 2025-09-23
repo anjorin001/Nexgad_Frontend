@@ -16,14 +16,14 @@ const Cart = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const handleGetCart = async () => {
+ const handleGetCart = async () => {
     setIsCartLoading(true);
     try {
       const request = await api.get("/cart");
       const response = request.data;
 
       const cart = response.data;
-      console.log("cart", cart);
+
       setCart(cart);
     } catch (err) {
       console.error(err);
@@ -145,6 +145,7 @@ const Cart = () => {
       toast.info("", "Login to access your cart");
       return;
     }
+    setCart(null)
     handleGetCart();
   }, []);
 

@@ -28,6 +28,7 @@ const Listings = () => {
     setSearchParams,
     isAuthenticated,
     setWishlistProductIds,
+    setCart,
   } = useAppContext();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -80,12 +81,16 @@ const Listings = () => {
 
           const queryString = qs.stringify(queryParams);
           console.log("querystring", queryString);
-          const [productRes, wishlistRes] = await Promise.all([
+          const [productRes, wishlistRes, cartRes] = await Promise.all([
             api.get(`/product?${queryString}`),
             api.get("/wishlist/ids"),
+            api.get("/cart"),
           ]);
 
           const wishlistIds: string[] = wishlistRes.data.data.products ?? [];
+
+          const cart = cartRes.data.data;
+          setCart(cart);
 
           setWishlistProductIds(wishlistIds);
           const payload = productRes?.data?.data ?? productRes?.data ?? {};
