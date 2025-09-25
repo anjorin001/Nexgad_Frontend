@@ -2,18 +2,17 @@
 import {
   DollarSign,
   FileText,
+  Image as ImageIcon,
   MapPin,
   Package,
   Plus,
   Settings,
   Truck,
-  X,
   Upload,
-  Image as ImageIcon,
-  Star,
-  Zap,
+  X,
 } from "lucide-react";
 import React, { useState } from "react";
+import { useToast } from "../../utils/ToastNotification";
 
 interface ProductImage {
   url: string;
@@ -22,45 +21,55 @@ interface ProductImage {
   file?: File;
 }
 
-interface ProductFormData {
+type ProductCondition =
+  | "Brand New"
+  | "Foreign Used"
+  | "Nigerian Used"
+  | "Refurbished";
+
+export interface ProductFormData {
   title: string;
   brand: string;
   price: number;
   originalPrice?: number;
-  condition: "Brand New" | "Foreign Used" | "Nigerian Used" | "Refurbished";
-  availability: "In Stock" | "Out of Stock" | "Limited Stock";
+  condition: ProductCondition;
   quantity: number;
   category: string;
   description: string;
-  specifications: { [key: string]: string };
+  specifications?: { [key: string]: string };
   images: ProductImage[];
   location: {
     city: string;
     state: string;
   };
-  productType: "default" | "sponsored" | "featured";
   deliveryOptions: {
     pickup: boolean;
     delivery: boolean;
   };
-  sku: string;
-  tags: string[];
+  sku?: string;
+  tags?: string[];
 }
 
-export default function ProductUploadForm() {
+interface ProductUploadFormProp {
+  onUploadProduct: (data: ProductFormData) => Promise<boolean>;
+  isLoading: boolean;
+}
+
+export const ProductUploadForm: React.FC<ProductUploadFormProp> = ({
+  onUploadProduct,
+  isLoading = true,
+}) => {
   const [formData, setFormData] = useState<ProductFormData>({
     title: "",
     brand: "",
     price: 0,
     originalPrice: undefined,
     condition: "Brand New",
-    availability: "In Stock",
     quantity: 1,
     category: "",
     description: "",
     specifications: {},
     images: [],
-    productType: "default",
     location: { city: "", state: "" },
     deliveryOptions: { pickup: false, delivery: false },
     sku: "",
@@ -70,18 +79,19 @@ export default function ProductUploadForm() {
   const [newSpecKey, setNewSpecKey] = useState("");
   const [newSpecValue, setNewSpecValue] = useState("");
   const [newTag, setNewTag] = useState("");
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const toast = useToast();
 
   const updateFormData = (field: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-    // Clear error when field is updated
+
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ""
+        [field]: "",
       }));
     }
   };
@@ -94,12 +104,12 @@ export default function ProductUploadForm() {
         [field]: value,
       },
     }));
-    // Clear error when nested field is updated
+
     const errorKey = `${parent}.${field}`;
     if (errors[errorKey]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [errorKey]: ""
+        [errorKey]: "",
       }));
     }
   };
@@ -145,32 +155,31 @@ export default function ProductUploadForm() {
     const files = Array.from(e.target.files || []);
     const currentImages = formData.images.length;
     const maxImages = 4;
-    
+
     if (currentImages >= maxImages) {
       alert(`You can only upload a maximum of ${maxImages} images.`);
       return;
     }
-    
+
     const remainingSlots = maxImages - currentImages;
     const filesToProcess = files.slice(0, remainingSlots);
-    
+
     const newImages: ProductImage[] = filesToProcess.map((file, index) => ({
       url: URL.createObjectURL(file),
       alt: file.name,
       isPrimary: currentImages === 0 && index === 0,
-      file: file
+      file: file,
     }));
-    
+
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImages]
+      images: [...prev.images, ...newImages],
     }));
-    
-    // Clear image error if exists
+
     if (errors.images) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        images: ""
+        images: "",
       }));
     }
   };
@@ -178,13 +187,13 @@ export default function ProductUploadForm() {
   const removeImage = (index: number) => {
     setFormData((prev) => {
       const newImages = prev.images.filter((_, i) => i !== index);
-      // If we removed the primary image and there are other images, make the first one primary
+
       if (prev.images[index].isPrimary && newImages.length > 0) {
         newImages[0].isPrimary = true;
       }
       return {
         ...prev,
-        images: newImages
+        images: newImages,
       };
     });
   };
@@ -194,40 +203,62 @@ export default function ProductUploadForm() {
       ...prev,
       images: prev.images.map((img, i) => ({
         ...img,
-        isPrimary: i === index
-      }))
+        isPrimary: i === index,
+      })),
     }));
   };
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
+    const newErrors: { [key: string]: string } = {};
 
-    // Required fields validation
     if (!formData.title.trim()) newErrors.title = "Product title is required";
     if (!formData.brand.trim()) newErrors.brand = "Brand is required";
     if (!formData.category) newErrors.category = "Category is required";
-    if (!formData.description.trim()) newErrors.description = "Description is required";
-    if (!formData.sku.trim()) newErrors.sku = "SKU is required";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required";
     if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
-    if (formData.quantity < 0) newErrors.quantity = "Quantity cannot be negative";
-    if (!formData.location.city.trim()) newErrors["location.city"] = "City is required";
-    if (!formData.location.state.trim()) newErrors["location.state"] = "State is required";
-    if (formData.images.length === 0) newErrors.images = "At least one image is required";
+    if (formData.quantity < 0)
+      newErrors.quantity = "Quantity cannot be negative";
+    if (!formData.deliveryOptions.delivery && !formData.deliveryOptions.pickup)
+      newErrors.deliveryOptions  = "both delivery options cannot be false";
+    if (!formData.location.city.trim())
+      newErrors["location.city"] = "City is required";
+    if (!formData.location.state.trim())
+      newErrors["location.state"] = "State is required";
+    if (formData.images.length === 0)
+      newErrors.images = "At least one image is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
-      alert("Please fill in all required fields before submitting.");
+      toast.error("Please fill in all required fields before submitting.");
       return;
     }
 
-    console.log("Product Data:", formData);
-    alert("Product submitted successfully!");
+    const res = onUploadProduct(formData);
+    res
+      ? setFormData({
+          title: "",
+          brand: "",
+          price: 0,
+          originalPrice: undefined,
+          condition: "Brand New",
+          quantity: 1,
+          category: "",
+          description: "",
+          specifications: {},
+          images: [],
+          location: { city: "", state: "" },
+          deliveryOptions: { pickup: false, delivery: false },
+          sku: "",
+          tags: [],
+        })
+      : formData;
   };
 
   return (
@@ -266,12 +297,16 @@ export default function ProductUploadForm() {
                 type="text"
                 value={formData.title}
                 onChange={(e) => updateFormData("title", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.title ? 'border-red-500' : ''}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.title ? "border-red-500" : ""
+                }`}
                 style={{ borderColor: errors.title ? "#ef4444" : "#CBDCEB" }}
                 placeholder="Enter product title"
                 required
               />
-              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+              )}
             </div>
 
             <div>
@@ -285,12 +320,16 @@ export default function ProductUploadForm() {
                 type="text"
                 value={formData.brand}
                 onChange={(e) => updateFormData("brand", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.brand ? 'border-red-500' : ''}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.brand ? "border-red-500" : ""
+                }`}
                 style={{ borderColor: errors.brand ? "#ef4444" : "#CBDCEB" }}
                 placeholder="Enter brand name"
                 required
               />
-              {errors.brand && <p className="text-red-500 text-sm mt-1">{errors.brand}</p>}
+              {errors.brand && (
+                <p className="text-red-500 text-sm mt-1">{errors.brand}</p>
+              )}
             </div>
 
             <div>
@@ -303,7 +342,9 @@ export default function ProductUploadForm() {
               <select
                 value={formData.category}
                 onChange={(e) => updateFormData("category", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.category ? 'border-red-500' : ''}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.category ? "border-red-500" : ""
+                }`}
                 style={{ borderColor: errors.category ? "#ef4444" : "#CBDCEB" }}
                 required
               >
@@ -322,7 +363,9 @@ export default function ProductUploadForm() {
                 <option value="Smart Home">Smart Home</option>
                 <option value="Wearables">Wearables</option>
               </select>
-              {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
+              {errors.category && (
+                <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+              )}
             </div>
 
             <div>
@@ -336,12 +379,15 @@ export default function ProductUploadForm() {
                 type="text"
                 value={formData.sku}
                 onChange={(e) => updateFormData("sku", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.sku ? 'border-red-500' : ''}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.sku ? "border-red-500" : ""
+                }`}
                 style={{ borderColor: errors.sku ? "#ef4444" : "#CBDCEB" }}
                 placeholder="Enter SKU"
-                required
               />
-              {errors.sku && <p className="text-red-500 text-sm mt-1">{errors.sku}</p>}
+              {errors.sku && (
+                <p className="text-red-500 text-sm mt-1">{errors.sku}</p>
+              )}
             </div>
 
             <div>
@@ -363,25 +409,6 @@ export default function ProductUploadForm() {
                 <option value="Refurbished">Refurbished</option>
               </select>
             </div>
-
-            <div>
-              <label
-                className="block text-sm font-medium mb-2"
-                style={{ color: "#1B3C53" }}
-              >
-                Availability
-              </label>
-              <select
-                value={formData.availability}
-                onChange={(e) => updateFormData("availability", e.target.value)}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
-                style={{ borderColor: "#CBDCEB" }}
-              >
-                <option value="In Stock">In Stock</option>
-                <option value="Out of Stock">Out of Stock</option>
-                <option value="Limited Stock">Limited Stock</option>
-              </select>
-            </div>
           </div>
 
           <div className="mt-6">
@@ -395,81 +422,18 @@ export default function ProductUploadForm() {
               value={formData.description}
               onChange={(e) => updateFormData("description", e.target.value)}
               rows={4}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.description ? 'border-red-500' : ''}`}
-              style={{ borderColor: errors.description ? "#ef4444" : "#CBDCEB" }}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                errors.description ? "border-red-500" : ""
+              }`}
+              style={{
+                borderColor: errors.description ? "#ef4444" : "#CBDCEB",
+              }}
               placeholder="Enter detailed product description"
               required
             />
-            {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
-          </div>
-        </div>
-
-        {/* Product Type Selection */}
-        <div
-          className="bg-white rounded-lg border p-6"
-          style={{ borderColor: "#CBDCEB" }}
-        >
-          <div className="flex items-center gap-3 mb-6">
-            <Star className="w-5 h-5" style={{ color: "#456882" }} />
-            <h2 className="text-xl font-semibold" style={{ color: "#1B3C53" }}>
-              Product Type
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="productType"
-                value="default"
-                checked={formData.productType === "default"}
-                onChange={(e) => updateFormData("productType", e.target.value)}
-                className="mr-3"
-                style={{ accentColor: "#456882" }}
-              />
-              <div>
-                <div className="font-medium" style={{ color: "#1B3C53" }}>Default</div>
-                <div className="text-sm text-gray-600">Regular product listing</div>
-              </div>
-            </label>
-
-            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="productType"
-                value="sponsored"
-                checked={formData.productType === "sponsored"}
-                onChange={(e) => updateFormData("productType", e.target.value)}
-                className="mr-3"
-                style={{ accentColor: "#456882" }}
-              />
-              <div>
-                <div className="font-medium flex items-center gap-2" style={{ color: "#1B3C53" }}>
-                  <Zap className="w-4 h-4 text-yellow-500" />
-                  Sponsored
-                </div>
-                <div className="text-sm text-gray-600">Promoted listing with better visibility</div>
-              </div>
-            </label>
-
-            <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="productType"
-                value="featured"
-                checked={formData.productType === "featured"}
-                onChange={(e) => updateFormData("productType", e.target.value)}
-                className="mr-3"
-                style={{ accentColor: "#456882" }}
-              />
-              <div>
-                <div className="font-medium flex items-center gap-2" style={{ color: "#1B3C53" }}>
-                  <Star className="w-4 h-4 text-blue-500" />
-                  Featured
-                </div>
-                <div className="text-sm text-gray-600">Premium featured product</div>
-              </div>
-            </label>
+            {errors.description && (
+              <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+            )}
           </div>
         </div>
 
@@ -487,13 +451,18 @@ export default function ProductUploadForm() {
 
           <div className="mb-4">
             <label
-              className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 ${formData.images.length >= 4 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 ${
+                formData.images.length >= 4
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
               style={{ borderColor: errors.images ? "#ef4444" : "#CBDCEB" }}
             >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <Upload className="w-8 h-8 mb-2 text-gray-500" />
                 <p className="mb-2 text-sm text-gray-500">
-                  <span className="font-semibold">Click to upload</span> or drag and drop
+                  <span className="font-semibold">Click to upload</span> or drag
+                  and drop
                 </p>
                 <p className="text-xs text-gray-500">
                   PNG, JPG, GIF up to 10MB (Max 4 images)
@@ -502,13 +471,16 @@ export default function ProductUploadForm() {
               <input
                 type="file"
                 className="hidden"
+                name="images"
                 multiple
                 accept="image/*"
                 onChange={handleImageUpload}
                 disabled={formData.images.length >= 4}
               />
             </label>
-            {errors.images && <p className="text-red-500 text-sm mt-1">{errors.images}</p>}
+            {errors.images && (
+              <p className="text-red-500 text-sm mt-1">{errors.images}</p>
+            )}
           </div>
 
           {formData.images.length > 0 && (
@@ -577,14 +549,18 @@ export default function ProductUploadForm() {
                 onChange={(e) =>
                   updateFormData("price", parseFloat(e.target.value))
                 }
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.price ? 'border-red-500' : ''}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.price ? "border-red-500" : ""
+                }`}
                 style={{ borderColor: errors.price ? "#ef4444" : "#CBDCEB" }}
                 placeholder="0.00"
                 min="0"
                 step="0.01"
                 required
               />
-              {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+              {errors.price && (
+                <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+              )}
             </div>
 
             <div>
@@ -624,12 +600,16 @@ export default function ProductUploadForm() {
                 onChange={(e) =>
                   updateFormData("quantity", parseInt(e.target.value))
                 }
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.quantity ? 'border-red-500' : ''}`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.quantity ? "border-red-500" : ""
+                }`}
                 style={{ borderColor: errors.quantity ? "#ef4444" : "#CBDCEB" }}
                 min="0"
                 required
               />
-              {errors.quantity && <p className="text-red-500 text-sm mt-1">{errors.quantity}</p>}
+              {errors.quantity && (
+                <p className="text-red-500 text-sm mt-1">{errors.quantity}</p>
+              )}
             </div>
           </div>
         </div>
@@ -723,12 +703,20 @@ export default function ProductUploadForm() {
                 onChange={(e) =>
                   updateNestedField("location", "city", e.target.value)
                 }
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors["location.city"] ? 'border-red-500' : ''}`}
-                style={{ borderColor: errors["location.city"] ? "#ef4444" : "#CBDCEB" }}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors["location.city"] ? "border-red-500" : ""
+                }`}
+                style={{
+                  borderColor: errors["location.city"] ? "#ef4444" : "#CBDCEB",
+                }}
                 placeholder="Enter city"
                 required
               />
-              {errors["location.city"] && <p className="text-red-500 text-sm mt-1">{errors["location.city"]}</p>}
+              {errors["location.city"] && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors["location.city"]}
+                </p>
+              )}
             </div>
 
             <div>
@@ -744,12 +732,20 @@ export default function ProductUploadForm() {
                 onChange={(e) =>
                   updateNestedField("location", "state", e.target.value)
                 }
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors["location.state"] ? 'border-red-500' : ''}`}
-                style={{ borderColor: errors["location.state"] ? "#ef4444" : "#CBDCEB" }}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors["location.state"] ? "border-red-500" : ""
+                }`}
+                style={{
+                  borderColor: errors["location.state"] ? "#ef4444" : "#CBDCEB",
+                }}
                 placeholder="Enter state"
                 required
               />
-              {errors["location.state"] && <p className="text-red-500 text-sm mt-1">{errors["location.state"]}</p>}
+              {errors["location.state"] && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors["location.state"]}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -857,17 +853,42 @@ export default function ProductUploadForm() {
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 ">
           <button
             type="submit"
-            className="px-6 py-3 text-white rounded-md font-medium hover:opacity-90 transition-opacity"
+            className="px-6 py-3 text-white rounded-md font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
             style={{ backgroundColor: "#1B3C53" }}
           >
-            Add Product
+            {isLoading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <span>Adding...</span>
+              </>
+            ) : (
+              <span>Add Product</span>
+            )}
           </button>
         </div>
       </form>
     </div>
   );
-}
+};

@@ -26,7 +26,6 @@ const Checkout = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  // Handle network errors consistently
   const handleNetworkError = useCallback(
     (err: any) => {
       console.error("Network error:", err);
