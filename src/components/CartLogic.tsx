@@ -1,16 +1,15 @@
-import React, { useState } from "react";
 import {
   ArrowLeft,
   CreditCard,
+  Loader2,
   Minus,
+  Package,
   Plus,
-  ShoppingBag,
+  Shield,
   Trash2,
   Truck,
-  Shield,
-  Package,
-  MapPin
 } from "lucide-react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import type { CartData, CartItem } from "../context/AppContextInterface";
 import CartRemovePopover from "./cartComponent/RemoveItemPopover";
@@ -19,7 +18,7 @@ interface CartPageProps {
   initialCartItems?: CartItem[] | null;
   onIncreamentQuantity: (listingId: string) => void;
   ondecreamentQuantity: (listingId: string) => void;
-  isActionLoading: boolean;
+  isActionLoading: string;
   onRemoveItem: (listingId: string, saveForLater: boolean) => void;
   cart: CartData;
 }
@@ -27,7 +26,7 @@ interface CartPageProps {
 enum ProductAvailability {
   IN_STOCK = "In Stock",
   OUT_OF_STOCK = "Out of Stock",
-  LIMITED_STOCK = "Limited Stock", 
+  LIMITED_STOCK = "Limited Stock",
 }
 
 const CartPage: React.FC<CartPageProps> = ({
@@ -39,47 +38,49 @@ const CartPage: React.FC<CartPageProps> = ({
   cart,
 }) => {
   const navigate = useNavigate();
-  const [showRemoveItemPopover, setShowRemoveItemPopover] = useState<boolean>(false);
+  const [showRemoveItemPopover, setShowRemoveItemPopover] =
+    useState<boolean>(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedItemName, setSelectedItemName] = useState<string | null>(null);
 
-
-  console.log("second") //TODO check which runs frist between child and parent to debugg render isuues
+  console.log("second"); //TODO check which runs frist between child and parent to debugg render isuues
 
   const getAvailabilityStyle = (availability: string) => {
     switch (availability) {
       case ProductAvailability.IN_STOCK:
         return {
-          className: "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-[#CBDCEB] text-[#1B3C53] border border-[#456882]/20",
+          className:
+            "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-[#CBDCEB] text-[#1B3C53] border border-[#456882]/20",
           text: "In Stock",
         };
       case ProductAvailability.LIMITED_STOCK:
         return {
-          className: "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-800 border border-yellow-200",
+          className:
+            "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-800 border border-yellow-200",
           text: "Limited Stock",
         };
       case ProductAvailability.OUT_OF_STOCK:
         return {
-          className: "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200",
+          className:
+            "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200",
           text: "Out of Stock",
         };
       default:
         return {
-          className: "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 border border-gray-200",
+          className:
+            "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 border border-gray-200",
           text: "Unknown",
         };
     }
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
       minimumFractionDigits: 0,
     }).format(price);
   };
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-8">
@@ -95,9 +96,12 @@ const CartPage: React.FC<CartPageProps> = ({
           </NavLink>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-[#1B3C53] mb-2">Shopping Cart</h1>
+              <h1 className="text-4xl font-bold text-[#1B3C53] mb-2">
+                Shopping Cart
+              </h1>
               <p className="text-[#456882]/70 text-lg">
-                {initialCartItems.length} item{initialCartItems.length !== 1 ? "s" : ""} in your cart
+                {initialCartItems.length} item
+                {initialCartItems.length !== 1 ? "s" : ""} in your cart
               </p>
             </div>
           </div>
@@ -155,7 +159,8 @@ const CartPage: React.FC<CartPageProps> = ({
                               <div className="flex items-center gap-2 text-sm text-[#456882]/70 bg-[#CBDCEB]/20 px-3 py-2 rounded-lg w-fit">
                                 <Truck className="w-4 h-4" />
                                 <span>
-                                  {item?.product?.deliveryOptions?.pickup && item?.product?.deliveryOptions?.delivery
+                                  {item?.product?.deliveryOptions?.pickup &&
+                                  item?.product?.deliveryOptions?.delivery
                                     ? "Pickup & Delivery available"
                                     : item?.product?.deliveryOptions?.pickup
                                     ? "Pickup only"
@@ -183,9 +188,14 @@ const CartPage: React.FC<CartPageProps> = ({
                               {/* Quantity Controls */}
                               <div className="flex items-center bg-[#CBDCEB]/20 rounded-xl border border-[#CBDCEB]/40">
                                 <button
-                                  onClick={() => ondecreamentQuantity(item.product._id)}
+                                  onClick={() =>
+                                    ondecreamentQuantity(item.product._id)
+                                  }
                                   className="p-3 hover:bg-[#456882] hover:text-white transition-all duration-200 rounded-l-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                                  disabled={isActionLoading || item.quantity <= 1}
+                                  disabled={
+                                    isActionLoading === item.product._id ||
+                                    item.quantity <= 1
+                                  }
                                   type="button"
                                 >
                                   <Minus className="w-4 h-4" />
@@ -194,9 +204,13 @@ const CartPage: React.FC<CartPageProps> = ({
                                   {item.quantity}
                                 </span>
                                 <button
-                                  onClick={() => onIncreamentQuantity(item.product._id)}
+                                  onClick={() =>
+                                    onIncreamentQuantity(item.product._id)
+                                  }
                                   className="p-3 hover:bg-[#456882] hover:text-white transition-all duration-200 rounded-r-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                                  disabled={isActionLoading}
+                                  disabled={
+                                    isActionLoading === item.product._id
+                                  }
                                   type="button"
                                 >
                                   <Plus className="w-4 h-4" />
@@ -204,7 +218,10 @@ const CartPage: React.FC<CartPageProps> = ({
                               </div>
 
                               <div className="text-[#456882]/70">
-                                Subtotal: <span className="font-bold text-[#1B3C53] text-lg">{formatPrice(item.price * item.quantity)}</span>
+                                Subtotal:{" "}
+                                <span className="font-bold text-[#1B3C53] text-lg">
+                                  {formatPrice(item.price * item.quantity)}
+                                </span>
                               </div>
                             </div>
 
@@ -218,7 +235,11 @@ const CartPage: React.FC<CartPageProps> = ({
                               title="Remove Item"
                               type="button"
                             >
-                              <Trash2 className="w-5 h-5" />
+                              {isActionLoading === item.product._id ? (
+                                <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                              ) : (
+                                <Trash2 className="w-5 h-5" />
+                              )}
                             </button>
                           </div>
                         </div>
@@ -234,7 +255,9 @@ const CartPage: React.FC<CartPageProps> = ({
           <div className="lg:col-span-4 mt-8 lg:mt-0">
             <div className="bg-white rounded-2xl shadow-sm border border-[#CBDCEB]/30 overflow-hidden sticky top-8">
               <div className="px-8 py-6 bg-gradient-to-r from-[#CBDCEB]/20 to-white border-b border-[#CBDCEB]/30">
-                <h2 className="text-xl font-bold text-[#1B3C53]">Order Summary</h2>
+                <h2 className="text-xl font-bold text-[#1B3C53]">
+                  Order Summary
+                </h2>
               </div>
 
               <div className="p-8">
@@ -242,7 +265,9 @@ const CartPage: React.FC<CartPageProps> = ({
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between text-[#456882]">
                     <span>Subtotal ({initialCartItems.length} items)</span>
-                    <span className="font-semibold">{formatPrice(cart.total)}</span>
+                    <span className="font-semibold">
+                      {formatPrice(cart.total)}
+                    </span>
                   </div>
                   <div className="flex justify-between text-[#456882]">
                     <span>Shipping</span>
@@ -270,16 +295,28 @@ const CartPage: React.FC<CartPageProps> = ({
                 <div className="mt-6 space-y-4">
                   <div className="flex items-center justify-center gap-2 text-[#456882]/70">
                     <Shield className="w-4 h-4 text-green-500" />
-                    <span className="text-sm font-medium">Secure checkout guaranteed</span>
+                    <span className="text-sm font-medium">
+                      Secure checkout guaranteed
+                    </span>
                   </div>
 
                   <div className="text-center">
-                    <p className="text-xs text-[#456882]/60 mb-3 font-medium">Accepted Payment Methods</p>
+                    <p className="text-xs text-[#456882]/60 mb-3 font-medium">
+                      Accepted Payment Methods
+                    </p>
                     <div className="flex justify-center gap-3">
                       {[
                         { name: "Visa", color: "bg-blue-600", letter: "V" },
-                        { name: "Mastercard", color: "bg-red-600", letter: "M" },
-                        { name: "American Express", color: "bg-blue-500", letter: "A" },
+                        {
+                          name: "Mastercard",
+                          color: "bg-red-600",
+                          letter: "M",
+                        },
+                        {
+                          name: "American Express",
+                          color: "bg-blue-500",
+                          letter: "A",
+                        },
                         { name: "PayPal", color: "bg-[#456882]", letter: "P" },
                       ].map((method) => (
                         <div

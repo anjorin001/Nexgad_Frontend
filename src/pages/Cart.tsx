@@ -12,7 +12,7 @@ import { useToast } from "../utils/ToastNotification";
 const Cart = () => {
   const { cart, isAuthenticated, setCart } = useAppContext();
   const [isCartLoading, setIsCartLoading] = useState<boolean>(false);
-  const [isActionLoading, setIsActionLoading] = useState<boolean>(false);
+  const [isActionLoading, setIsActionLoading] = useState<string>("");
   const cartItem = cart?.items || [];
   const navigate = useNavigate();
   const toast = useToast();
@@ -57,7 +57,7 @@ const Cart = () => {
   };
 
   const handleIncreament = async (listingId: string) => {
-    setIsActionLoading(true);
+    setIsActionLoading(listingId);
     try {
       const request = await api.patch(
         `/cart/product/increase-quantity/${listingId}`
@@ -71,12 +71,12 @@ const Cart = () => {
       console.error(err);
       handleNetworkError(err);
     } finally {
-      setIsActionLoading(false);
+      setIsActionLoading("");
     }
   };
 
   const handleDecreament = async (listingId: string) => {
-    setIsActionLoading(true);
+    setIsActionLoading(listingId);
     try {
       const request = await api.patch(
         `/cart/product/decrease-quantity/${listingId}`
@@ -90,7 +90,7 @@ const Cart = () => {
       console.error(err);
       handleNetworkError(err);
     } finally {
-      setIsActionLoading(false);
+      setIsActionLoading("");
     }
   };
 
@@ -98,7 +98,7 @@ const Cart = () => {
     listingId: string,
     safeForLater: boolean = false
   ) => {
-    setIsActionLoading(true);
+    setIsActionLoading(listingId);
     if (safeForLater) {
       try {
         const [removeItemRes, addToWishlistRes] = await Promise.all([
@@ -118,7 +118,7 @@ const Cart = () => {
         console.error(err);
         handleNetworkError(err);
       } finally {
-        setIsActionLoading(false);
+        setIsActionLoading("");
       }
     } else {
       try {
@@ -133,7 +133,7 @@ const Cart = () => {
         console.error(err);
         handleNetworkError(err);
       } finally {
-        setIsActionLoading(false);
+        setIsActionLoading("");
       }
     }
   };
@@ -148,39 +148,35 @@ const Cart = () => {
     handleGetCart();
   }, []);
 
-  if (cartItem.length === 0 || !cartItem || cartItem === null ){
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center py-20">
-            <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-[#CBDCEB]/30 flex items-center justify-center">
-              <ShoppingBag className="w-16 h-16 text-[#456882]" />
-            </div>
-            <h2 className="text-3xl font-bold text-[#1B3C53] mb-4">
-              Your cart is empty
-            </h2>
-            <p className="text-lg text-[#456882]/70 mb-8 max-w-md mx-auto">
-              Looks like you haven't added anything to your cart yet. Start
-              exploring amazing gadgets!
-            </p>
-            <NavLink
-              to="/listings"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-[#1B3C53] to-[#456882] text-white px-8 py-4 rounded-xl hover:shadow-xl transition-all duration-300 font-semibold transform hover:scale-105"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              <span>Start Shopping</span>
-            </NavLink>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-console.log("first")
+  console.log("first");
   return (
     <>
       {isCartLoading ? (
         <Loader fullScreen={true} />
+      ) : cartItem.length === 0 || !cartItem || cartItem === null ? (
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center py-20">
+              <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-[#CBDCEB]/30 flex items-center justify-center">
+                <ShoppingBag className="w-16 h-16 text-[#456882]" />
+              </div>
+              <h2 className="text-3xl font-bold text-[#1B3C53] mb-4">
+                Your cart is empty
+              </h2>
+              <p className="text-lg text-[#456882]/70 mb-8 max-w-md mx-auto">
+                Looks like you haven't added anything to your cart yet. Start
+                exploring amazing gadgets!
+              </p>
+              <NavLink
+                to="/listings"
+                className="inline-flex items-center gap-3 bg-gradient-to-r from-[#1B3C53] to-[#456882] text-white px-8 py-4 rounded-xl hover:shadow-xl transition-all duration-300 font-semibold transform hover:scale-105"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                <span>Start Shopping</span>
+              </NavLink>
+            </div>
+          </div>
+        </div>
       ) : (
         <>
           <CartPage

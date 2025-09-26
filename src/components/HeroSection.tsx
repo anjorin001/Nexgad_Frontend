@@ -1,11 +1,14 @@
-import React from 'react';
-import SearchBar from './SearcBar'; // Adjust path as needed
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
+import SearchBar from "./SearcBar"; // Adjust path as needed
 
 const HeroSection: React.FC = () => {
-  const handleSearch = (searchTerm: string) => {
-    // Handle your search logic here
-    console.log('Searching for:', searchTerm);
-    // You can redirect to search results page or filter products
+  const navigate = useNavigate();
+  const { searchTerm } = useAppContext();
+
+  const handleSearch = () => {
+    navigate(`/listings?search=${searchTerm}`);
   };
 
   return (
@@ -17,15 +20,15 @@ const HeroSection: React.FC = () => {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
             Buy & Sell Anything in Nigeria
           </h1>
-          
+
           {/* Subheading */}
           <p className="text-xl sm:text-2xl text-white/90 mb-12 max-w-3xl mx-auto">
             Discover the best deals across the country on NexGad
           </p>
-          
+
           {/* Search Bar */}
           <div className="max-w-4xl mx-auto">
-            <SearchBar 
+            <SearchBar
               onSearch={handleSearch}
               placeholder="What are you looking for?"
             />

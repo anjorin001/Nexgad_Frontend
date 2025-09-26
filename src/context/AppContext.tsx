@@ -10,6 +10,7 @@ import type {
   CartData,
   DeliveryAddress,
   FilterState,
+  Product,
   SortState,
   UserData,
 } from "./AppContextInterface";
@@ -32,6 +33,7 @@ interface AppContextType {
   searchParams: URLSearchParams;
   wishlistProductIds: string[];
   isChangingPasswordLoading: boolean;
+  wishlistItems: Product[];
   checkout: ICheckOut;
   deliveryAddress: DeliveryAddress;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
@@ -40,6 +42,7 @@ interface AppContextType {
   setLinkCopied: React.Dispatch<React.SetStateAction<boolean>>;
   setIsLandingPageLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setIsAddToCartLoading: React.Dispatch<React.SetStateAction<string[]>>;
+  setWishlistItems: React.Dispatch<React.SetStateAction<Product[]>>;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
   setDeliveryAddress: React.Dispatch<React.SetStateAction<DeliveryAddress>>;
   setCheckout: React.Dispatch<React.SetStateAction<ICheckOut>>;
@@ -90,6 +93,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     condition: "",
   });
   const [wishlistProductIds, setWishlistProductIds] = useState<string[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
   const [isChangingPasswordLoading, setIsChangingPasswordLoading] =
     useState(false);
   const [cart, setCart] = useState<CartData | null>(null);
@@ -145,6 +149,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         deliveryAddress,
         setCheckout,
         checkout,
+        wishlistItems,
+        setWishlistItems,
       }}
     >
       {children}

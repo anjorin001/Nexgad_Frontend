@@ -2,7 +2,7 @@ import axios, { type InternalAxiosRequestConfig } from "axios";
 import { LogoutRequest } from "./LogoutLogic";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: import.meta.env.VITE_LOCAL_URL,
 });
 
 api.interceptors.request.use(

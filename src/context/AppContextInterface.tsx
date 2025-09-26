@@ -28,6 +28,7 @@ export interface Product {
   availability: string;
   category: string;
   images: ProductImage[];
+  price: number;
   originalPrice: number;
   deliveryOptions: DeliveryOptions;
 }
