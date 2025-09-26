@@ -5,64 +5,38 @@ import {
   ChevronRight,
   Flag,
   Heart,
+  Loader2,
   MapPin,
   Package,
   Share2,
-  ShoppingCart,
   Store,
   Truck,
   ZoomIn,
 } from "lucide-react";
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { FaShoppingCart } from "react-icons/fa";
 import { useAppContext } from "../context/AppContext";
-import { formatPrice } from "../utils/FormatPrice";
 import { useShareProduct } from "../hooks/useShareProduct";
-
-interface ProductImage {
-  id: string;
-  url: string;
-  alt: string;
-}
-
-export interface ProductData {
-  id: string;
-  title: string;
-  brand: string;
-  price: number;
-  originalPrice?: number;
-  condition: "Brand New" | "Foreign Used" | "Nigerian Used" | "Refurbished";
-  availability: "In Stock" | "Out of Stock" | "Limited Stock"; //TODO implement jobber for this in the backend
-  quantity: number;
-  category: string;
-  description: string;
-  specifications: { [key: string]: string };
-  images: ProductImage[];
-  location: {
-    city: string;
-    state: string;
-  };
-  seller: {
-    name: string;
-    rating?: number;
-  };
-  deliveryOptions: {
-    pickup: boolean;
-    delivery: boolean;
-  };
-  dateListeddays: number;
-  sku: string;
-  tags: string[];
-}
+import { formatPrice } from "../utils/FormatPrice";
+import { formatRelativeDate } from "../utils/formatRelativeDate";
+import { slugifyProduct } from "../utils/Slugify";
+import Loader from "./nexgadMidPageLoader";
+import type { IProduct } from "./productDetail/productDetailInterface";
 
 interface ProductDetailProps {
-  product: ProductData;
-  onAddToCart?: (productId: string) => void;
-  onAddToWishlist?: (productId: string) => void;
+  isAddToCartLoading: string[];
+  isPageLoading: boolean;
+  isLikeLoading: boolean;
+  product: IProduct;
+  onAddToCart?: (productId: string[]) => void;
+  onAddToWishlist?: (productId: string, currentlyLiked: boolean) => void;
   onReportItem?: (productId: string) => void;
 }
 
 export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
+  isAddToCartLoading,
+  isPageLoading,
+  isLikeLoading,
   product,
   onAddToCart,
   onAddToWishlist,
@@ -73,31 +47,40 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
   const [activeTab, setActiveTab] = useState<"description" | "specifications">(
     "description"
   );
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const { linkCopied } = useAppContext(); 
-  const { handleShare } = useShareProduct()
+  const [isWishlisted, setIsWishlisted] = useState<boolean>(false);
+  const { linkCopied } = useAppContext();
+  const { handleShare } = useShareProduct();
 
+  useEffect(() => {
+    if (product) {
+      setIsWishlisted(!!product.liked);
+    }
+  }, [product?.liked]);
 
-  // TODO make use of this below for retreiving id --(request to b.e)
-  const { slug } = useParams();
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader size={64} thickness={1} />
+      </div>
+    );
+  }
 
-  // const productId = slug?.split("-").pop(); // "abc123"
-
-  // useEffect(() => {
-  //   fetch(`/api/products/${productId}`)
-  //     .then((res) => res.json())
-  //     .then((data) => console.log(data));
-  // }, [productId]);
-
-
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-[#1B3C53] text-lg">Product not found.</span>
+      </div>
+    );
+  }
   const getDiscountPercentage = () => {
-    if (product.originalPrice && product.originalPrice > product.price) {
+    if (product?.originalPrice && product?.originalPrice > product?.price) {
       return Math.round(
         ((product.originalPrice - product.price) / product.originalPrice) * 100
       );
     }
     return 0;
   };
+  console.log(isPageLoading);
 
   const getAvailabilityColor = () => {
     switch (product.availability) {
@@ -139,15 +122,6 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
     }
   };
 
-  const handleWishlistToggle = () => {
-    setIsWishlisted(!isWishlisted);
-    if (onAddToWishlist) {
-      onAddToWishlist(product.id);
-    }
-  };
-
-  if (!slug) return
-
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -158,13 +132,14 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
             <div className="aspect-square relative">
               <img
                 loading="lazy"
-                src={product.images[selectedImageIndex]?.url}
-                alt={product.images[selectedImageIndex]?.alt}
+                id={product?.images[selectedImageIndex]?.id}
+                src={product?.images[selectedImageIndex]?.url}
+                alt={product?.images[selectedImageIndex]?.alt}
                 className="w-full h-full object-cover"
               />
 
               {/* Image Navigation */}
-              {product.images.length > 1 && (
+              {product?.images.length > 1 && (
                 <>
                   <button
                     onClick={() => handleImageChange("prev")}
@@ -199,9 +174,9 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
           </div>
 
           {/* Image Thumbnails */}
-          {product.images.length > 1 && (
+          {product?.images.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-2">
-              {product.images.map((image, index) => (
+              {product?.images.map((image, index) => (
                 <button
                   key={image.id}
                   onClick={() => setSelectedImageIndex(index)}
@@ -233,10 +208,14 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
               </h1>
               <div className="flex gap-2 ml-4">
                 <button
-                  onClick={handleWishlistToggle}
+                  disabled={isLikeLoading}
+                  onClick={() => {
+                    onAddToWishlist(product._id, isWishlisted);
+                    setIsWishlisted((prev) => !prev);
+                  }}
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
                     isWishlisted
-                      ? "bg-red-100 text-red-600"
+                      ? "bg-[#1B3C53] text-white hover:bg-[#456882]"
                       : "bg-[#CBDCEB] text-[#456882] hover:bg-[#456882] hover:text-white"
                   }`}
                 >
@@ -245,7 +224,15 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
                   />
                 </button>
                 <button
-                  onClick={() => handleShare(product.id, product.title, product.price, slug)}
+                  onClick={() => {
+                    const slug = slugifyProduct(product.title, product._id);
+                    return handleShare(
+                      product._id,
+                      product.title,
+                      product.price,
+                      slug
+                    );
+                  }}
                   className="w-10 h-10 bg-[#CBDCEB] hover:bg-[#456882] text-[#456882] hover:text-white rounded-full flex items-center justify-center transition-all duration-200"
                 >
                   {linkCopied ? (
@@ -301,12 +288,16 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
           {/* Action Buttons */}
           <div className="space-y-3">
             <button
-              onClick={() => onAddToCart?.(product.id)}
+              onClick={() => onAddToCart?.([product._id])}
               disabled={product.availability === "Out of Stock"}
               className="w-full bg-[#1B3C53] hover:bg-[#456882] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold text-lg flex items-center justify-center gap-2 transition-all duration-200"
             >
-              <ShoppingCart className="w-5 h-5" />
-              Add to Cart
+              {isAddToCartLoading.includes(product._id) ? (
+                <Loader2 className="w-6 h-6 animate-spin mr-2" />
+              ) : (
+                <FaShoppingCart className="text-xs" />
+              )}
+              <span>Add to Cart</span>
             </button>
           </div>
 
@@ -340,12 +331,16 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
           <div className="text-sm text-[#456882]/70 space-y-1">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span>Listed {product.dateListeddays ?? "N/A"} days ago</span>
+              <span>Listed {formatRelativeDate(product.dateListeddays)}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Package className="w-4 h-4" />
-              <span>Item ID: {product.sku || "N/A"}</span>
-            </div>
+            {product.sku ? (
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4" />
+                <span>Item ID: {product.sku || "N/A"}</span>
+              </div>
+            ) : (
+              ""
+            )}
           </div>
         </div>
       </div>
@@ -418,7 +413,7 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
       {/* Report Item */}
       <div className="mt-8 pt-6 border-t border-[#CBDCEB]">
         <button
-          onClick={() => onReportItem?.(product.id)}
+          onClick={() => onReportItem?.(product._id)}
           className="flex items-center gap-2 text-[#456882]/70 hover:text-red-500 text-sm transition-colors duration-200"
         >
           <Flag className="w-4 h-4" />
@@ -435,8 +430,8 @@ export const ProductDetailCtn: React.FC<ProductDetailProps> = ({
           <div className="max-w-4xl max-h-full">
             <img
               loading="lazy"
-              src={product.images[selectedImageIndex]?.url}
-              alt={product.images[selectedImageIndex]?.alt}
+              src={product?.images[selectedImageIndex]?.url}
+              alt={product?.images[selectedImageIndex]?.alt}
               className="max-w-full max-h-full object-contain"
             />
           </div>
