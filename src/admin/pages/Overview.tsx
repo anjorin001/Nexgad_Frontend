@@ -41,7 +41,7 @@ const DashBoard = () => {
       console.error("Error sending reset token:", err);
 
       if (err.response) {
-        if (err.response.message === "Unauthorized") {
+        if (err.response.data.message === "Access denied" || err.response.data.statusCode === 401) {
           toast.error("Unauthorized Access");
           navigate("/login");
           return;

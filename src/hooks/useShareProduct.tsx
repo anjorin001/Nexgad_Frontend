@@ -1,6 +1,7 @@
 // hooks/useShareProduct.tsx
 import { useAppContext } from "../context/AppContext";
-import { shareProduct } from "../utils/ShareProduct";
+import { shareProduct } from "../utils/shareProduct";
+
 
 export const useShareProduct = () => {
   const { setLinkCopied } = useAppContext();

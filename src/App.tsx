@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import AdminRouter from "./admin/Admin";
+import { AdminProtector } from "./admin/AdminRoute";
 import NexgadLoader from "./components/nexgad-loader";
 import { AppProvider } from "./context/AppContext";
+import { AuthProvider } from "./context/AuthContext";
 import ScrollToTop from "./helper/ScrollToTop";
 import useAuthCheck from "./hooks/useAuthCheck";
 import UserLayout from "./layout/UserLayout";
@@ -65,7 +67,14 @@ const AppContent = () => {
         <Route path="/support" element={<Support />} />
         <Route path="/toast" element={<ToastDemo />} />
       </Route>
-      <Route path="/admin/*" element={<AdminRouter />} />
+      <Route
+        path="/admin/*"
+        element={
+          <AdminProtector>
+            <AdminRouter />
+          </AdminProtector>
+        }
+      />
     </Routes>
   );
 };
@@ -75,7 +84,9 @@ const App = () => {
     <ToastProvider>
       <ScrollToTop />
       <AppProvider>
-        <AppContent />
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
       </AppProvider>
     </ToastProvider>
   );
