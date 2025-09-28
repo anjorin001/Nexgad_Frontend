@@ -152,7 +152,9 @@ const Cart = () => {
   return (
     <>
       {isCartLoading ? (
-        <Loader fullScreen={true} />
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader size={64} thickness={1} />
+        </div>
       ) : cartItem.length === 0 || !cartItem || cartItem === null ? (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

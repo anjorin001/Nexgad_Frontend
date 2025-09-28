@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
-import type { Order } from "../components/orderComponents/OrderInterfaces";
 import OrdersPage from "../components/OrdersCtn";
 import { useAppContext } from "../context/AppContext";
 import api from "../utils/api";
