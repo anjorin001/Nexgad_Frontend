@@ -11,7 +11,7 @@ import { useAppContext } from "../context/AppContext";
 import { AddToWishlistRequest } from "../utils/AddToWishlistRequest";
 import api from "../utils/api";
 import { useToast } from "../utils/ToastNotification";
-import FilterSidebar from "../components/CategorySidebar";
+import FilterSidebar from "../components/FilterSidebar";
 
 const Listings = () => {
   const {
