@@ -18,12 +18,12 @@ const HeroSection: React.FC = () => {
         <div className="max-w-7xl mx-auto text-center">
           {/* Main Heading */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-            Buy & Sell Anything in Nigeria
+           Your Trusted Place to Buy Gadgets Nationwide
           </h1>
 
           {/* Subheading */}
           <p className="text-xl sm:text-2xl text-white/90 mb-12 max-w-3xl mx-auto">
-            Discover the best deals across the country on NexGad
+            Discover the best gadget deals across the country on NexGad
           </p>
 
           {/* Search Bar */}
