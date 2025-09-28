@@ -2,7 +2,6 @@ import qs from "qs";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AllListings from "../components/AllListings";
-import FilterSidebar from "../components/CategorySidebar";
 import Footer from "../components/Footer";
 import MobileFilterComponent, {
   type FilterState,
@@ -12,6 +11,7 @@ import { useAppContext } from "../context/AppContext";
 import { AddToWishlistRequest } from "../utils/AddToWishlistRequest";
 import api from "../utils/api";
 import { useToast } from "../utils/ToastNotification";
+import FilterSidebar from "../components/CategorySidebar";
 
 const Listings = () => {
   const {
