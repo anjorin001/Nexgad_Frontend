@@ -3,227 +3,69 @@ import {
   FaBox,
   FaCalendarAlt,
   FaCheckCircle,
-  FaDownload,
   FaExclamationTriangle,
   FaEye,
   FaFilter,
   FaMapMarkerAlt,
-  FaPhone,
   FaReceipt,
   FaRedo,
   FaSearch,
   FaShoppingBag,
-  FaStar,
   FaTimesCircle,
   FaTruck,
 } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
-
-// Types
-interface OrderItem {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-interface Order {
-  id: string;
-  orderNumber: string;
-  status:
-    | "pending"
-    | "processing"
-    | "shipped"
-    | "delivered"
-    | "cancelled"
-    | "returned";
-  items: OrderItem[];
-  totalAmount: number;
-  orderDate: string;
-  deliveryDate?: string;
-  shippingAddress: string;
-  paymentMethod: string;
-  trackingNumber?: string;
-  seller: {
-    name: string;
-    id: string;
-  };
-  estimatedDelivery?: string;
-  cancellationReason?: string;
-  returnReason?: string;
-}
+import Loader from "./nexgadMidPageLoader";
+import {
+  OrderStatus,
+  type Order,
+  type OrderItem,
+} from "./orderComponents/OrderInterfaces";
 
 interface OrdersPageProps {
-  onViewOrderDetails?: (orderId: string) => void;
-  onReorder?: (orderId: string) => void;
+  isPageLoading: boolean;
+  allOrders: Order[];
   onTrackOrder?: (trackingNumber: string) => void;
   onContactSeller?: (sellerId: string) => void;
   onDownloadInvoice?: (orderId: string) => void;
   onRateOrder?: (orderId: string) => void;
+  hasMore: boolean;
+  loadMore: () => void;
+  isLoadMoreLoading: boolean;
+  // isReorderLoading: string[];
+  // onReorder: (order: Order) => void;
 }
 
 const OrdersPage: React.FC<OrdersPageProps> = ({
-  onViewOrderDetails,
-  onReorder,
+  isPageLoading,
   onTrackOrder,
+  allOrders,
+  hasMore,
+  loadMore,
+  isLoadMoreLoading,
   onContactSeller,
   onDownloadInvoice,
   onRateOrder,
+  // isReorderLoading,
+  // onReorder,
 }) => {
   const [activeTab, setActiveTab] = useState<"active" | "inactive">("active");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const navigate = useNavigate()
-  // Sample orders data
-  const allOrders: Order[] = [
-    {
-      id: "1",
-      orderNumber: "NG-2024-001",
-      status: "delivered",
-      items: [
-        {
-          id: "1",
-          name: "MacBook Pro M2 14-inch",
-          brand: "Apple",
-          price: 850000,
-          quantity: 1,
-          image:
-            "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=200&h=200&fit=crop",
-        },
-        {
-          id: "2",
-          name: "Magic Mouse",
-          brand: "Apple",
-          price: 45000,
-          quantity: 1,
-          image:
-            "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200&h=200&fit=crop",
-        },
-      ],
-      totalAmount: 895000,
-      orderDate: "2024-07-15",
-      deliveryDate: "2024-07-20",
-      shippingAddress: "Lagos, Victoria Island",
-      paymentMethod: "Card ending in 4567",
-      trackingNumber: "TRK123456789",
-      seller: {
-        name: "TechHub Lagos",
-        id: "seller-1",
-      },
-    },
-    {
-      id: "2",
-      orderNumber: "NG-2024-002",
-      status: "shipped",
-      items: [
-        {
-          id: "3",
-          name: "iPhone 14 Pro Max 256GB",
-          brand: "Apple",
-          price: 650000,
-          quantity: 1,
-          image:
-            "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=200&h=200&fit=crop",
-        },
-      ],
-      totalAmount: 650000,
-      orderDate: "2024-07-25",
-      shippingAddress: "Abuja, Wuse 2",
-      paymentMethod: "Bank Transfer",
-      trackingNumber: "TRK987654321",
-      estimatedDelivery: "2024-08-05",
-      seller: {
-        name: "Mobile World Abuja",
-        id: "seller-2",
-      },
-    },
-    {
-      id: "3",
-      orderNumber: "NG-2024-003",
-      status: "processing",
-      items: [
-        {
-          id: "4",
-          name: "Samsung Galaxy S23 Ultra",
-          brand: "Samsung",
-          price: 580000,
-          quantity: 1,
-          image:
-            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop",
-        },
-      ],
-      totalAmount: 580000,
-      orderDate: "2024-07-30",
-      shippingAddress: "Lagos, Ikeja",
-      paymentMethod: "Card ending in 1234",
-      estimatedDelivery: "2024-08-10",
-      seller: {
-        name: "Galaxy Store Lagos",
-        id: "seller-3",
-      },
-    },
-    {
-      id: "4",
-      orderNumber: "NG-2024-004",
-      status: "cancelled",
-      items: [
-        {
-          id: "5",
-          name: "Dell XPS 13 Laptop",
-          brand: "Dell",
-          price: 420000,
-          quantity: 1,
-          image:
-            "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&h=200&fit=crop",
-        },
-      ],
-      totalAmount: 420000,
-      orderDate: "2024-07-18",
-      shippingAddress: "Port Harcourt, GRA",
-      paymentMethod: "Card ending in 7890",
-      cancellationReason: "Out of stock",
-      seller: {
-        name: "Laptop Hub PH",
-        id: "seller-4",
-      },
-    },
-    {
-      id: "5",
-      orderNumber: "NG-2024-005",
-      status: "returned",
-      items: [
-        {
-          id: "6",
-          name: "Sony WH-1000XM5 Headphones",
-          brand: "Sony",
-          price: 180000,
-          quantity: 1,
-          image:
-            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop",
-        },
-      ],
-      totalAmount: 180000,
-      orderDate: "2024-07-10",
-      deliveryDate: "2024-07-15",
-      shippingAddress: "Kano, Fagge",
-      paymentMethod: "Bank Transfer",
-      returnReason: "Defective product",
-      seller: {
-        name: "Audio Pro Kano",
-        id: "seller-5",
-      },
-    },
-  ];
+  const navigate = useNavigate();
 
-  // Filter orders based on active tab
   const activeOrders = allOrders.filter((order) =>
-    ["pending", "processing", "shipped", "delivered"].includes(order.status)
+    [
+      OrderStatus.AWAITING_PAYMENT,
+      OrderStatus.PENDING,
+      OrderStatus.PROCESSING,
+      OrderStatus.SHIPPED,
+      OrderStatus.DELIVERED,
+    ].includes(order.orderStatus)
   );
 
   const inactiveOrders = allOrders.filter((order) =>
-    ["cancelled", "returned"].includes(order.status)
+    [OrderStatus.CANCELLED, OrderStatus.RETURNED].includes(order.orderStatus)
   );
 
   const currentOrders = activeTab === "active" ? activeOrders : inactiveOrders;
@@ -233,10 +75,10 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
     const matchesSearch =
       order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.items.some((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        item.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     const matchesStatus =
-      statusFilter === "all" || order.status === statusFilter;
+      statusFilter === "all" || order.orderStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -295,9 +137,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
   };
 
   const handleViewDetails = (orderId: string): void => {
-    onViewOrderDetails?.(orderId);
-    navigate(`/my-orders/${orderId}`)
-    console.log("Viewing order details:", orderId);
+    navigate(`/my-orders/${orderId}`);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -309,6 +149,14 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
   ): void => {
     setStatusFilter(e.target.value);
   };
+
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center ">
+        <Loader size={64} thickness={1} />
+      </div>
+    );
+  }
 
   if (currentOrders.length === 0) {
     return (
@@ -432,7 +280,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
         <div className="space-y-6">
           {filteredOrders.map((order) => (
             <div
-              key={order.id}
+              key={order._id}
               className="bg-white rounded-lg shadow-md overflow-hidden"
             >
               {/* Order Header */}
@@ -440,7 +288,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
-                      {getStatusIcon(order.status)}
+                      {getStatusIcon(order.orderStatus)}
                       <div>
                         <h3 className="text-lg font-semibold text-[#1B3C53]">
                           Order #{order.orderNumber}
@@ -455,11 +303,11 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
                   <div className="flex items-center space-x-3">
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        order.status
+                        order.orderStatus
                       )}`}
                     >
-                      {order.status.charAt(0).toUpperCase() +
-                        order.status.slice(1)}
+                      {order.orderStatus.charAt(0).toUpperCase() +
+                        order.orderStatus.slice(1)}
                     </span>
                     <span className="text-lg font-bold text-[#1B3C53]">
                       {formatPrice(order.totalAmount)}
@@ -471,16 +319,17 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
               {/* Order Items */}
               <div className="px-6 py-4">
                 <div className="space-y-4">
-                  {order.items.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4">
+                  {order.items.map((item: OrderItem) => (
+                    <div key={item._id} className="flex items-center space-x-4">
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        loading="lazy"
+                        src={item.image?.[0]?.url || ""}
+                        alt={item.image?.[0]?.alt || item.title}
                         className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                       />
                       <div className="flex-1">
                         <h4 className="font-medium text-[#1B3C53]">
-                          {item.name}
+                          {item.title}
                         </h4>
                         <p className="text-sm text-gray-600">{item.brand}</p>
                         <p className="text-sm text-gray-600">
@@ -505,14 +354,12 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
                       <FaMapMarkerAlt className="text-xs" />
                       <span>Delivery Address: {order.shippingAddress}</span>
                     </div>
-                    <div className="flex items-center space-x-2 text-gray-600 mb-2">
-                      <FaReceipt className="text-xs" />
-                      <span>Payment: {order.paymentMethod}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-gray-600">
-                      <FaPhone className="text-xs" />
-                      <span>Seller: {order.seller.name}</span>
-                    </div>
+                    {order?.transaction?.paymentMethod && (
+                      <div className="flex items-center space-x-2 text-gray-600 mb-2">
+                        <FaReceipt className="text-xs" />
+                        <span>Payment: {order?.transaction?.paymentMethod}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -553,36 +400,42 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
               <div className="px-6 py-4 border-t border-gray-200 bg-white">
                 <div className="flex flex-wrap gap-3">
                   <button
-                    onClick={() => handleViewDetails(order.id)}
+                    onClick={() => handleViewDetails(order._id)}
                     className="inline-flex items-center space-x-2 bg-[#1B3C53] text-white px-4 py-2 rounded-lg hover:bg-[#456882] transition-all duration-200 font-medium text-sm"
                   >
                     <FaEye className="text-xs" />
                     <span>View Details</span>
                   </button>
 
-                  {order.trackingNumber && order.status === "shipped" && (
-                    <button
-                      onClick={() => onTrackOrder?.(order.trackingNumber!)}
-                      className="inline-flex items-center space-x-2 bg-[#CBDCEB] text-[#1B3C53] px-4 py-2 rounded-lg hover:bg-[#456882]/20 transition-all duration-200 font-medium text-sm"
-                    >
-                      <FaTruck className="text-xs" />
-                      <span>Track Order</span>
-                    </button>
-                  )}
+                  {order.trackingNumber &&
+                    order.orderStatus === OrderStatus.SHIPPED && (
+                      <button
+                        onClick={() => onTrackOrder?.(order.trackingNumber!)}
+                        className="inline-flex items-center space-x-2 bg-[#CBDCEB] text-[#1B3C53] px-4 py-2 rounded-lg hover:bg-[#456882]/20 transition-all duration-200 font-medium text-sm"
+                      >
+                        <FaTruck className="text-xs" />
+                        <span>Track Order</span>
+                      </button>
+                    )}
 
-                  {(order.status === "delivered" ||
+                  {/* {(order.status === "delivered" ||
                     order.status === "cancelled" ||
                     order.status === "returned") && (
                     <button
-                      onClick={() => onReorder?.(order.id)}
+                      disabled={isReorderLoading.includes(order.id)}
+                      onClick={() => onReorder?.(order)}
                       className="inline-flex items-center space-x-2 bg-[#CBDCEB] text-[#1B3C53] px-4 py-2 rounded-lg hover:bg-[#456882]/20 transition-all duration-200 font-medium text-sm"
                     >
-                      <FaRedo className="text-xs" />
+                      {isReorderLoading.includes(order.id) ? (
+                        <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                      ) : (
+                        <FaRedo className="text-xs" />
+                      )}
                       <span>Reorder</span>
                     </button>
-                  )}
+                  )} */}
 
-                  {order.status === "delivered" && (
+                  {/* {order.status === "delivered" && (
                     <button
                       onClick={() => onRateOrder?.(order.id)}
                       className="inline-flex items-center space-x-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg hover:bg-yellow-200 transition-all duration-200 font-medium text-sm"
@@ -590,28 +443,40 @@ const OrdersPage: React.FC<OrdersPageProps> = ({
                       <FaStar className="text-xs" />
                       <span>Rate & Review</span>
                     </button>
-                  )}
+                  )} */}
 
-                  <button
+                  {/* <button
                     onClick={() => onDownloadInvoice?.(order.id)}
                     className="inline-flex items-center space-x-2 text-[#456882] hover:text-[#1B3C53] px-4 py-2 rounded-lg hover:bg-gray-100 transition-all duration-200 font-medium text-sm"
                   >
                     <FaDownload className="text-xs" />
                     <span>Download Invoice</span>
-                  </button>
+                  </button> */}
 
-                  <button
+                  {/* <button
                     onClick={() => onContactSeller?.(order.seller.id)}
                     className="inline-flex items-center space-x-2 text-[#456882] hover:text-[#1B3C53] px-4 py-2 rounded-lg hover:bg-gray-100 transition-all duration-200 font-medium text-sm"
                   >
                     <FaPhone className="text-xs" />
                     <span>Contact Seller</span>
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
           ))}
         </div>
+
+        {hasMore && (
+          <div className="w-full flex justify-center mt-8">
+            <button
+              onClick={loadMore}
+              disabled={isLoadMoreLoading}
+              className="px-8 py-3 bg-[#1B3C53] hover:bg-[#456882] text-white rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+            >
+              <span>Load More Orders</span>
+            </button>
+          </div>
+        )}
 
         {/* No Results */}
         {filteredOrders.length === 0 && currentOrders.length > 0 && (

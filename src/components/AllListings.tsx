@@ -65,7 +65,6 @@ const AllListings: React.FC<AllListingsProps> = ({
     if (listingId) {
       navigate(productUrl);
     }
-    console.log(productUrl);
   };
 
   return (

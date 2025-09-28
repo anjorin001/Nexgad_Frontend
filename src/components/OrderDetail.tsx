@@ -2,7 +2,7 @@ import {
   CheckCircle,
   Clock,
   CreditCard,
-  Download,
+  Loader2,
   Mail,
   MapPin,
   MessageCircle,
@@ -14,93 +14,44 @@ import {
   XCircle,
 } from "lucide-react";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Loader from "./nexgadMidPageLoader";
+import type { Order } from "./orderComponents/OrderInterfaces";
 
-interface OrderItem {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;
-  quantity: number;
-  image: string;
+interface OrderDetailComponentProp {
+  isCancelOrderLoading: boolean;
+  isPageLoading: boolean;
+  onCancelOrder: (orderId: string) => void;
+  order: Order;
 }
 
-interface Order {
-  id: string;
-  orderNumber: string;
-  status:
-    | "pending"
-    | "processing"
-    | "shipped"
-    | "delivered"
-    | "cancelled"
-    | "returned";
-  items: OrderItem[];
-  totalAmount: number;
-  orderDate: string;
-  deliveryDate?: string;
-  shippingAddress: string;
-  paymentMethod: string;
-  trackingNumber?: string;
-  seller: {
-    name: string;
-    id: string;
-  };
-  estimatedDelivery?: string;
-  cancellationReason?: string;
-  returnReason?: string;
-}
-
-const OrderDetailComponent: React.FC = () => {
+const OrderDetailComponent: React.FC<OrderDetailComponentProp> = ({
+  isCancelOrderLoading,
+  onCancelOrder,
+  isPageLoading,
+  order,
+}) => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
-  // TODO use useparam for id
-  // Sample order data
-  const order: Order = {
-    id: "1",
-    orderNumber: "ORD-2025-ABC123",
-    status: "pending",
-    items: [
-      {
-        id: "1",
-        name: "iPhone 15 Pro Max 256GB",
-        brand: "Apple",
-        price: 850000,
-        quantity: 1,
-        image:
-          "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop&crop=center",
-      },
-      {
-        id: "2",
-        name: "AirPods Pro (2nd Gen)",
-        brand: "Apple",
-        price: 145000,
-        quantity: 1,
-        image:
-          "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=300&h=300&fit=crop&crop=center",
-      },
-      {
-        id: "3",
-        name: "MagSafe Charger",
-        brand: "Apple",
-        price: 35000,
-        quantity: 2,
-        image:
-          "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=300&h=300&fit=crop&crop=center",
-      },
-    ],
-    totalAmount: 1065000,
-    orderDate: "2025-08-05",
-    shippingAddress: "123 Independence Avenue, Wuse II, Abuja, FCT, Nigeria",
-    paymentMethod: "Card ending in 4567",
-    trackingNumber: "TRK789456123",
-    seller: {
-      name: "TechStore Nigeria",
-      id: "seller123",
-    },
-    estimatedDelivery: "2025-08-12",
-  };
+  const navigate = useNavigate();
 
-  const getStatusIcon = (status: Order["status"]) => {
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center ">
+        <Loader size={64} thickness={1} />
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-[#1B3C53] text-lg">Order not found.</span>
+      </div>
+    );
+  }
+
+  const getStatusIcon = (status: Order["orderStatus"]) => {
     switch (status) {
       case "pending":
         return <Clock className="w-5 h-5 text-yellow-500" />;
@@ -119,7 +70,7 @@ const OrderDetailComponent: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: Order["status"]) => {
+  const getStatusColor = (status: Order["orderStatus"]) => {
     switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
@@ -155,25 +106,28 @@ const OrderDetailComponent: React.FC = () => {
   };
 
   const canCancelOrder =
-    order.status === "pending" || order.status === "processing";
-  const canTrackOrder = order.status === "shipped" && order.trackingNumber;
+    order?.orderStatus === "pending" || order?.orderStatus === "processing";
+  const canTrackOrder =
+    order?.orderStatus === "shipped" && order?.trackingNumber;
 
   const orderProgress = [
     { step: "Order Placed", date: order.orderDate, completed: true },
     {
       step: "Processing",
-      date: order.status === "pending" ? undefined : order.orderDate,
-      completed: ["processing", "shipped", "delivered"].includes(order.status),
+      date: order?.orderStatus === "pending" ? undefined : order?.orderDate,
+      completed: ["processing", "shipped", "delivered"].includes(
+        order.orderStatus
+      ),
     },
     {
       step: "Shipped",
-      date: order.status === "shipped" ? order.orderDate : undefined,
-      completed: ["shipped", "delivered"].includes(order.status),
+      date: order?.orderStatus === "shipped" ? order?.orderDate : undefined,
+      completed: ["shipped", "delivered"].includes(order?.orderStatus),
     },
     {
       step: "Delivered",
-      date: order.deliveryDate,
-      completed: order.status === "delivered",
+      date: order?.deliveryDate,
+      completed: order?.orderStatus === "delivered",
     },
   ];
 
@@ -201,18 +155,18 @@ const OrderDetailComponent: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  {getStatusIcon(order.status)}
+                  {getStatusIcon(order.orderStatus)}
                   <div>
                     <h2 className="text-xl font-bold text-gray-800">
                       Order Status
                     </h2>
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
-                        order.status
+                        order.orderStatus
                       )}`}
                     >
-                      {order.status.charAt(0).toUpperCase() +
-                        order.status.slice(1)}
+                      {order.orderStatus.charAt(0).toUpperCase() +
+                        order.orderStatus.slice(1)}
                     </span>
                   </div>
                 </div>
@@ -259,7 +213,7 @@ const OrderDetailComponent: React.FC = () => {
                 </div>
               </div>
 
-              {order.estimatedDelivery && order.status !== "delivered" && (
+              {order.estimatedDelivery && order.orderStatus !== "delivered" && (
                 <div className="mt-6 p-4 bg-blue-50 rounded-md">
                   <p className="text-sm text-[#263b51]">
                     <strong>Estimated Delivery:</strong>{" "}
@@ -277,17 +231,17 @@ const OrderDetailComponent: React.FC = () => {
               <div className="space-y-4">
                 {order.items.map((item) => (
                   <div
-                    key={item.id}
+                    key={item._id}
                     className="flex items-center gap-4 p-4 border border-gray-200 rounded-md"
                   >
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.image?.[0]?.url || ""}
+                      alt={item.image?.[0]?.alt || item.title}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-800">
-                        {item.name}
+                        {item.title}
                       </h3>
                       <p className="text-gray-600 text-sm">
                         Brand: {item.brand}
@@ -336,35 +290,18 @@ const OrderDetailComponent: React.FC = () => {
                   <CreditCard className="w-5 h-5 text-gray-600" />
                   <h3 className="font-bold text-gray-800">Payment Method</h3>
                 </div>
-                <p className="text-gray-600">{order.paymentMethod}</p>
+                {order?.transaction?.paymentMethod && (
+                  <p className="text-gray-600">
+                    {order?.transaction?.paymentMethod}
+                  </p>
+                )}
+
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm font-medium text-gray-700">
                     Order Date:
                   </p>
                   <p className="text-gray-600">{formatDate(order.orderDate)}</p>
                 </div>
-              </div>
-            </div>
-
-            {/* Seller Information */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <User className="w-5 h-5 text-gray-600" />
-                <h3 className="font-bold text-gray-800">Seller Information</h3>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-800">
-                    {order.seller.name}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Seller ID: {order.seller.id}
-                  </p>
-                </div>
-                <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors font-medium flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4" />
-                  Contact Seller
-                </button>
               </div>
             </div>
           </div>
@@ -376,9 +313,9 @@ const OrderDetailComponent: React.FC = () => {
               <h3 className="font-bold text-gray-800 mb-4">Order Summary</h3>
               <div className="space-y-3">
                 {order.items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
+                  <div key={item._id} className="flex justify-between text-sm">
                     <span className="text-gray-600">
-                      {item.name} × {item.quantity}
+                      {item.title} × {item.quantity}
                     </span>
                     <span className="font-medium">
                       {formatPrice(item.price * item.quantity)}
@@ -397,10 +334,10 @@ const OrderDetailComponent: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              <button className="w-full bg-[#263b51] text-white py-3 px-4 rounded-md hover:bg-[#456882] transition-colors font-medium flex items-center justify-center gap-2">
+              {/* <button className="w-full bg-[#263b51] text-white py-3 px-4 rounded-md hover:bg-[#456882] transition-colors font-medium flex items-center justify-center gap-2">
                 <Download className="w-4 h-4" />
                 Download Invoice
-              </button>
+              </button> */}
 
               {canCancelOrder && (
                 <button
@@ -411,7 +348,7 @@ const OrderDetailComponent: React.FC = () => {
                 </button>
               )}
 
-              {order.status === "delivered" && (
+              {order.orderStatus === "delivered" && (
                 <button className="w-full bg-orange-600 text-white py-3 px-4 rounded-md hover:bg-orange-700 transition-colors font-medium flex items-center justify-center gap-2">
                   <RotateCcw className="w-4 h-4" />
                   Request Return
@@ -436,7 +373,13 @@ const OrderDetailComponent: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  <span>support@techstore.ng</span>
+                  <span>support@nexgad.ng</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  <button onClick={() => navigate("/support")}>
+                    click here to complain
+                  </button>
                 </div>
               </div>
             </div>
@@ -463,12 +406,23 @@ const OrderDetailComponent: React.FC = () => {
             />
             <div className="flex gap-3 mt-6">
               <button
-                onClick={() => setShowCancelModal(false)}
+                onClick={() => {
+                  setShowCancelModal(false);
+                }}
                 className="flex-1 bg-[#263b51] text-white py-3 px-4 rounded-md hover:bg-gray-200 transition-colors font-medium"
               >
                 Keep Order
               </button>
-              <button className="flex-1 bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium">
+              <button
+                onClick={() => onCancelOrder(order._id)}
+                disabled={isCancelOrderLoading}
+                className="inline-flex flex-1 bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium"
+              >
+                {isCancelOrderLoading ? (
+                  <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                ) : (
+                  ""
+                )}
                 Cancel Order
               </button>
             </div>

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import Footer from "../components/Footer";
-import GlobalOrderingSection from "../components/GlobalOrderingSection copy";
 import HeroSection from "../components/HeroSection";
 import LatestListings from "../components/LatestListings";
 import Loader from "../components/nexgadMidPageLoader";
@@ -8,6 +7,7 @@ import PopularCategories from "../components/PopularCategory";
 import { useAppContext } from "../context/AppContext";
 import { AddToWishlistRequest } from "../utils/AddToWishlistRequest";
 import { useLandingPageRequest } from "../utils/landingPageRequest";
+import GlobalOrderingSection from "../components/GlobalOrderingSection";
 
 const Home = () => {
   const { handleFetchAll } = useLandingPageRequest();

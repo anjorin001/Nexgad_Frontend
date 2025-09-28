@@ -28,6 +28,7 @@ const useAuthCheck = () => {
 
         if (decoded.exp < now) {
           localStorage.removeItem("nexgad_token");
+          localStorage.removeItem("nexgad_user")
 
           setIsAuthenticated(false);
         } else {
@@ -36,6 +37,7 @@ const useAuthCheck = () => {
       } catch (err) {
         console.error("Invalid token:", err);
         localStorage.removeItem("nexgad_token");
+        localStorage.removeItem("nexgad_user")
         setIsAuthenticated(false);
       }
     };
