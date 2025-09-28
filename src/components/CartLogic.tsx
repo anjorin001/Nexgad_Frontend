@@ -6,6 +6,7 @@ import {
   Package,
   Plus,
   Shield,
+  ShoppingBag,
   Trash2,
   Truck,
 } from "lucide-react";
@@ -13,9 +14,11 @@ import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import type { CartData, CartItem } from "../context/AppContextInterface";
 import CartRemovePopover from "./cartComponent/RemoveItemPopover";
+import Loader from "./nexgadMidPageLoader";
 
 interface CartPageProps {
-  initialCartItems?: CartItem[] | null;
+  isPageLoading: boolean;
+  initialCartItems?: CartItem[];
   onIncreamentQuantity: (listingId: string) => void;
   ondecreamentQuantity: (listingId: string) => void;
   isActionLoading: string;
@@ -30,7 +33,8 @@ enum ProductAvailability {
 }
 
 const CartPage: React.FC<CartPageProps> = ({
-  initialCartItems = [],
+  isPageLoading,
+  initialCartItems,
   onIncreamentQuantity,
   ondecreamentQuantity,
   onRemoveItem,
@@ -43,7 +47,43 @@ const CartPage: React.FC<CartPageProps> = ({
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedItemName, setSelectedItemName] = useState<string | null>(null);
 
-  console.log("second"); //TODO check which runs frist between child and parent to debugg render isuues
+  if (isPageLoading || !cart) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader size={64} thickness={1} />
+      </div>
+    );
+  }
+
+  if (
+    initialCartItems.length === 0 ||
+    !initialCartItems[0].product.images[0].url ||
+    initialCartItems === null
+  ) {
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center py-20">
+          <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-[#CBDCEB]/30 flex items-center justify-center">
+            <ShoppingBag className="w-16 h-16 text-[#456882]" />
+          </div>
+          <h2 className="text-3xl font-bold text-[#1B3C53] mb-4">
+            Your cart is empty
+          </h2>
+          <p className="text-lg text-[#456882]/70 mb-8 max-w-md mx-auto">
+            Looks like you haven't added anything to your cart yet. Start
+            exploring amazing gadgets!
+          </p>
+          <NavLink
+            to="/listings"
+            className="inline-flex items-center gap-3 bg-gradient-to-r from-[#1B3C53] to-[#456882] text-white px-8 py-4 rounded-xl hover:shadow-xl transition-all duration-300 font-semibold transform hover:scale-105"
+          >
+            <ShoppingBag className="w-5 h-5" />
+            <span>Start Shopping</span>
+          </NavLink>
+        </div>
+      </div>
+    </div>;
+  }
 
   const getAvailabilityStyle = (availability: string) => {
     switch (availability) {
@@ -130,9 +170,17 @@ const CartPage: React.FC<CartPageProps> = ({
                         {/* Product Image */}
                         <div className="flex-shrink-0">
                           <img
-                            id={item?.product?.images[0]?.id}
-                            src={item?.product?.images[0]?.url}
-                            alt={item?.product?.images[0]?.alt}
+                            loading="lazy"
+                            id={item?.product?.images?.[0]?.id}
+                            src={
+                              item?.product?.images?.[0]?.url ||
+                              "/placeholder.png"
+                            }
+                            alt={
+                              item?.product?.images?.[0]?.alt ||
+                              item?.product?.title ||
+                              "Product"
+                            }
                             className="w-24 h-24 object-cover rounded-xl border-2 border-[#CBDCEB]/30 shadow-sm"
                           />
                         </div>
