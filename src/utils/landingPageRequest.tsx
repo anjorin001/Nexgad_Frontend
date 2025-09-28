@@ -9,8 +9,8 @@ export const useLandingPageRequest = () => {
     setCategoryData,
     setWishlistProductIds,
     setIsAuthenticated,
-    setUserData,
     setCart,
+    isAuthenticated
   } = useAppContext();
 
   const toast = useToast();
@@ -18,27 +18,21 @@ export const useLandingPageRequest = () => {
   const handleFetchAll = async () => {
     setIsLandingPageLoading(true);
     try {
-      const token = localStorage.getItem("nexgad_token");
-
-      if (token) {
-        const [userRes, wishlistRes, productRes, categoryRes, cartRes] =
+      if (isAuthenticated) {
+        const [wishlistRes, productRes, categoryRes, cartRes] =
           await Promise.all([
-            api.get("/user"),
             api.get("/wishlist/ids"),
             api.get("/product?page=1&limit=12"),
             api.get("/product/categories"),
             api.get("/cart"),
           ]);
 
-        const userData = userRes.data.data;
         const wishlistIds: string[] = wishlistRes.data.data.products ?? [];
         const products = productRes.data.data.products;
         const categories = categoryRes.data.data;
         const cart = cartRes.data.data;
 
-        localStorage.setItem("nexgad_user", JSON.stringify(userData));
         setWishlistProductIds(wishlistIds);
-        setUserData(userData);
         setCart(cart);
         setIsAuthenticated(true);
 

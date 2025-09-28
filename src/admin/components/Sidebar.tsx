@@ -15,6 +15,7 @@ export const AdminSidebar = () => {
     settings: false,
   });
   const navigate = useNavigate();
+  const userData = JSON.parse(localStorage.getItem("nexgad_user"));
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -22,6 +23,14 @@ export const AdminSidebar = () => {
       [section]: !prev[section],
     }));
   };
+
+  if (!userData) {
+    return null;
+  }
+
+  const initials = `${userData.firstName.charAt(0)}${userData.lastName.charAt(
+    0
+  )}`.toUpperCase();
 
   return (
     <div>
@@ -162,11 +171,11 @@ export const AdminSidebar = () => {
         <div className="p-6 border-t border-slate-700">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium text-slate-200">A</span>
+              <span className="text-sm font-medium text-slate-200">{initials}</span>
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-200">Admin User</p>
-              <p className="text-xs text-slate-400">admin@gadgetstore.com</p>
+              <p className="text-sm font-medium text-slate-200">{userData.firstName || "Admin"}</p>
+              <p className="text-xs text-slate-400">{userData.email || "Admin@gmail.com"}</p>
             </div>
           </div>
         </div>

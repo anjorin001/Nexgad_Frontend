@@ -1,18 +1,27 @@
-import { AlertCircle, Eye, EyeOff, Lock, Shield, X } from "lucide-react";
+import {
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Shield,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import type { PasswordChangeData } from "./types";
 
-// Types
 interface PasswordChangeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (passwordData: PasswordChangeData) => void;
+  onSave: (currentPassword: string, newPassword: string) => Promise<boolean>;
+  isLoading: boolean;
 }
 
 export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  isLoading,
 }) => {
   const [formData, setFormData] = useState<PasswordChangeData>({
     currentPassword: "",
@@ -57,14 +66,22 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      onSave(formData);
-      handleClose();
+  const handleSubmit = async () => {
+    if (validateForm() && !isLoading) {
+      const respone = await onSave(
+        formData.currentPassword,
+        formData.newPassword
+      );
+
+      if (respone) {
+        handleClose();
+      }
     }
   };
 
   const handleClose = () => {
+    if (isLoading) return;
+
     setFormData({
       currentPassword: "",
       newPassword: "",
@@ -94,12 +111,10 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 bg-[#263b51]/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-300"
-    >
-      <div className="bg-white rounded-md shadow-2xl max-w-md w-full animate-in slide-in-from-bottom duration-500">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-[#263b51] via-[#456882] to-[#263b51] p-6 text-white rounded-t-md">
+        <div className="bg-[#1B3C53] p-6 text-white rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Shield className="text-white" size={24} />
@@ -112,7 +127,8 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
             </div>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors duration-200"
+              disabled={isLoading}
+              className="p-2 hover:bg-white/20 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               <X size={20} />
             </button>
@@ -123,7 +139,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
         <div className="p-6 space-y-6">
           {/* Current Password */}
           <div>
-            <label className="block text-sm font-bold text-[#263b51] mb-2">
+            <label className="block text-sm font-bold text-[#456882] mb-2">
               Current Password *
             </label>
             <div className="relative">
@@ -140,8 +156,9 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                     currentPassword: e.target.value,
                   }))
                 }
-                className={`w-full pl-10 pr-12 py-3 border-2 border-[#CBDCEB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#456882]/30 focus:border-[#456882] transition-all duration-200 ${
-                  errors.currentPassword ? "border-red-300" : ""
+                disabled={isLoading}
+                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  errors.currentPassword ? "border-red-400" : "border-[#CBDCEB]"
                 }`}
                 placeholder="Enter current password"
               />
@@ -153,7 +170,8 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                     current: !prev.current,
                   }))
                 }
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#456882] hover:text-[#263b51] transition-colors duration-200"
+                disabled={isLoading}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#456882] hover:text-[#1B3C53] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {showPasswords.current ? (
                   <EyeOff size={18} />
@@ -163,7 +181,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
               </button>
             </div>
             {errors.currentPassword && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+              <div className="flex items-center gap-1 mt-2 text-red-600 text-sm">
                 <AlertCircle size={14} />
                 {errors.currentPassword}
               </div>
@@ -172,7 +190,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 
           {/* New Password */}
           <div>
-            <label className="block text-sm font-bold text-[#263b51] mb-2">
+            <label className="block text-sm font-bold text-[#456882] mb-2">
               New Password *
             </label>
             <div className="relative">
@@ -189,8 +207,9 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                     newPassword: e.target.value,
                   }))
                 }
-                className={`w-full pl-10 pr-12 py-3 border-2 border-[#CBDCEB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#456882]/30 focus:border-[#456882] transition-all duration-200 ${
-                  errors.newPassword ? "border-red-300" : ""
+                disabled={isLoading}
+                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  errors.newPassword ? "border-red-400" : "border-[#CBDCEB]"
                 }`}
                 placeholder="Enter new password"
               />
@@ -199,7 +218,8 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                 onClick={() =>
                   setShowPasswords((prev) => ({ ...prev, new: !prev.new }))
                 }
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#456882] hover:text-[#263b51] transition-colors duration-200"
+                disabled={isLoading}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#456882] hover:text-[#1B3C53] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -244,7 +264,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
             )}
 
             {errors.newPassword && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+              <div className="flex items-center gap-1 mt-2 text-red-600 text-sm">
                 <AlertCircle size={14} />
                 {errors.newPassword}
               </div>
@@ -253,7 +273,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-sm font-bold text-[#263b51] mb-2">
+            <label className="block text-sm font-bold text-[#456882] mb-2">
               Confirm New Password *
             </label>
             <div className="relative">
@@ -270,8 +290,9 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                     confirmPassword: e.target.value,
                   }))
                 }
-                className={`w-full pl-10 pr-12 py-3 border-2 border-[#CBDCEB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#456882]/30 focus:border-[#456882] transition-all duration-200 ${
-                  errors.confirmPassword ? "border-red-300" : ""
+                disabled={isLoading}
+                className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#456882] focus:border-[#456882] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  errors.confirmPassword ? "border-red-400" : "border-[#CBDCEB]"
                 }`}
                 placeholder="Confirm new password"
               />
@@ -283,7 +304,8 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                     confirm: !prev.confirm,
                   }))
                 }
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#456882] hover:text-[#263b51] transition-colors duration-200"
+                disabled={isLoading}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#456882] hover:text-[#1B3C53] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {showPasswords.confirm ? (
                   <EyeOff size={18} />
@@ -293,7 +315,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
               </button>
             </div>
             {errors.confirmPassword && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+              <div className="flex items-center gap-1 mt-2 text-red-600 text-sm">
                 <AlertCircle size={14} />
                 {errors.confirmPassword}
               </div>
@@ -302,20 +324,31 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 p-6 rounded-b-3xl border-t border-gray-100">
+        <div className="bg-gray-50 p-6 rounded-b-lg border-t border-gray-200">
           <div className="flex gap-3">
             <button
               onClick={handleClose}
-              className="flex-1 px-4 py-3 bg-gray-200 text-[#456882] rounded-xl hover:bg-gray-300 transition-all duration-200 font-medium"
+              disabled={isLoading}
+              className="flex-1 px-4 py-3 bg-gray-200 text-[#456882] rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-[#263b51] to-[#456882] text-white rounded-xl hover:shadow-lg transition-all duration-200 font-semibold flex items-center justify-center gap-2"
+              disabled={isLoading}
+              className="flex-1 px-4 py-3 bg-[#1B3C53] text-white rounded-lg hover:bg-[#456882] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-semibold flex items-center justify-center gap-2"
             >
-              <Shield size={16} />
-              Update Password
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Shield size={16} />
+                  Update Password
+                </>
+              )}
             </button>
           </div>
         </div>

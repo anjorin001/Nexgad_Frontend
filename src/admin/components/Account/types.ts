@@ -1,11 +1,9 @@
 export interface AdminUser {
-  id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phoneNumber?: string;
   role: string;
-  lastLogin: string;
-  createdAt: string;
 }
 
 export interface PasswordChangeData {

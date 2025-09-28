@@ -8,7 +8,7 @@ import api from "../utils/api";
 const Login = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
-  const { setIsAuthenticated } = useAppContext();
+  const { setIsAuthenticated, setUserData } = useAppContext();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -42,13 +42,18 @@ const Login = () => {
       const request = await api.post("/auth/login", formData);
       const response = request.data;
 
+      const userData = response.data.user;
+
       localStorage.setItem("nexgad_token", response.data.token);
+      localStorage.setItem("nexgad_user", JSON.stringify(userData));
+      
+      setUserData(userData);
 
       toast.success("Login", "Login Successful");
 
       setIsAuthenticated(true);
 
-      if (response.data.role === "admin") {
+      if (userData.role === "admin") {
         window.location.href = "/admin";
       } else {
         navigate("/");
@@ -64,7 +69,7 @@ const Login = () => {
         );
         window.dispatchEvent(new CustomEvent("network-error"));
       }
-      
+
       if (
         err.code === "ERR_NETWORK" ||
         err.code === "ECONNABORTED" ||
