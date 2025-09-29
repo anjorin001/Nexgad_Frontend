@@ -10,7 +10,6 @@ import {
   Phone,
   RotateCcw,
   Truck,
-  User,
   XCircle,
 } from "lucide-react";
 import React, { useState } from "react";
@@ -21,7 +20,7 @@ import type { Order } from "./orderComponents/OrderInterfaces";
 interface OrderDetailComponentProp {
   isCancelOrderLoading: boolean;
   isPageLoading: boolean;
-  onCancelOrder: (orderId: string) => void;
+  onCancelOrder: (orderId: string, cancelReason?: string) => void;
   order: Order;
 }
 
@@ -103,6 +102,15 @@ const OrderDetailComponent: React.FC<OrderDetailComponentProp> = ({
       month: "long",
       day: "numeric",
     });
+  };
+
+  const handleCancelOrder = (orderId: string) => {
+    if (cancelReason.trim()) {
+      onCancelOrder(orderId, cancelReason);
+    } else {
+      onCancelOrder(orderId);
+    }
+    setShowCancelModal(false)
   };
 
   const canCancelOrder =
@@ -409,12 +417,12 @@ const OrderDetailComponent: React.FC<OrderDetailComponentProp> = ({
                 onClick={() => {
                   setShowCancelModal(false);
                 }}
-                className="flex-1 bg-[#263b51] text-white py-3 px-4 rounded-md hover:bg-gray-200 transition-colors font-medium"
+                className="flex-1 bg-[#263b51] text-white py-3 px-4 rounded-md hover:bg-[#16293d] transition-colors font-medium"
               >
                 Keep Order
               </button>
               <button
-                onClick={() => onCancelOrder(order._id)}
+                onClick={() => handleCancelOrder(order._id)}
                 disabled={isCancelOrderLoading}
                 className="inline-flex flex-1 bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium"
               >

@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Footer from "../components/Footer";
-import {
-  OrderStatus,
-  type Order,
-} from "../components/orderComponents/OrderInterfaces";
+import { OrderStatus } from "../components/orderComponents/OrderInterfaces";
 import OrderDetailComponent from "../components/OrderDetail";
 import { useAppContext } from "../context/AppContext";
 import api from "../utils/api";
@@ -20,7 +17,7 @@ const OrderDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const orderId = slug;
-  console.log(slug)
+  console.log(slug);
 
   const handleGetOrderDetail = async () => {
     setIsPageLoading(true);
@@ -48,15 +45,21 @@ const OrderDetail = () => {
     }
   };
 
-  const handleCancelOrder = async (orderId: string) => {
+  const handleCancelOrder = async (orderId: string, cancelReason?: string) => {
     setIsCancelOrderLoading(true);
 
     try {
-      await api.post(`/order/cancel/${orderId}`);
+      if (cancelReason) {
+        await api.post(`/order/cancel/${orderId}`, { reason: cancelReason });
+      } else {
+        await api.post(`/order/cancel/${orderId}`);
+      }
 
       setOrder((order) =>
-        order ? { ...order, status: OrderStatus.CANCELLED } : order
+        order ? { ...order, orderStatus: OrderStatus.CANCELLED } : order
       );
+
+      toast.success("Your order has been successfully cancelled");
     } catch (err: any) {
       console.error("Error getting orders", err);
 
