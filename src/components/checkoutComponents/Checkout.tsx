@@ -585,7 +585,9 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                         Delivery ({selectedDeliveryOption})
                       </span>
                       <span className="font-bold text-[#1B3C53]">
-                        {formatCurrency(deliveryOptions[selectedDeliveryOption].fee || 0)}
+                        {formatCurrency(
+                          deliveryOptions[selectedDeliveryOption].fee || 0
+                        )}
                       </span>
                     </div>
                     {checkout?.appliedPromo && (
@@ -605,8 +607,12 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                       <span>Total</span>
                       <span>
                         {formatCurrency(
-                          checkout?.total +
-                            deliveryOptions[selectedDeliveryOption].fee
+                          checkout?.discountInPrice
+                            ? checkout?.total +
+                                deliveryOptions[selectedDeliveryOption].fee -
+                                checkout?.discountInPrice
+                            : checkout?.total +
+                                deliveryOptions[selectedDeliveryOption].fee
                         )}
                       </span>
                     </div>
@@ -657,13 +663,13 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                   <div className="p-4 sm:p-6 lg:p-8 border-t border-[#CBDCEB]/30">
                     <button
                       onClick={handleConfirmOrder}
-                      disabled={!isAddressComplete}
+                      disabled={!isAddressComplete || isSubmitCheckoutLoading}
                       className="w-full py-4 sm:py-5 px-4 sm:px-6 bg-[#1B3C53] text-white font-bold text-base sm:text-lg lg:text-xl rounded-lg hover:bg-[#456882] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                     >
                       <span className="block sm:hidden">Complete Order</span>
                       <span className="hidden sm:block">
                         {isSubmitCheckoutLoading
-                          ? `Completing Order ${formatCurrency(
+                          ? `Completing Order.... ${formatCurrency(
                               checkout?.total +
                                 deliveryOptions[selectedDeliveryOption].fee || 0
                             )}`

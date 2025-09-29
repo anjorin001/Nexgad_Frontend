@@ -2,161 +2,133 @@ import {
   Edit,
   Eye,
   Filter,
+  Loader2,
   Package,
   Search,
-  Star,
-  Tag,
   Trash2,
 } from "lucide-react";
 import React, { useState } from "react";
+import Loader from "../../components/nexgadMidPageLoader";
+import type { IProduct } from "../../components/productDetail/productDetailInterface";
+import type { ProductCategory } from "../../enum/products.enum";
 import { DeleteModal } from "./Gadgets/deleteModal";
-import { dummyData } from "../helpers/dummyData";
 import { EditProductModal } from "./Gadgets/editModal";
 import { ProductDetailsModal } from "./Gadgets/viewProductModel";
 
-export interface ProductData {
-  id: string;
-  title: string;
-  brand: string;
-  price: number;
-  originalPrice?: number;
-  condition: "Brand New" | "Foreign Used" | "Nigerian Used" | "Refurbished";
-  availability: "In Stock" | "Out of Stock" | "Limited Stock";
-  quantity: number;
-  category: string;
-  description: string;
-  specifications: { [key: string]: string };
-  images: { url: string; alt: string; isPrimary: boolean }[];
-  location: { city: string; state: string };
-  seller: { name: string; rating?: number };
-  deliveryOptions: { pickup: boolean; delivery: boolean };
-  dateListeddays: number;
-  sku: string;
-  tags: string[];
-  productType: "default" | "sponsored" | "featured";
+interface GadgetManagementProp {
+  isPageLoading: boolean;
+  products: IProduct[];
+  productDetail: IProduct | null;
+  isDeleteLoading: string;
+  isEditLoading: boolean;
+  viewProductLoading: boolean;
+  hasMore: boolean;
+  onSaveEdit: (
+    quantity: number,
+    category: ProductCategory,
+    productId: string
+  ) => Promise<boolean>;
+  onDelete: (productId: string) => void;
+  onViewProductDetail: (productId: string) => void;
+  onLoadMore: () => void;
+  onSearch: (search: string) => void;
+  onclear: () => void;
 }
 
-export default function GadgetManagement() {
-  const [products, setProducts] = useState<ProductData[]>(dummyData);
-  const [filteredProducts, setFilteredProducts] =
-    useState<ProductData[]>(dummyData);
-  const [viewProduct, setViewProduct] = useState<ProductData | null>(null);
-  const [editProduct, setEditProduct] = useState<ProductData | null>(null);
+export const GadgetManagement: React.FC<GadgetManagementProp> = ({
+  isDeleteLoading,
+  isEditLoading,
+  isPageLoading,
+  products,
+  productDetail,
+  viewProductLoading,
+  onSaveEdit,
+  onDelete,
+  onViewProductDetail,
+  onSearch,
+  onclear,
+  onLoadMore,
+  hasMore,
+}) => {
+  const [filteredProducts, setFilteredProducts] = useState<IProduct[]>();
+  const [viewProduct, setViewProduct] = useState<boolean>(false);
+  const [editProduct, setEditProduct] = useState<IProduct | null>(null);
   const [editQuantity, setEditQuantity] = useState<number>(0);
-  const [editProductType, setEditProductType] = useState<
-    "default" | "sponsored" | "featured"
-  >("default");
 
-  // Filter states
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [editCategory, setEditCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedCondition, setSelectedCondition] = useState("");
   const [selectedAvailability, setSelectedAvailability] = useState("");
-  const [selectedProductType, setSelectedProductType] = useState("");
+  const [selectedProductCategory, setSelectedProductCategory] =
+    useState<ProductCategory>();
   const [showDeleteModal, setDeleteModal] = useState(false);
   const [deleteProductId, setDeleteProductId] = useState<string>("");
 
-  // Get unique values for filter options
   const categories = [...new Set(products.map((p) => p.category))];
   const brands = [...new Set(products.map((p) => p.brand))];
   const conditions = [...new Set(products.map((p) => p.condition))];
   const availabilities = [...new Set(products.map((p) => p.availability))];
-  const productTypes = [...new Set(products.map((p) => p.productType))];
 
-  // Apply filters
   React.useEffect(() => {
     const filtered = products.filter((product) => {
-      const matchesSearch =
-        product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.sku.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory =
-        !selectedCategory || product.category === selectedCategory;
+        !editCategory || product.category === editCategory;
       const matchesBrand = !selectedBrand || product.brand === selectedBrand;
       const matchesCondition =
         !selectedCondition || product.condition === selectedCondition;
       const matchesAvailability =
         !selectedAvailability || product.availability === selectedAvailability;
-      const matchesProductType =
-        !selectedProductType || product.productType === selectedProductType;
 
       return (
-        matchesSearch &&
         matchesCategory &&
         matchesBrand &&
         matchesCondition &&
-        matchesAvailability &&
-        matchesProductType
+        matchesAvailability
       );
     });
     setFilteredProducts(filtered);
   }, [
     products,
     searchTerm,
-    selectedCategory,
+    editCategory,
     selectedBrand,
     selectedCondition,
     selectedAvailability,
-    selectedProductType,
   ]);
 
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedCategory("");
+    setEditCategory("");
     setSelectedBrand("");
     setSelectedCondition("");
     setSelectedAvailability("");
-    setSelectedProductType("");
+    onclear();
   };
 
-  const handleView = (product: ProductData) => {
-    setViewProduct(product);
+  const handleView = (productId: string) => {
+    setViewProduct(true);
+    onViewProductDetail(productId);
   };
 
-  const handleEdit = (product: ProductData) => {
+  const handleEdit = (product: IProduct) => {
     setEditProduct(product);
     setEditQuantity(product.quantity);
-    setEditProductType(product.productType);
   };
 
-  const handleSaveEdit = () => {
-    if (editProduct) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editProduct.id
-            ? { ...p, quantity: editQuantity, productType: editProductType }
-            : p
-        )
-      );
+  const handleSaveEdit = async (productId: string) => {
+    const respone = await onSaveEdit(
+      editQuantity,
+      selectedProductCategory,
+      productId
+    );
+    if (respone) {
       setEditProduct(null);
     }
   };
 
   const handleDelete = (productId: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== productId));
-  };
-
-  const getProductTypeColor = (type: string) => {
-    switch (type) {
-      case "featured":
-        return "#e11d48";
-      case "sponsored":
-        return "#f59e0b";
-      default:
-        return "#456882";
-    }
-  };
-
-  const getProductTypeIcon = (type: string) => {
-    switch (type) {
-      case "featured":
-        return <Star className="w-3 h-3" />;
-      case "sponsored":
-        return <Tag className="w-3 h-3" />;
-      default:
-        return <Package className="w-3 h-3" />;
-    }
+    onDelete(productId);
   };
 
   const formatPrice = (price: number) => {
@@ -212,9 +184,16 @@ export default function GadgetManagement() {
               placeholder="Search products, brands, or SKU..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2"
+              className="w-full pl-10 pr-12 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#456882]/40"
               style={{ borderColor: "#CBDCEB" }}
             />
+
+            <button
+              onClick={() => onSearch(searchTerm)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#456882] text-white p-2 rounded-full hover:bg-[#1B3C53] transition-colors"
+            >
+              <Search className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
@@ -228,8 +207,8 @@ export default function GadgetManagement() {
               Category
             </label>
             <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={editCategory}
+              onChange={(e) => setEditCategory(e.target.value)}
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
               style={{ borderColor: "#CBDCEB" }}
             >
@@ -307,39 +286,21 @@ export default function GadgetManagement() {
               ))}
             </select>
           </div>
-
-          <div>
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: "#263b51" }}
-            >
-              Product Type
-            </label>
-            <select
-              value={selectedProductType}
-              onChange={(e) => setSelectedProductType(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
-              style={{ borderColor: "#CBDCEB" }}
-            >
-              <option value="">All Types</option>
-              {productTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         {/* Results Count */}
         <div className="mt-4 text-sm" style={{ color: "#456882" }}>
-          Showing {filteredProducts.length} of {products.length} products
+          Showing {filteredProducts?.length} of {products?.length} products
         </div>
       </div>
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.length === 0 ? (
+        {isPageLoading ? (
+          <div className="col-span-full flex justify-center items-center py-12">
+            <Loader size={64} thickness={1} />
+          </div>
+        ) : filteredProducts?.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12">
             <Package className="w-16 h-16 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-600 mb-2">
@@ -350,13 +311,13 @@ export default function GadgetManagement() {
             </p>
           </div>
         ) : (
-          filteredProducts.map((product) => (
+          filteredProducts?.map((product) => (
             <div
-              key={product.id}
+              key={product._id}
               className="bg-white rounded-lg border shadow-sm overflow-hidden"
               style={{ borderColor: "#CBDCEB" }}
             >
-              {/* Product Image */}
+              {/* IProduct Image */}
               <div className="h-48 bg-gray-100 overflow-hidden">
                 <img
                   src={product.images[0]?.url}
@@ -374,21 +335,8 @@ export default function GadgetManagement() {
                 </div>
               </div>
 
-              {/* Product Info */}
+              {/* IProduct Info */}
               <div className="p-4">
-                {/* Product Type Badge */}
-                <div className="mb-2">
-                  <span
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
-                    style={{
-                      backgroundColor: getProductTypeColor(product.productType),
-                    }}
-                  >
-                    {getProductTypeIcon(product.productType)}
-                    {product.productType}
-                  </span>
-                </div>
-
                 <h3
                   className="font-semibold mb-2 line-clamp-2"
                   style={{ color: "#263b51" }}
@@ -433,14 +381,17 @@ export default function GadgetManagement() {
                 {/* Action Buttons */}
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleView(product)}
+                    onClick={() => handleView(product._id)}
                     className="flex-1 px-3 py-2 text-sm font-medium text-white rounded-md"
                     style={{ backgroundColor: "#456882" }}
                   >
                     <Eye className="w-4 h-4 mx-auto" />
                   </button>
                   <button
-                    onClick={() => handleEdit(product)}
+                    onClick={() => {
+                      setSelectedProductCategory(product.category);
+                      handleEdit(product);
+                    }}
                     className="flex-1 px-3 py-2 text-sm font-medium border rounded-md"
                     style={{ borderColor: "#CBDCEB", color: "#456882" }}
                   >
@@ -449,11 +400,19 @@ export default function GadgetManagement() {
                   <button
                     onClick={() => {
                       setDeleteModal(true);
-                      setDeleteProductId(product.id);
+                      setDeleteProductId(product._id);
                     }}
                     className="flex-1 px-3 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-md hover:bg-red-50"
                   >
-                    <Trash2 className="w-4 h-4 mx-auto" />
+                    {isDeleteLoading === product._id ? (
+                      <div className="flex justify-center">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      </div>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mx-auto" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -462,15 +421,25 @@ export default function GadgetManagement() {
         )}
       </div>
 
+      {hasMore || !isPageLoading && (
+        <div className="flex w-full justify-center mt-8">
+          <button
+            onClick={onLoadMore}
+            className="bg-[#1B3C53] text-white px-6 py-2 rounded-md hover:bg-[#456882] transition-colors"
+          >
+            Load more
+          </button>
+        </div>
+      )}
+
       {/* View Modal */}
       {viewProduct && (
         <ProductDetailsModal
-          show={!!viewProduct}
-          product={viewProduct}
-          onClose={() => setViewProduct(null)}
+          show={viewProduct}
+          product={productDetail}
+          onClose={() => setViewProduct(false)}
           formatPrice={formatPrice}
-          getProductTypeColor={getProductTypeColor}
-          getProductTypeIcon={getProductTypeIcon}
+          isModalLoading={viewProductLoading}
         />
       )}
 
@@ -480,11 +449,12 @@ export default function GadgetManagement() {
           show={!!editProduct}
           product={editProduct}
           quantity={editQuantity}
-          productType={editProductType}
           onClose={() => setEditProduct(null)}
           onQuantityChange={setEditQuantity}
-          onProductTypeChange={setEditProductType}
           onSave={handleSaveEdit}
+          isSavingProductLoading={isEditLoading}
+          onProductCategoryChange={setSelectedProductCategory}
+          productCategory={selectedProductCategory}
         />
       )}
 
@@ -498,4 +468,4 @@ export default function GadgetManagement() {
       )}
     </div>
   );
-}
+};

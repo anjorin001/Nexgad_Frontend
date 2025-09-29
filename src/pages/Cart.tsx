@@ -26,6 +26,7 @@ const Cart = () => {
       } else if (
         err?.code === "ERR_NETWORK" ||
         err?.code === "ECONNABORTED" ||
+        err?.code === "ERR_BAD_RESPONSE" ||
         (err?.message && err.message.includes("Network Error"))
       ) {
         toast.error(

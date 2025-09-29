@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import React from "react";
 
 interface DeleteModalProps {
@@ -11,7 +12,7 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({
   show,
   onClose,
   onConfirm,
-  title = "Are you sure you want to delete?",
+  title = "Are you sure you want to delete?"
 }) => {
   if (!show) return null;
 
@@ -22,7 +23,7 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
-            className="flex-1 bg-[#263b51] text-white py-3 px-4 rounded-md hover:bg-gray-200 transition-colors font-medium"
+            className="flex-1 bg-[#263b51] text-white py-3 px-4 rounded-md hover:bg-[#172839] transition-colors font-medium"
           >
             Keep Product
           </button>

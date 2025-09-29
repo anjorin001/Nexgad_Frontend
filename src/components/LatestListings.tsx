@@ -81,11 +81,22 @@ const LatestListings: React.FC<LatestListingsProps> = ({
             >
               {/* Image Container */}
               <div className="relative overflow-hidden">
-                <img
-                  src={listing.images[0].url}
-                  alt={listing.images[0].alt}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                <div className="relative w-full h-48">
+                  <img
+                    src={listing.images[0]?.url}
+                    alt={listing.images[0]?.alt || "Product image"}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                  />
+                  <div className="absolute inset-0 hidden items-center justify-center bg-gray-100 text-gray-500">
+                    No Image
+                  </div>
+                </div>
 
                 {/* Action Buttons */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

@@ -23,6 +23,7 @@ import Register from "./pages/Register";
 import Support from "./pages/Support";
 import Wishlist from "./pages/Wishlist";
 import { ToastDemo, ToastProvider } from "./utils/ToastNotification";
+import PaymentStatusPage from "./pages/PaymentStatus";
 
 let hasVisited = false;
 const AppContent = () => {
@@ -66,6 +67,7 @@ const AppContent = () => {
         <Route path="/gadget-request" element={<GadgetRequest />} />
         <Route path="/support" element={<Support />} />
         <Route path="/toast" element={<ToastDemo />} />
+        <Route path="/payment-clearance" element={<PaymentStatusPage />} />
       </Route>
       <Route
         path="/admin/*"

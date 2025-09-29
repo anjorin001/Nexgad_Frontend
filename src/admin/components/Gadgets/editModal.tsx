@@ -1,27 +1,30 @@
+import { Check, Loader2, X } from "lucide-react";
 import React from "react";
-import { X, Check } from "lucide-react";
+import { ProductCategory } from "../../../enum/products.enum";
 
 type ProductType = "default" | "sponsored" | "featured";
 
 interface EditProductModalProps {
   show: boolean;
-  product: { title: string; brand: string } | null;
+  product: { title: string; brand: string; _id: string } | null;
   quantity: number;
-  productType: ProductType;
+  productCategory: string;
+  isSavingProductLoading: boolean;
   onClose: () => void;
   onQuantityChange: (value: number) => void;
-  onProductTypeChange: (value: ProductType) => void;
-  onSave: () => void;
+  onProductCategoryChange: (value: ProductCategory) => void;
+  onSave: (productId: string) => void;
 }
 
 export const EditProductModal: React.FC<EditProductModalProps> = ({
   show,
   product,
   quantity,
-  productType,
+  productCategory,
+  isSavingProductLoading,
   onClose,
   onQuantityChange,
-  onProductTypeChange,
+  onProductCategoryChange,
   onSave,
 }) => {
   if (!show || !product) return null;
@@ -74,19 +77,19 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                 className="block text-sm font-medium mb-2"
                 style={{ color: "#456882" }}
               >
-                Product Type
+                Product Category
               </label>
               <select
-                value={productType}
+                value={productCategory}
                 onChange={(e) =>
-                  onProductTypeChange(e.target.value as ProductType)
+                  onProductCategoryChange(e.target.value as ProductCategory)
                 }
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
                 style={{ borderColor: "#CBDCEB" }}
               >
-                <option value="default">Default</option>
-                <option value="sponsored">Sponsored</option>
-                <option value="featured">Featured</option>
+                {Object.entries(ProductCategory).map(([key, value]) => (
+                  <option defaultValue={productCategory} value={value}>{key}</option>
+                ))}
               </select>
             </div>
 
@@ -99,12 +102,21 @@ export const EditProductModal: React.FC<EditProductModalProps> = ({
                 Cancel
               </button>
               <button
-                onClick={onSave}
+                onClick={() => onSave(product._id)}
                 className="flex-1 px-4 py-2 text-white rounded-md font-medium flex items-center justify-center gap-2"
                 style={{ backgroundColor: "#263b51" }}
               >
-                <Check className="w-4 h-4" />
-                Save
+                {isSavingProductLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Saving....
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Save
+                  </>
+                )}
               </button>
             </div>
           </div>

@@ -56,33 +56,35 @@ const CartPage: React.FC<CartPageProps> = ({
   }
 
   if (
-    initialCartItems.length === 0 ||
-    !initialCartItems[0].product.images[0].url ||
-    initialCartItems === null
+    initialCartItems?.length === 0 ||
+    initialCartItems === null ||
+    cart?.items?.length === 0
   ) {
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center py-20">
-          <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-[#CBDCEB]/30 flex items-center justify-center">
-            <ShoppingBag className="w-16 h-16 text-[#456882]" />
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-20">
+            <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-[#CBDCEB]/30 flex items-center justify-center">
+              <ShoppingBag className="w-16 h-16 text-[#456882]" />
+            </div>
+            <h2 className="text-3xl font-bold text-[#1B3C53] mb-4">
+              Your cart is empty
+            </h2>
+            <p className="text-lg text-[#456882]/70 mb-8 max-w-md mx-auto">
+              Looks like you haven't added anything to your cart yet. Start
+              exploring amazing gadgets!
+            </p>
+            <NavLink
+              to="/listings"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-[#1B3C53] to-[#456882] text-white px-8 py-4 rounded-xl hover:shadow-xl transition-all duration-300 font-semibold transform hover:scale-105"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              <span>Start Shopping</span>
+            </NavLink>
           </div>
-          <h2 className="text-3xl font-bold text-[#1B3C53] mb-4">
-            Your cart is empty
-          </h2>
-          <p className="text-lg text-[#456882]/70 mb-8 max-w-md mx-auto">
-            Looks like you haven't added anything to your cart yet. Start
-            exploring amazing gadgets!
-          </p>
-          <NavLink
-            to="/listings"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-[#1B3C53] to-[#456882] text-white px-8 py-4 rounded-xl hover:shadow-xl transition-all duration-300 font-semibold transform hover:scale-105"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            <span>Start Shopping</span>
-          </NavLink>
         </div>
       </div>
-    </div>;
+    );
   }
 
   const getAvailabilityStyle = (availability: string) => {
@@ -164,11 +166,11 @@ const CartPage: React.FC<CartPageProps> = ({
                   return (
                     <div
                       key={item.product._id}
-                      className="p-8 hover:bg-[#CBDCEB]/10 transition-all duration-200"
+                      className="p-4 sm:p-6 lg:p-8 hover:bg-[#CBDCEB]/10 transition-all duration-200"
                     >
-                      <div className="flex items-start gap-6">
+                      <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                         {/* Product Image */}
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 w-full sm:w-auto">
                           <img
                             loading="lazy"
                             id={item?.product?.images?.[0]?.id}
@@ -181,45 +183,47 @@ const CartPage: React.FC<CartPageProps> = ({
                               item?.product?.title ||
                               "Product"
                             }
-                            className="w-24 h-24 object-cover rounded-xl border-2 border-[#CBDCEB]/30 shadow-sm"
+                            className="w-full h-48 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-cover rounded-lg border-2 border-[#CBDCEB]/30 shadow-sm"
                           />
                         </div>
 
                         {/* Product Details */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start mb-4">
-                            <div>
-                              <h3 className="text-xl font-bold text-[#1B3C53] hover:text-[#456882] cursor-pointer mb-2">
-                                {item.product.title}
-                              </h3>
-                              <p className="text-[#456882]/60 font-medium mb-3">
-                                {item.product.category}
-                              </p>
-
-                              {/* Stock Status */}
-                              <div className="mb-3">
-                                <span className={style.className}>
-                                  {style.text}
-                                </span>
+                        <div className="flex-1 min-w-0 w-full">
+                          <div className="flex flex-col gap-4 mb-4">
+                            {/* Title and Price Row */}
+                            <div className="flex justify-between items-start gap-3">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-base sm:text-lg lg:text-xl font-bold text-[#1B3C53] hover:text-[#456882] cursor-pointer mb-1 sm:mb-2 line-clamp-2">
+                                  {item.product.title}
+                                </h3>
+                                <p className="text-sm sm:text-base text-[#456882]/60 font-medium mb-2 sm:mb-3">
+                                  {item.product.category}
+                                </p>
                               </div>
 
-                              {/* Delivery Info */}
-                              <div className="flex items-center gap-2 text-sm text-[#456882]/70 bg-[#CBDCEB]/20 px-3 py-2 rounded-lg w-fit">
-                                <Truck className="w-4 h-4" />
-                                <span>
-                                  {item?.product?.deliveryOptions?.pickup &&
-                                  item?.product?.deliveryOptions?.delivery
-                                    ? "Pickup & Delivery available"
-                                    : item?.product?.deliveryOptions?.pickup
-                                    ? "Pickup only"
-                                    : "Delivery only"}
-                                </span>
+                              {/* Price - Desktop */}
+                              <div className="text-right hidden sm:block flex-shrink-0">
+                                <div className="text-xl lg:text-2xl font-bold text-[#1B3C53]">
+                                  {formatPrice(item.price)}
+                                </div>
+                                {item?.product?.originalPrice && (
+                                  <div className="text-xs sm:text-sm text-[#456882]/50 line-through">
+                                    {formatPrice(item?.product?.originalPrice)}
+                                  </div>
+                                )}
                               </div>
                             </div>
 
-                            {/* Price */}
-                            <div className="text-right">
-                              <div className="text-2xl font-bold text-[#1B3C53]">
+                            {/* Stock Status */}
+                            <div>
+                              <span className={style.className}>
+                                {style.text}
+                              </span>
+                            </div>
+
+                            {/* Price - Mobile */}
+                            <div className="sm:hidden">
+                              <div className="text-xl font-bold text-[#1B3C53]">
                                 {formatPrice(item.price)}
                               </div>
                               {item?.product?.originalPrice && (
@@ -228,65 +232,85 @@ const CartPage: React.FC<CartPageProps> = ({
                                 </div>
                               )}
                             </div>
+
+                            {/* Delivery Info */}
+                            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#456882]/70 bg-[#CBDCEB]/20 px-2 sm:px-3 py-2 rounded-lg w-fit">
+                              <Truck className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                              <span className="truncate">
+                                {item?.product?.deliveryOptions?.pickup &&
+                                item?.product?.deliveryOptions?.delivery
+                                  ? "Pickup & Delivery"
+                                  : item?.product?.deliveryOptions?.pickup
+                                  ? "Pickup only"
+                                  : "Delivery only"}
+                              </span>
+                            </div>
                           </div>
 
                           {/* Quantity and Actions */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-6">
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6">
                               {/* Quantity Controls */}
-                              <div className="flex items-center bg-[#CBDCEB]/20 rounded-xl border border-[#CBDCEB]/40">
+                              <div className="flex items-center bg-[#CBDCEB]/20 rounded-lg border border-[#CBDCEB]/40 w-full sm:w-auto">
                                 <button
                                   onClick={() =>
                                     ondecreamentQuantity(item.product._id)
                                   }
-                                  className="p-3 hover:bg-[#456882] hover:text-white transition-all duration-200 rounded-l-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="flex-1 sm:flex-none p-2 sm:p-3 hover:bg-[#456882] hover:text-white transition-all duration-200 rounded-l-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                   disabled={
                                     isActionLoading === item.product._id ||
                                     item.quantity <= 1
                                   }
                                   type="button"
                                 >
-                                  <Minus className="w-4 h-4" />
+                                  <Minus className="w-4 h-4 mx-auto" />
                                 </button>
-                                <span className="px-6 py-3 font-bold text-[#1B3C53] min-w-[80px] text-center text-lg">
+                                <span className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 font-bold text-[#1B3C53] text-center text-base sm:text-lg min-w-[60px] sm:min-w-[80px]">
                                   {item.quantity}
                                 </span>
                                 <button
                                   onClick={() =>
                                     onIncreamentQuantity(item.product._id)
                                   }
-                                  className="p-3 hover:bg-[#456882] hover:text-white transition-all duration-200 rounded-r-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="flex-1 sm:flex-none p-2 sm:p-3 hover:bg-[#456882] hover:text-white transition-all duration-200 rounded-r-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                   disabled={
                                     isActionLoading === item.product._id
                                   }
                                   type="button"
                                 >
-                                  <Plus className="w-4 h-4" />
+                                  <Plus className="w-4 h-4 mx-auto" />
                                 </button>
                               </div>
 
-                              <div className="text-[#456882]/70">
+                              {/* Subtotal */}
+                              <div className="text-sm sm:text-base text-[#456882]/70 text-center sm:text-left">
                                 Subtotal:{" "}
-                                <span className="font-bold text-[#1B3C53] text-lg">
+                                <span className="font-bold text-[#1B3C53] text-base sm:text-lg">
                                   {formatPrice(item.price * item.quantity)}
                                 </span>
                               </div>
                             </div>
 
+                            {/* Remove Button */}
                             <button
                               onClick={() => {
                                 setSelectedItemId(item.product._id);
                                 setSelectedItemName(item.product.title);
                                 setShowRemoveItemPopover(true);
                               }}
-                              className="p-3 text-[#456882]/50 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-xl"
+                              className="flex items-center justify-center gap-2 p-3 text-[#456882]/70 hover:text-red-500 hover:bg-red-50 transition-all duration-200 rounded-lg border border-[#CBDCEB]/30 w-full sm:w-auto"
                               title="Remove Item"
                               type="button"
                             >
                               {isActionLoading === item.product._id ? (
-                                <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                                <Loader2 className="w-5 h-5 animate-spin" />
                               ) : (
-                                <Trash2 className="w-5 h-5" />
+                                <>
+                                  <Trash2 className="w-5 h-5" />
+                                  <span className="sm:hidden font-medium">
+                                    Remove
+                                  </span>
+                                </>
                               )}
                             </button>
                           </div>

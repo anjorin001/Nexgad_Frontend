@@ -2,6 +2,7 @@ import qs from "qs";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AllListings from "../components/AllListings";
+import FilterSidebar from "../components/FilterSidebar";
 import Footer from "../components/Footer";
 import MobileFilterComponent, {
   type FilterState,
@@ -11,7 +12,6 @@ import { useAppContext } from "../context/AppContext";
 import { AddToWishlistRequest } from "../utils/AddToWishlistRequest";
 import api from "../utils/api";
 import { useToast } from "../utils/ToastNotification";
-import FilterSidebar from "../components/FilterSidebar";
 
 const Listings = () => {
   const {
@@ -249,13 +249,16 @@ const Listings = () => {
 
   return (
     <>
-      <div className="flex gap-6 p-3 overflow-y-auto">
+      <div
+        className="flex overflow-y-auto pt-2 pr-3 sm:pt-0 sm:pr-0 max-[390px]:pt-4"
+        style={{ scrollbarGutter: "stable" }}
+      >
         <FilterSidebar
           onApplyFilters={handleApplyFilters}
           resetFilters={handleResetFilter}
         />
 
-        <div className="flex-1">
+        <div className="flex-1 pr-4 sm:pr-0 px-2 sm:px-0">
           <MobileFilterComponent
             filters={filters}
             onFiltersChange={handleFilterChange}
@@ -275,6 +278,7 @@ const Listings = () => {
           />
         </div>
       </div>
+
       <Footer />
     </>
   );
