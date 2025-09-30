@@ -1,54 +1,22 @@
 import { ChevronDown, Eye, Package } from "lucide-react";
 import React, { useState } from "react";
+import type {
+  Order,
+  OrderStatus,
+} from "../../../components/orderComponents/OrderInterfaces";
 import {
   getStatusColor,
   getStatusIcon,
   statusFlow,
 } from "../../helpers/common";
 
-interface OrderItem {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-export interface Order {
-  id: string;
-  orderNumber: string;
-  status:
-    | "pending"
-    | "processing"
-    | "shipped"
-    | "delivered"
-    | "cancelled"
-    | "returned";
-  items: OrderItem[];
-  totalAmount: number;
-  orderDate: string;
-  deliveryDate?: string;
-  shippingAddress: string;
-  paymentMethod: string;
-  trackingNumber?: string;
-  seller: {
-    name: string;
-    id: string;
-  };
-  estimatedDelivery?: string;
-  cancellationReason?: string;
-  returnReason?: string;
-  customerName: string;
-}
-
 interface OrdersTableProps {
   orders: Order[];
   selectedOrders: string[];
   onSelectOrder: (orderId: string) => void;
   onSelectAll: (checked: boolean) => void;
-  onViewMore: (order: Order) => void;
-  onBulkStatusUpdate?: (status: Order["status"]) => void;
+  onViewMore: (order: string) => void;
+  onBulkStatusUpdate: (status: OrderStatus) => void;
 }
 
 export const OrdersTable: React.FC<OrdersTableProps> = ({
@@ -66,25 +34,23 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
   const isIndeterminate =
     selectedOrders.length > 0 && selectedOrders.length < orders.length;
 
-  const handleBulkStatusUpdate = (status: Order["status"]) => {
+  const handleBulkStatusUpdate = (status: Order["orderStatus"]) => {
     if (onBulkStatusUpdate) {
       onBulkStatusUpdate(status);
     }
     setShowBulkActions(false);
   };
 
-  // Check if all selected orders have the same status
   const allSameStatus =
     selectedOrders.length > 0 &&
     selectedOrders.every(
       (id) =>
-        orders.find((order) => order.id === id)?.status ===
-        orders.find((order) => order.id === selectedOrders[0])?.status
+        orders.find((order) => order._id === id)?.orderStatus ===
+        orders.find((order) => order._id === selectedOrders[0])?.orderStatus
     );
 
-  // Optional: get that common status if they’re all the same
   const commonStatus = allSameStatus
-    ? orders.find((order) => order.id === selectedOrders[0])?.status
+    ? orders.find((order) => order._id === selectedOrders[0])?.orderStatus
     : null;
 
   const allowedNextStatuses = statusFlow[commonStatus ?? ""] || [];
@@ -121,7 +87,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                   <button
                     key={status}
                     onClick={() =>
-                      handleBulkStatusUpdate(status as Order["status"])
+                      handleBulkStatusUpdate(status as Order["orderStatus"])
                     }
                     className="w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
                   >
@@ -195,12 +161,12 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
           </thead>
           <tbody className="divide-y" style={{ borderColor: "#CBDCEB" }}>
             {orders.map((order, index) => (
-              <tr key={order.id} className="hover:bg-gray-50">
+              <tr key={order._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
                   <input
                     type="checkbox"
-                    checked={selectedOrders.includes(order.id)}
-                    onChange={() => onSelectOrder(order.id)}
+                    checked={selectedOrders.includes(order._id)}
+                    onChange={() => onSelectOrder(order._id)}
                     className="rounded"
                   />
                 </td>
@@ -220,17 +186,17 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm" style={{ color: "#263b51" }}>
-                    {order.customerName}
+                    {`${order.firstName} ${order.lastName}`}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                      order.status
+                      order.orderStatus
                     )}`}
                   >
-                    {getStatusIcon(order.status)}
-                    {order.status}
+                    {getStatusIcon(order.orderStatus)}
+                    {order.orderStatus}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -244,7 +210,10 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button
-                    onClick={() => onViewMore(order)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onViewMore(order._id);
+                    }}
                     className="inline-flex items-center gap-2 px-3 py-1 text-white rounded-md text-sm font-medium hover:opacity-90"
                     style={{ backgroundColor: "#263b51" }}
                   >
