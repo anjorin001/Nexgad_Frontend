@@ -92,7 +92,8 @@ const AdminAccountPage: React.FC = () => {
 
       if (err.response) {
         toast.error(err.response.data.message || "Something went wrong");
-      } else if (
+      }
+      else if (
         err.code === "ERR_NETWORK" ||
         err.code === "ECONNABORTED" ||
         err.message.includes("Network Error")

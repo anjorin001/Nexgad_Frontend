@@ -1,12 +1,20 @@
-import { Download, Filter, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 
 interface ActionBarProps {
   onCreateClick: () => void;
+  onSearch: (searchTerm: string) => void;
 }
 
-export const ActionBar: React.FC<ActionBarProps> = ({ onCreateClick }) => {
+export const ActionBar: React.FC<ActionBarProps> = ({
+  onCreateClick,
+  onSearch,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = () => {
+    onSearch(searchTerm);
+  };
 
   return (
     <div className="mb-8">
@@ -14,7 +22,13 @@ export const ActionBar: React.FC<ActionBarProps> = ({ onCreateClick }) => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           {/* Search and Filters */}
           <div className="flex flex-col sm:flex-row gap-4 flex-1 max-w-2xl">
-            <div className="relative flex-1">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSearch();
+              }}
+              className="relative flex-1"
+            >
               <Search
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#456882]"
                 size={20}
@@ -26,17 +40,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({ onCreateClick }) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-[#CBDCEB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#456882]/30 focus:border-[#456882] transition-all duration-200 bg-gray-50/50"
               />
-            </div>
-            <div className="flex gap-2">
-              <button className="flex items-center gap-2 px-4 py-3 bg-[#CBDCEB]/50 text-[#456882] rounded-xl hover:bg-[#CBDCEB] transition-all duration-200 border border-[#CBDCEB]">
-                <Filter size={16} />
-                <span className="hidden sm:inline">Filter</span>
-              </button>
-              <button className="flex items-center gap-2 px-4 py-3 bg-[#CBDCEB]/50 text-[#456882] rounded-xl hover:bg-[#CBDCEB] transition-all duration-200 border border-[#CBDCEB]">
-                <Download size={16} />
-                <span className="hidden sm:inline">Export</span>
-              </button>
-            </div>
+            </form>
           </div>
 
           {/* Create Button */}

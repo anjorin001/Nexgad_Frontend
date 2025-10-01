@@ -1,7 +1,8 @@
 import { AlertCircle, CheckCircle, Clock4, XCircle } from "lucide-react";
+import type { PromoStatus } from "../../../Schema";
 
 export interface PromoCode {
-  id: string;
+  _id: string;
   code: string;
   type: "percent" | "fixed";
   value: number;
@@ -10,9 +11,11 @@ export interface PromoCode {
   maxRedemptions: number;
   currentRedemptions: number;
   minOrderTotal: number;
-  status: "active" | "disabled" | "expired" | "inactive";
+  status: PromoStatus;
   applicableCategories: string[];
   eligibilityRules?: "olduser" | "newuser";
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const categories = [
@@ -67,7 +70,6 @@ export const getStatusColor = (status: PromoCode["status"]) => {
   }
 };
 
-// Generate random promo code with better algorithm
 export const generatePromoCode = () => {
   const prefixes = ["SAVE", "GET", "WIN", "MEGA", "SUPER", "FLASH", "VIP"];
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

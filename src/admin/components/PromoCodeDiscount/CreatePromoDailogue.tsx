@@ -21,7 +21,6 @@ export const CreatePromoDialog: React.FC<CreatePromoDialogProps> = ({
     endAt: "",
     maxRedemptions: 0,
     minOrderTotal: 0,
-    status: "inactive" as "active" | "disabled" | "inactive",
     applicableCategories: [] as string[],
     eligibilityRules: undefined as "olduser" | "newuser" | undefined,
   });
@@ -31,7 +30,7 @@ export const CreatePromoDialog: React.FC<CreatePromoDialogProps> = ({
 
   const handleSubmit = () => {
     if (isFormValid) {
-      onSave(formData);
+      onSave(formData as Omit<PromoCode, "id" | "currentRedemptions">);
       onClose();
       resetForm();
     }
@@ -46,7 +45,6 @@ export const CreatePromoDialog: React.FC<CreatePromoDialogProps> = ({
       endAt: "",
       maxRedemptions: 0,
       minOrderTotal: 0,
-      status: "inactive",
       applicableCategories: [],
       eligibilityRules: undefined,
     });
@@ -418,12 +416,6 @@ export const CreatePromoDialog: React.FC<CreatePromoDialogProps> = ({
                             ? `${formData.value}%`
                             : `₦${formData.value.toLocaleString()}`
                           : "Not set"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#456882]">Status:</span>
-                      <span className="font-bold text-[#263b51] capitalize">
-                        {formData.status}
                       </span>
                     </div>
                   </div>

@@ -2,6 +2,7 @@
 import { ChevronDown, ChevronRight, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LogoutRequest } from "../../utils/LogoutLogic";
 import { menuItems } from "../helpers/sidebarMenu";
 
 export const AdminSidebar = () => {
@@ -25,7 +26,8 @@ export const AdminSidebar = () => {
   };
 
   if (!userData) {
-    return null;
+    LogoutRequest();
+    window.location.href = "/login";
   }
 
   const initials = `${userData.firstName.charAt(0)}${userData.lastName.charAt(
@@ -171,12 +173,18 @@ export const AdminSidebar = () => {
         <div className="p-6 border-t border-slate-700">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium text-slate-200">{initials}</span>
+              <span className="text-sm font-medium text-slate-200">
+                {initials}
+              </span>
             </div>
-            <div>
-              <p className="text-sm font-medium text-slate-200">{userData.firstName || "Admin"}</p>
-              <p className="text-xs text-slate-400">{userData.email || "Admin@gmail.com"}</p>
-            </div>
+            <button onClick={() => navigate("/admin/account")}>
+              <p className="text-sm font-medium text-slate-200">
+                {userData.firstName || "Admin"}
+              </p>
+              <p className="text-xs text-slate-400">
+                {userData.email || "Admin@gmail.com"}
+              </p>
+            </button>
           </div>
         </div>
         <div />

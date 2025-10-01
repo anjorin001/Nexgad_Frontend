@@ -1,12 +1,18 @@
-import { Calendar, CheckCircle, Copy, Edit, Eye, Trash2 } from "lucide-react";
+import { Calendar, CheckCircle, Copy, Eye, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { getStatusColor, type PromoCode } from "./types";
 
 interface PromoTableProps {
   promoCodes: PromoCode[];
+  onVeiwPromoDetail: (promo: PromoCode) => void;
+  openPromoDeleteModal: (promo: PromoCode) => void;
 }
 
-export const PromoTable: React.FC<PromoTableProps> = ({ promoCodes }) => {
+export const PromoTable: React.FC<PromoTableProps> = ({
+  promoCodes,
+  onVeiwPromoDetail,
+  openPromoDeleteModal,
+}) => {
   const [copiedCode, setCopiedCode] = useState<string>("");
 
   const handleCopyCode = async (code: string) => {
@@ -69,7 +75,7 @@ export const PromoTable: React.FC<PromoTableProps> = ({ promoCodes }) => {
 
               return (
                 <tr
-                  key={promo.id}
+                  key={promo._id}
                   className="group hover:bg-gradient-to-r hover:from-[#CBDCEB]/10 hover:to-transparent transition-all duration-200"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
@@ -153,13 +159,15 @@ export const PromoTable: React.FC<PromoTableProps> = ({ promoCodes }) => {
                       <div
                         className={`w-2 h-2 rounded-full ${statusInfo.dotColor} animate-pulse`}
                       ></div>
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${statusInfo.className}`}
-                      >
-                        {statusInfo.icon}
-                        {promo.status.charAt(0).toUpperCase() +
-                          promo.status.slice(1)}
-                      </span>
+                      {promo.status && (
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${statusInfo.className}`}
+                        >
+                          {statusInfo.icon}
+                          {promo.status.charAt(0).toUpperCase() +
+                            promo.status.slice(1)}
+                        </span>
+                      )}
                     </div>
                   </td>
 
@@ -192,14 +200,17 @@ export const PromoTable: React.FC<PromoTableProps> = ({ promoCodes }) => {
                   {/* Actions Column */}
                   <td className="px-6 py-6 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      <button className="group/btn flex items-center gap-1 px-3 py-2 bg-[#CBDCEB]/50 hover:bg-[#456882] text-[#456882] hover:text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-sm hover:shadow-md">
+                      <button
+                        onClick={() => onVeiwPromoDetail(promo)}
+                        className="group/btn flex items-center gap-1 px-3 py-2 bg-[#CBDCEB]/50 hover:bg-[#456882] text-[#456882] hover:text-white rounded-lg transition-all duration-200 text-sm font-medium shadow-sm hover:shadow-md"
+                      >
                         <Eye size={14} />
                         <span>Details</span>
                       </button>
-                      <button className="p-2 text-[#456882] hover:text-white hover:bg-[#456882] rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100">
-                        <Edit size={16} />
-                      </button>
-                      <button className="p-2 text-red-500 hover:text-white hover:bg-red-500 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100">
+                      <button
+                        onClick={() => openPromoDeleteModal(promo)}
+                        className="p-2 text-red-500 hover:text-white hover:bg-red-500 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </div>
