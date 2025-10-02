@@ -5,7 +5,7 @@ import type { FileUploadProps } from "./types";
 export const FileUpload: React.FC<FileUploadProps> = ({
   files,
   onFilesChange,
-  maxFiles = 5,
+  maxFiles = 2,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 

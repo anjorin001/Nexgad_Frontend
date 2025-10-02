@@ -225,32 +225,6 @@ export const ViewTicketModal: React.FC<{
                   )}
                 </div>
               </div>
-
-              {/* Assignment */}
-              {ticket.assignedTo && (
-                <div
-                  className="border rounded-lg p-4"
-                  style={{ borderColor: "#CBDCEB" }}
-                >
-                  <h3
-                    className="text-lg font-semibold mb-3"
-                    style={{ color: "#263b51" }}
-                  >
-                    Assigned To
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <span className="text-green-800 text-sm font-medium">
-                        {ticket.assignedTo.charAt(0)}
-                      </span>
-                    </div>
-                    <span className="font-medium" style={{ color: "#263b51" }}>
-                      {ticket.assignedTo}
-                    </span>
-                  </div>
-                </div>
-              )}
-
               {/* Quick Actions */}
               <div
                 className="border rounded-lg p-4"
@@ -265,12 +239,6 @@ export const ViewTicketModal: React.FC<{
                 <div className="space-y-2">
                   <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                     Send Reply
-                  </button>
-                  <button
-                    className="w-full px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors"
-                    style={{ borderColor: "#CBDCEB" }}
-                  >
-                    Escalate Ticket
                   </button>
                   <button className="w-full px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50 transition-colors">
                     Close Ticket

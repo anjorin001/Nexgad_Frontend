@@ -25,12 +25,6 @@ export const PaymentStatusPage: React.FC = () => {
 
   let callbackData: callbackDataProp;
 
-  useEffect(() => {
-    callbackData = extractPaymentReference();
-    console.log("reff", callbackData);
-    verifyPayment();
-  }, []);
-
   const verifyPayment = async () => {
     setIsLoading(true);
 
@@ -45,7 +39,7 @@ export const PaymentStatusPage: React.FC = () => {
           transactionId: callbackData.transactionId,
         };
 
-        console.log("data to send", data)
+        console.log("data to send", data);
 
         const request = await api.post(`/payment/verify`, data);
         const response = request.data.data;
@@ -88,6 +82,12 @@ export const PaymentStatusPage: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    callbackData = extractPaymentReference();
+    console.log("reff", callbackData);
+    verifyPayment();
+  }, []);
 
   const handleRetry = () => {
     navigate("/checkout/s");

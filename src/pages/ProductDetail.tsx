@@ -100,7 +100,7 @@ const ProductDetail = () => {
   }, [productId]);
   console.log("first");
   return (
-    <ProductDetailCtn //TODO take th folloeing below away to productdeatilctn ... make use of useparams to get product id  and fetch product from db... the rest of the on props should make use of the id.
+    <ProductDetailCtn
       isAddToCartLoading={isAddToCartLoading}
       isLikeLoading={isListingLikeLoading}
       isPageLoading={isPageLoading}

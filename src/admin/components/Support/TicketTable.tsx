@@ -27,7 +27,6 @@ export interface SupportTicket {
   description: string;
   createdDate: string;
   lastUpdated: string;
-  assignedTo?: string;
   orderDetails?: {
     productName: string;
     orderValue: number;

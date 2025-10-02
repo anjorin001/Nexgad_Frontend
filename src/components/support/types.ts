@@ -1,20 +1,26 @@
 import { AlertCircle, CheckCircle, Clock, X } from "lucide-react";
+import type { OrderStatus } from "../orderComponents/OrderInterfaces";
 
 export interface Order {
-  id: string;
-  productName: string;
+  _id: string;
+  orderNumber: string;
   orderDate: string;
-  status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
+  orderStatus: OrderStatus;
   total: number;
 }
 
+export enum ComplaintCategory {
+  WRONG_ITEM = "Wrong Item",
+  DAMAGED_ITEM = "Damaged Item",
+  LATE_DELIVERRY = "Late Delivery",
+  PAYMENT_ISSUE = "Payment Issue",
+  GENERAL_SUPPORT = "General Support",
+}
+
 export interface TicketFormData {
-  orderId?: string;
-  userId: string;
-  category: 'Wrong Item' | 'Damaged Item' | 'Late Delivery' | 'Payment Issue' | 'General Support';
+  order?: string;
+  category: ComplaintCategory;
   description: string;
-  attachments: File[];
-  status: 'open';
 }
 
 export interface FileUploadProps {
@@ -23,46 +29,53 @@ export interface FileUploadProps {
   maxFiles?: number;
 }
 
+export enum SupportTicketStatus {
+  OPEN = "open",
+  IN_PROGRESS = "in_progress",
+  RESOLVED = "resolved",
+  CLOSED = "closed",
+}
+
 export interface SupportTicket {
-  id: string;
-  orderId?: string;
-  orderInfo?: Order;
+  _id: string;
+  ticketId: string;
+  order?: Order;
   userId: string;
   category: string;
   description: string;
-  attachments: string[];
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  images: string[];
+  status: SupportTicketStatus;
   createdAt: string;
   updatedAt: string;
 }
 
 export const complaintCategories = [
-  'Wrong Item',
-  'Damaged Item', 
-  'Late Delivery',
-  'Payment Issue',
-  'General Support'
+  "Wrong Item",
+  "Damaged Item",
+  "Late Delivery",
+  "Payment Issue",
+  "General Support",
 ] as const;
 
 export const statusConfig = {
-  'open': { 
-    color: 'bg-blue-100 text-blue-800 border-blue-200', 
+  open: {
+    color: "bg-blue-100 text-blue-800 border-blue-200",
     icon: AlertCircle,
-    label: 'Open' 
+    label: "Open",
   },
-  'in_progress': { 
-    color: 'bg-yellow-100 text-yellow-800 border-yellow-200', 
+  in_progress: {
+    color: "bg-yellow-100 text-yellow-800 border-yellow-200",
     icon: Clock,
-    label: 'In Progress' 
+    label: "In Progress",
   },
-  'resolved': { 
-    color: 'bg-green-100 text-green-800 border-green-200', 
+  resolved: {
+    color: "bg-green-100 text-green-800 border-green-200",
     icon: CheckCircle,
-    label: 'Resolved' 
+    label: "Resolved",
   },
-  'closed': { 
-    color: 'bg-gray-100 text-gray-800 border-gray-200', 
+  closed: {
+    color: "bg-gray-100 text-gray-800 border-gray-200",
     icon: X,
-    label: 'Closed' 
-  }
+    label: "Closed",
+  },
 };

@@ -1,12 +1,13 @@
 import { ChevronDown, Clock, Send, X } from "lucide-react";
-import { useState } from "react";
-import { FileUpload } from "./FileUpload";
-import { complaintCategories, type Order, type TicketFormData } from "./types";
+import { useEffect, useState } from "react";
+import type { Order } from "../orderComponents/OrderInterfaces";
+import { complaintCategories } from "./common";
+import { ComplaintCategory, type TicketFormData } from "./types";
 
 interface TicketFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: TicketFormData) => void;
+  onSubmit: (data: TicketFormData) => Promise<boolean>;
   orderId?: string;
   orderInfo?: Order;
 }
@@ -21,10 +22,9 @@ export const TicketFormModal: React.FC<TicketFormModalProps> = ({
   const [formData, setFormData] = useState<
     Omit<TicketFormData, "userId" | "status">
   >({
-    orderId: orderId || "",
-    category: "General Support",
+    order: orderId || null,
+    category: ComplaintCategory.GENERAL_SUPPORT,
     description: "",
-    attachments: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,19 +37,15 @@ export const TicketFormModal: React.FC<TicketFormModalProps> = ({
     try {
       const ticketData: TicketFormData = {
         ...formData,
-        orderId: orderId,
-        userId: "USER-456", // This would come from auth state
-        status: "open",
+        order: orderId,
       };
-
+   
       await onSubmit(ticketData);
 
-      // Reset form
       setFormData({
-        orderId: orderId || "",
-        category: "General Support",
+        order: orderId || null,
+        category: ComplaintCategory.GENERAL_SUPPORT,
         description: "",
-        attachments: [],
       });
       onClose();
     } catch (error) {
@@ -75,7 +71,7 @@ export const TicketFormModal: React.FC<TicketFormModalProps> = ({
             </h2>
             {orderInfo && (
               <p className="text-sm mt-1" style={{ color: "#456882" }}>
-                Order: {orderInfo.productName} ({orderInfo.id})
+                Order: {orderInfo.orderNumber}
               </p>
             )}
           </div>
@@ -149,12 +145,12 @@ export const TicketFormModal: React.FC<TicketFormModalProps> = ({
             </div>
 
             {/* File Upload */}
-            <FileUpload
+            {/* <FileUpload
               files={formData.attachments}
               onFilesChange={(files) =>
                 setFormData((prev) => ({ ...prev, attachments: files }))
               }
-            />
+            /> */}
 
             {/* Submit Button */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
@@ -162,7 +158,7 @@ export const TicketFormModal: React.FC<TicketFormModalProps> = ({
                 type="button"
                 onClick={handleSubmit}
                 disabled={!formData.description.trim() || isSubmitting}
-                className="flex-1 flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors order-2 sm:order-1"
+                className="flex-1 flex items-center justify-center px-6 py-3 bg-[#263b51] text-white rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors order-2 sm:order-1 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
