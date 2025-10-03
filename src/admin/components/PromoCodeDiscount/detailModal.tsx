@@ -95,7 +95,6 @@ export const ViewPromoDetailModal: React.FC<ViewPromoDetailModalProps> = ({
     return null;
   }
 
-  console.log("isloading", isVeiwMoreLoading);
   return (
       <div className="fixed inset-0 bg-[#263b51]/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-lg">

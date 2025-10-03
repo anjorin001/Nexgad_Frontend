@@ -1,7 +1,7 @@
 import { AlertCircle, Ban, Check, Clock, RefreshCw, Truck } from "lucide-react";
-import type { Order } from "../components/Order/OrderTable";
+import type { Order } from "../../components/orderComponents/OrderInterfaces";
 
-export const getStatusIcon = (status: Order["status"]) => {
+export const getStatusIcon = (status: Order["orderStatus"]) => {
   switch (status) {
     case "pending":
       return <Clock className="w-3 h-3" />;
@@ -20,7 +20,7 @@ export const getStatusIcon = (status: Order["status"]) => {
   }
 };
 
-export const getStatusColor = (status: Order["status"]) => {
+export const getStatusColor = (status: Order["orderStatus"]) => {
   switch (status) {
     case "pending":
       return "bg-yellow-100 text-yellow-800";

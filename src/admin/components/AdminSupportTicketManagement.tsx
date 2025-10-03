@@ -6,17 +6,37 @@ import {
   MessageCircle,
   Search,
 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { dummyTickets } from "../helpers/dummyData";
+import { useEffect, useMemo, useState } from "react";
+import Loader from "../../components/nexgadMidPageLoader";
+import {
+  DateRangeType,
+  SupportTicketStatus,
+  type SupportTicket,
+} from "../../components/support/types";
+import api from "../../utils/api";
+import { useToast } from "../../utils/ToastNotification";
+import { CloseTicketModal } from "./Support/CloseTicketModal";
 import { TicketFilters } from "./Support/Filter";
-import { TicketTable, type SupportTicket } from "./Support/TicketTable";
+import ReplyModal from "./Support/ReplyModal";
+import { TicketTable } from "./Support/TicketTable";
 import { ViewTicketModal } from "./Support/ViewTicketModal";
 
 export default function SupportTicketsManagement() {
-  const [tickets, setTickets] = useState<SupportTicket[]>(dummyTickets);
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [viewTicket, setViewTicket] = useState<SupportTicket | null>(null);
+  const [closeTicket, setIsCloseTicket] = useState<SupportTicket | null>(null);
+  const [isPageLoading, setIsPageLoading] = useState<boolean>(false);
+  const [isReplyLoading, setIsRepylyLoading] = useState<boolean>(false);
+  const [isVeiwMoreLoading, setIsViewMoreLoading] = useState<boolean>(false);
+  const [isStatusChangeLoading, setIsStatusChangeLoading] =
+    useState<boolean>(false);
+  const toast = useToast();
+  const [replyTicketId, setReplyTicketId] = useState<string | null>(null);
+  const [replyTicketNumber, setReplyTicketNumber] = useState<string | null>(
+    null
+  );
+  const [replyMessage, setReplyMessage] = useState("");
 
-  // Filter states
   const [filters, setFilters] = useState({
     search: "",
     status: "",
@@ -24,69 +44,108 @@ export default function SupportTicketsManagement() {
     dateRange: "",
   });
 
-  // Filter logic
-  const filteredTickets = useMemo(() => {
-    return tickets.filter((ticket) => {
-      // Search filter
-      if (filters.search) {
-        const searchTerm = filters.search.toLowerCase();
-        const searchMatch =
-          ticket.id.toLowerCase().includes(searchTerm) ||
-          ticket.customerName.toLowerCase().includes(searchTerm) ||
-          ticket.customerEmail.toLowerCase().includes(searchTerm) ||
-          ticket.subject.toLowerCase().includes(searchTerm) ||
-          (ticket.orderNumber &&
-            ticket.orderNumber.toLowerCase().includes(searchTerm));
 
-        if (!searchMatch) return false;
+  const fetchTickets = async () => {
+    setIsPageLoading(true);
+    try {
+      const queryParams = new URLSearchParams();
+
+      if (filters.category) {
+        queryParams.append("category", filters.category);
       }
 
-      // Status filter
+      if (filters.status) {
+        queryParams.append("status", filters.status);
+      }
+
+      if (filters.dateRange) {
+        queryParams.append("dateRange", filters.dateRange);
+      }
+
+      const queryString = queryParams.toString();
+      const endpoint = queryString
+        ? `/support/ticket/all?${queryString}`
+        : "/support/ticket/all";
+
+      const request = await api.get(endpoint);
+      const response = request.data;
+      setTickets(response.data || []);
+    } catch (error: any) {
+      console.error("Error fetching tickets", error);
+
+      if (error.response) {
+        toast.error(error.response.data.message || "Failed to fetch tickets");
+      } else if (
+        error.code === "ERR_NETWORK" ||
+        error.code === "ECONNABORTED" ||
+        error.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred while fetching tickets.");
+      }
+    } finally {
+      setIsPageLoading(false);
+    }
+  };
+
+  const filteredTickets = useMemo(() => {
+    return tickets.filter((ticket) => {
+      if (filters.search) {
+        const searchTerm = filters.search.toLowerCase();
+        const matchesSearch =
+          ticket.ticketId.toLowerCase().includes(searchTerm) ||
+          `${ticket.userId.firstName} ${ticket.userId.lastName}`
+            .toLowerCase()
+            .includes(searchTerm) ||
+          ticket.description.toLowerCase().includes(searchTerm) ||
+          ticket.category.toLowerCase().includes(searchTerm);
+
+        if (!matchesSearch) return false;
+      }
+
       if (filters.status && ticket.status !== filters.status) {
         return false;
       }
 
-      // Category filter
       if (filters.category && ticket.category !== filters.category) {
         return false;
       }
 
-      // Date range filter
       if (filters.dateRange) {
-        const ticketDate = new Date(ticket.createdDate);
+        const ticketDate = new Date(ticket.createdAt);
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        today.setHours(23, 59, 59, 999);
 
         switch (filters.dateRange) {
-          case "today": {
-            const todayStart = new Date(today);
-            const todayEnd = new Date(today);
-            todayEnd.setHours(23, 59, 59, 999);
-            if (ticketDate < todayStart || ticketDate > todayEnd) return false;
+          case DateRangeType.TODAY:
+            const startOfToday = new Date(today);
+            startOfToday.setHours(0, 0, 0, 0);
+            if (ticketDate < startOfToday || ticketDate > today) return false;
             break;
-          }
-          case "yesterday":
+
+          case DateRangeType.YESTERDAY:
             const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayEnd = new Date(yesterday);
-            yesterdayEnd.setHours(23, 59, 59, 999);
-            if (ticketDate < yesterday || ticketDate > yesterdayEnd)
+            yesterday.setDate(today.getDate() - 1);
+            yesterday.setHours(0, 0, 0, 0);
+            const endOfYesterday = new Date(yesterday);
+            endOfYesterday.setHours(23, 59, 59, 999);
+            if (ticketDate < yesterday || ticketDate > endOfYesterday)
               return false;
             break;
-          case "last7days":
-            const last7Days = new Date(today);
-            last7Days.setDate(last7Days.getDate() - 7);
-            if (ticketDate < last7Days) return false;
+
+          case DateRangeType.LAST7DAYS:
+            const sevenDaysAgo = new Date(today);
+            sevenDaysAgo.setDate(today.getDate() - 7);
+            sevenDaysAgo.setHours(0, 0, 0, 0);
+            if (ticketDate < sevenDaysAgo) return false;
             break;
-          case "last30days":
-            const last30Days = new Date(today);
-            last30Days.setDate(last30Days.getDate() - 30);
-            if (ticketDate < last30Days) return false;
-            break;
-          case "last90days":
-            const last90Days = new Date(today);
-            last90Days.setDate(last90Days.getDate() - 90);
-            if (ticketDate < last90Days) return false;
+
+          case DateRangeType.LAST30DAYS:
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            thirtyDaysAgo.setHours(0, 0, 0, 0);
+            if (ticketDate < thirtyDaysAgo) return false;
             break;
         }
       }
@@ -94,6 +153,22 @@ export default function SupportTicketsManagement() {
       return true;
     });
   }, [tickets, filters]);
+
+  useEffect(() => {
+    fetchTickets();
+  }, [filters.status, filters.category, filters.dateRange]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchTickets();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [filters.search]);
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({
@@ -111,51 +186,112 @@ export default function SupportTicketsManagement() {
     });
   };
 
-  const handleView = (ticket: SupportTicket) => {
-    setViewTicket(ticket);
+  const handleView = async (ticketId: string) => {
+    setIsViewMoreLoading(true);
+    try {
+      const request = await api.get(`/support/ticket/${ticketId}`);
+      const response = request.data;
+      setViewTicket(response.data);
+    } catch (error: any) {
+      console.error("Error submitting ticket", error);
+
+      if (error.response) {
+        toast.error(error.response.data.message || "Something went wrong");
+      } else if (
+        error.code === "ERR_NETWORK" ||
+        error.code === "ECONNABORTED" ||
+        error.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
+    } finally {
+      setIsViewMoreLoading(false);
+    }
   };
 
-  const handleReply = (ticketId: string, message: string) => {
-    console.log(`Reply to ticket ${ticketId}: ${message}`);
-    setTickets((prev) =>
-      prev.map((ticket) =>
-        ticket.id === ticketId
-          ? { ...ticket, lastUpdated: new Date().toISOString().split("T")[0] }
-          : ticket
-      )
-    );
+  const handleReply = async (ticketId: string, message: string) => {
+    setIsRepylyLoading(true);
+    try {
+      await api.post(`/support/ticket/reply/${ticketId}`, { message });
+
+      setTickets((prev) =>
+        prev.map((ticket) =>
+          ticket._id === ticketId
+            ? { ...ticket, updatedAt: new Date().toISOString() }
+            : ticket
+        )
+      );
+
+      toast.success("Reply sent successfully");
+    } catch (error: any) {
+      console.error("Error replying ticket", error);
+
+      if (error.response) {
+        toast.error(error.response.data.message || "Something went wrong");
+      } else if (
+        error.code === "ERR_NETWORK" ||
+        error.code === "ECONNABORTED" ||
+        error.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
+    } finally {
+      setIsRepylyLoading(false);
+    }
   };
 
-  const handleStatusChange = (
+  const handleStatusChange = async (
     ticketId: string,
     newStatus: SupportTicket["status"]
   ) => {
-    setTickets((prev) =>
-      prev.map((ticket) =>
-        ticket.id === ticketId
-          ? {
-              ...ticket,
-              status: newStatus,
-              lastUpdated: new Date().toISOString().split("T")[0],
-            }
-          : ticket
-      )
-    );
-  };
-
-  const handleClose = (ticketId: string) => {
-    if (window.confirm("Are you sure you want to close this ticket?")) {
+    setIsStatusChangeLoading(true);
+    try {
+      await api.patch(`/support/ticket/status/${ticketId}`, {
+        status: newStatus,
+      });
       setTickets((prev) =>
         prev.map((ticket) =>
-          ticket.id === ticketId
+          ticket._id === ticketId
             ? {
                 ...ticket,
-                status: "closed",
-                lastUpdated: new Date().toISOString().split("T")[0],
+                status: newStatus,
+                updatedAt: new Date().toISOString(),
               }
             : ticket
         )
       );
+
+      toast.success("Ticket status updated successfully");
+    } catch (error: any) {
+      console.error("Error updating ticket status", error);
+
+      if (error.response) {
+        toast.error(error.response.data.message || "Something went wrong");
+      } else if (
+        error.code === "ERR_NETWORK" ||
+        error.code === "ECONNABORTED" ||
+        error.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
+    } finally {
+      setIsStatusChangeLoading(false);
+      setIsCloseTicket(null);
+    }
+  };
+
+  const prepSendReply = async () => {
+    if (replyTicketId && replyMessage.trim()) {
+      await handleReply(replyTicketId, replyMessage);
+      setReplyTicketId(null);
+      setReplyTicketNumber(null);
+      setReplyMessage("");
     }
   };
 
@@ -274,14 +410,16 @@ export default function SupportTicketsManagement() {
 
       {/* Tickets Table */}
       <TicketTable
+        isPageLoading={isPageLoading}
+        isVeiwMoreLoading={isVeiwMoreLoading}
         tickets={filteredTickets}
         onView={handleView}
-        onReply={handleReply}
         onStatusChange={handleStatusChange}
-        onClose={handleClose}
+        onClose={setIsCloseTicket}
+        onSetReplyId={setReplyTicketId}
+        onSetReplyNumber={setReplyTicketNumber}
       />
 
-      {/* Empty State */}
       {filteredTickets.length === 0 && tickets.length > 0 && (
         <div className="text-center py-12">
           <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
@@ -303,11 +441,53 @@ export default function SupportTicketsManagement() {
         </div>
       )}
 
-      {/* View Modal */}
-      <ViewTicketModal
-        ticket={viewTicket}
-        onClose={() => setViewTicket(null)}
-      />
+      {isVeiwMoreLoading ? (
+        <div className="fixed inset-0 bg-[#263b51]/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="bg-white col-span-full flex justify-center items-center rounded-lg max-w-2xl w-full h-[80vh] overflow-y-auto">
+            <Loader size={64} thickness={1} />
+          </div>
+        </div>
+      ) : (
+        viewTicket && (
+          <ViewTicketModal
+            ticket={viewTicket}
+            onClose={() => setViewTicket(null)}
+            onCloseTicket={setIsCloseTicket}
+            onReply={(TicketNumber: string, ticketId: string) => {
+              setReplyTicketId(ticketId);
+              setReplyTicketNumber(TicketNumber);
+            }}
+          />
+        )
+      )}
+
+      {replyTicketId && (
+        <ReplyModal
+          isReplyLoading={isReplyLoading}
+          onClose={() => {
+            setReplyTicketId(null);
+            setReplyTicketNumber(null);
+            setReplyMessage(null)
+          }}
+          onSendReply={prepSendReply}
+          replyTicketId={replyTicketId}
+          replyTicketNumber={replyTicketNumber}
+          onSetReplyMessage={setReplyMessage}
+          replyMessage={replyMessage}
+        />
+      )}
+
+      {closeTicket && (
+        <CloseTicketModal
+          isOpen={!!closeTicket}
+          onClose={() => setIsCloseTicket(null)}
+          onConfirm={() =>
+            handleStatusChange(closeTicket._id, SupportTicketStatus.CLOSED)
+          }
+          ticketId={closeTicket.ticketId}
+          isLoading={isStatusChangeLoading}
+        />
+      )}
     </div>
   );
 }

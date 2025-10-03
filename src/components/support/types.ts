@@ -6,7 +6,7 @@ export interface Order {
   orderNumber: string;
   orderDate: string;
   orderStatus: OrderStatus;
-  total: number;
+  totalAmount: number;
 }
 
 export enum ComplaintCategory {
@@ -36,11 +36,25 @@ export enum SupportTicketStatus {
   CLOSED = "closed",
 }
 
+export enum DateRangeType {
+  YESTERDAY = "yesterday",
+  TODAY = "today",
+  LAST7DAYS = "last7days",
+  LAST30DAYS = "last30days",
+}
+
+export interface userData {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 export interface SupportTicket {
   _id: string;
   ticketId: string;
-  order?: Order;
-  userId: string;
+  order?: string | Order;
+  userId: userData;
   category: string;
   description: string;
   images: string[];

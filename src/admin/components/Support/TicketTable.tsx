@@ -1,56 +1,89 @@
-import { Calendar, Eye, MessageCircle, Package, Send, X } from "lucide-react";
-import React, { useState } from "react";
 import {
-  complaintCategories,
+  Calendar,
+  ChevronDown,
+  Eye,
+  MessageCircle,
+  Package,
+  X,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import Loader from "../../../components/nexgadMidPageLoader";
+import {
   statusConfig,
+  type SupportTicket,
 } from "../../../components/support/types";
 
 interface TicketTableProps {
+  isPageLoading: boolean;
+
+  isVeiwMoreLoading: boolean;
   tickets: SupportTicket[];
-  onView: (ticket: SupportTicket) => void;
-  onReply: (ticketId: string, message: string) => void;
+  onView: (ticketId: string) => void;
   onStatusChange: (
     ticketId: string,
     newStatus: SupportTicket["status"]
   ) => void;
-  onClose: (ticketId: string) => void;
-}
-
-export interface SupportTicket {
-  id: string;
-  orderNumber?: string;
-  customerName: string;
-  customerEmail: string;
-  category: (typeof complaintCategories)[number];
-  status: keyof typeof statusConfig;
-  subject: string;
-  description: string;
-  createdDate: string;
-  lastUpdated: string;
-  orderDetails?: {
-    productName: string;
-    orderValue: number;
-    orderDate: string;
-  };
+  onClose: (ticket: SupportTicket) => void;
+  onSetReplyNumber: (ticketNumber: string) => void;
+  onSetReplyId: (ticketId: string) => void;
 }
 
 export const TicketTable: React.FC<TicketTableProps> = ({
+  isVeiwMoreLoading,
+  isPageLoading,
   tickets,
   onView,
-  onReply,
   onStatusChange,
   onClose,
+  onSetReplyId,
+  onSetReplyNumber,
 }) => {
-  const [replyTicketId, setReplyTicketId] = useState<string | null>(null);
-  const [replyMessage, setReplyMessage] = useState("");
+  const [showStatusDropdown, setShowStatusDropdown] = useState<string | null>(
+    null
+  );
 
-  const handleSendReply = () => {
-    if (replyTicketId && replyMessage.trim()) {
-      onReply(replyTicketId, replyMessage);
-      setReplyTicketId(null);
-      setReplyMessage("");
-    }
+  const statusFlow: Record<string, string[]> = {
+    open: ["closed", "resolved", "in_progress"],
+    in_progress: ["resolved", "closed"],
+    resolved: [],
+    closed: [],
   };
+
+  const getStatusIcon = (status: string) => {
+    const config = statusConfig[status as keyof typeof statusConfig];
+    if (config?.icon) {
+      const IconComponent = config.icon;
+      return <IconComponent className="w-3 h-3" />;
+    }
+    return null;
+  };
+
+  const getStatusColor = (status: string) => {
+    const config = statusConfig[status as keyof typeof statusConfig];
+    return config?.color || "bg-gray-100 text-gray-800 border-gray-200";
+  };
+
+  const getAllowedNextStatuses = (currentStatus: string) => {
+    return statusFlow[currentStatus] || [];
+  };
+
+  const handleStatusUpdate = (ticketId: string, newStatus: string) => {
+    onStatusChange(ticketId, newStatus as SupportTicket["status"]);
+    setShowStatusDropdown(null);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showStatusDropdown) {
+        setShowStatusDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showStatusDropdown]);
 
   return (
     <>
@@ -107,171 +140,155 @@ export const TicketTable: React.FC<TicketTableProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y" style={{ borderColor: "#CBDCEB" }}>
-              {tickets.map((ticket: SupportTicket) => {
-                return (
-                  <tr key={ticket.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <span
-                        className="font-medium text-sm"
-                        style={{ color: "#263b51" }}
-                      >
-                        {ticket.id}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {ticket.orderNumber ? (
-                        <div className="flex items-center gap-2">
-                          <Package
-                            className="w-4 h-4"
-                            style={{ color: "#456882" }}
-                          />
-                          <span
-                            className="text-sm"
-                            style={{ color: "#456882" }}
-                          >
-                            {ticket.orderNumber}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <div
+              {isPageLoading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12">
+                    <div className="flex justify-center items-center">
+                      <Loader size={64} thickness={1} />
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                tickets.map((ticket: SupportTicket) => {
+                  return (
+                    <tr key={ticket._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <span
                           className="font-medium text-sm"
                           style={{ color: "#263b51" }}
                         >
-                          {ticket.customerName}
+                          {ticket.ticketId}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {ticket.order ? (
+                          <div className="flex items-center gap-2">
+                            <Package
+                              className="w-4 h-4"
+                              style={{ color: "#456882" }}
+                            />
+                            <span
+                              className="text-sm"
+                              style={{ color: "#456882" }}
+                            >
+                              {ticket.order as string}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div>
+                          <div
+                            className="font-medium text-sm"
+                            style={{ color: "#263b51" }}
+                          >
+                            {`${ticket.userId.lastName} ${ticket.userId.firstName} `}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {ticket.userId.email}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500">
-                          {ticket.customerEmail}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm" style={{ color: "#456882" }}>
+                          {ticket.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="relative">
+                          <button
+                            onClick={() =>
+                              setShowStatusDropdown(
+                                showStatusDropdown === ticket._id
+                                  ? null
+                                  : ticket._id
+                              )
+                            }
+                            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                              ticket.status
+                            )}`}
+                          >
+                            {getStatusIcon(ticket.status)}
+                            {statusConfig[
+                              ticket.status as keyof typeof statusConfig
+                            ]?.label || ticket.status}
+                            {getAllowedNextStatuses(ticket.status).length >
+                              0 && <ChevronDown className="w-3 h-3" />}
+                          </button>
+                          {showStatusDropdown === ticket._id &&
+                            getAllowedNextStatuses(ticket.status).length >
+                              0 && (
+                              <div
+                                className="absolute right-0 top-full mt-1 bg-white border rounded-md shadow-lg z-10 min-w-32"
+                                style={{ borderColor: "#CBDCEB" }}
+                              >
+                                {getAllowedNextStatuses(ticket.status).map(
+                                  (status) => (
+                                    <button
+                                      key={status}
+                                      onClick={() =>
+                                        handleStatusUpdate(ticket._id, status)
+                                      }
+                                      className="w-full px-3 py-2 text-left hover:bg-gray-50 text-xs"
+                                    >
+                                      {statusConfig[
+                                        status as keyof typeof statusConfig
+                                      ]?.label ||
+                                        status.charAt(0).toUpperCase() +
+                                          status.slice(1)}
+                                    </button>
+                                  )
+                                )}
+                              </div>
+                            )}
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm" style={{ color: "#456882" }}>
-                        {ticket.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <select
-                        value={ticket.status}
-                        onChange={(e) =>
-                          onStatusChange(
-                            ticket.id,
-                            e.target.value as SupportTicket["status"]
-                          )
-                        }
-                        className="bg-white border rounded-md px-3 py-1 text-xs font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        style={{ borderColor: "#CBDCEB" }}
-                      >
-                        {Object.entries(statusConfig).map(([key, config]) => (
-                          <option key={key} value={key}>
-                            {config.label}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Calendar className="w-4 h-4" />
-                        {new Date(ticket.createdDate).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => onView(ticket)}
-                          className="p-2 text-white rounded-md hover:opacity-90"
-                          style={{ backgroundColor: "#456882" }}
-                          title="View Details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setReplyTicketId(ticket.id)}
-                          className="p-2 border rounded-md hover:bg-gray-50"
-                          style={{ borderColor: "#CBDCEB", color: "#456882" }}
-                          title="Reply"
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => onClose(ticket.id)}
-                          className="p-2 text-red-600 border border-red-300 rounded-md hover:bg-red-50"
-                          title="Close Ticket"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          {new Date(ticket.createdAt).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => onView(ticket._id)}
+                            className="p-2 text-white rounded-md hover:opacity-90"
+                            style={{ backgroundColor: "#456882" }}
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              onSetReplyId(ticket._id);
+                              onSetReplyNumber(ticket.ticketId);
+                            }}
+                            className="p-2 border rounded-md hover:bg-gray-50"
+                            style={{ borderColor: "#CBDCEB", color: "#456882" }}
+                            title="Reply"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => onClose(ticket)} //TODO modify to render confirm modal
+                            className="p-2 text-red-600 border border-red-300 rounded-md hover:bg-red-50"
+                            title="Close Ticket"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
       </div>
-
-      {/* Reply Modal */}
-      {replyTicketId && (
-        <div className="fixed  inset-0 bg-[#263b51]/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3
-                  className="text-lg font-semibold"
-                  style={{ color: "#263b51" }}
-                >
-                  Reply to Ticket {replyTicketId}
-                </h3>
-                <button
-                  onClick={() => setReplyTicketId(null)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="mb-4">
-                <label
-                  className="block text-sm font-medium mb-2"
-                  style={{ color: "#456882" }}
-                >
-                  Your Message
-                </label>
-                <textarea
-                  value={replyMessage}
-                  onChange={(e) => setReplyMessage(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 h-32"
-                  style={{ borderColor: "#CBDCEB" }}
-                  placeholder="Type your response here..."
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setReplyTicketId(null)}
-                  className="flex-1 px-4 py-2 border rounded-md font-medium"
-                  style={{ borderColor: "#CBDCEB", color: "#456882" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSendReply}
-                  className="flex-1 px-4 py-2 text-white rounded-md font-medium flex items-center justify-center gap-2"
-                  style={{ backgroundColor: "#263b51" }}
-                  disabled={!replyMessage.trim()}
-                >
-                  <Send className="w-4 h-4" />
-                  Send Reply
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

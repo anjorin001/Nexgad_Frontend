@@ -1,11 +1,23 @@
 import { Package, X } from "lucide-react";
-import { statusConfig } from "../../../components/support/types";
-import type { SupportTicket } from "./TicketTable";
+import type { Order } from "../../../components/orderComponents/OrderInterfaces";
+import {
+  statusConfig,
+  type SupportTicket,
+} from "../../../components/support/types";
 
-export const ViewTicketModal: React.FC<{
+interface ViewTicketModalProp {
   ticket: SupportTicket | null;
   onClose: () => void;
-}> = ({ ticket, onClose }) => {
+  onReply: (ticketNumber: string, ticketId: string) => void;
+  onCloseTicket: (ticket: SupportTicket) => void;
+}
+
+export const ViewTicketModal: React.FC<ViewTicketModalProp> = ({
+  ticket,
+  onClose,
+  onCloseTicket,
+  onReply,
+}) => {
   if (!ticket) return null;
 
   const formatPrice = (price: number) => {
@@ -30,7 +42,7 @@ export const ViewTicketModal: React.FC<{
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <h2 className="text-2xl font-bold" style={{ color: "#263b51" }}>
-                {ticket.id}
+                {ticket.ticketId}
               </h2>
               <div className="flex items-center gap-2">
                 <StatusIcon className="w-4 h-4" />
@@ -54,13 +66,12 @@ export const ViewTicketModal: React.FC<{
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content - Left Side */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Subject & Description */}
               <div className="bg-gray-50 rounded-lg p-6">
                 <h3
                   className="text-xl font-semibold mb-4"
                   style={{ color: "#263b51" }}
                 >
-                  {ticket.subject}
+                  {ticket.category}
                 </h3>
                 <div className="prose prose-sm max-w-none">
                   <p className="text-gray-700 leading-relaxed whitespace-pre-line">
@@ -77,67 +88,63 @@ export const ViewTicketModal: React.FC<{
               </div>
 
               {/* Order Details */}
-              {ticket.orderNumber && ticket.orderDetails && (
-                <div
-                  className="border rounded-lg p-6"
-                  style={{ borderColor: "#CBDCEB" }}
-                >
-                  <h3
-                    className="text-lg font-semibold mb-4 flex items-center gap-2"
-                    style={{ color: "#263b51" }}
+              {ticket.order !== null &&
+                (ticket.order as Order)?.orderNumber && (
+                  <div
+                    className="border rounded-lg p-6"
+                    style={{ borderColor: "#CBDCEB" }}
                   >
-                    <Package className="w-5 h-5" style={{ color: "#456882" }} />
-                    Order Information
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">
-                          Order Number
-                        </label>
-                        <p
-                          className="text-lg font-semibold"
-                          style={{ color: "#263b51" }}
-                        >
-                          {ticket.orderNumber}
-                        </p>
+                    <h3
+                      className="text-lg font-semibold mb-4 flex items-center gap-2"
+                      style={{ color: "#263b51" }}
+                    >
+                      <Package
+                        className="w-5 h-5"
+                        style={{ color: "#456882" }}
+                      />
+                      Order Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">
+                            Order Number
+                          </label>
+                          <p
+                            className="text-lg font-semibold"
+                            style={{ color: "#263b51" }}
+                          >
+                            {(ticket.order as Order).orderNumber}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">
-                          Product
-                        </label>
-                        <p style={{ color: "#263b51" }}>
-                          {ticket.orderDetails.productName}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">
-                          Order Value
-                        </label>
-                        <p className="text-lg font-bold text-green-600">
-                          {formatPrice(ticket.orderDetails.orderValue)}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">
-                          Order Date
-                        </label>
-                        <p style={{ color: "#263b51" }}>
-                          {new Date(
-                            ticket.orderDetails.orderDate
-                          ).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">
+                            Order Value
+                          </label>
+                          <p className="text-lg font-bold text-green-600">
+                            {formatPrice((ticket.order as Order).totalAmount)}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">
+                            Order Date
+                          </label>
+                          <p style={{ color: "#263b51" }}>
+                            {new Date(
+                              (ticket.order as Order).orderDate
+                            ).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
 
             {/* Sidebar - Right Side */}
@@ -157,15 +164,15 @@ export const ViewTicketModal: React.FC<{
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                       <span className="text-blue-800 font-medium">
-                        {ticket.customerName.charAt(0)}
+                        {ticket.userId.lastName.charAt(0)}
                       </span>
                     </div>
                     <div>
                       <p className="font-medium" style={{ color: "#263b51" }}>
-                        {ticket.customerName}
+                        {`${ticket.userId.lastName} ${ticket.userId.firstName} `}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {ticket.customerEmail}
+                        {ticket.userId.email}
                       </p>
                     </div>
                   </div>
@@ -189,7 +196,7 @@ export const ViewTicketModal: React.FC<{
                     <div>
                       <p className="text-sm font-medium">Ticket Created</p>
                       <p className="text-xs text-gray-500">
-                        {new Date(ticket.createdDate).toLocaleDateString(
+                        {new Date(ticket.createdAt).toLocaleDateString(
                           "en-US",
                           {
                             year: "numeric",
@@ -203,13 +210,13 @@ export const ViewTicketModal: React.FC<{
                     </div>
                   </div>
 
-                  {ticket.createdDate !== ticket.lastUpdated && (
+                  {ticket.createdAt !== ticket.updatedAt && (
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <div>
                         <p className="text-sm font-medium">Last Updated</p>
                         <p className="text-xs text-gray-500">
-                          {new Date(ticket.lastUpdated).toLocaleDateString(
+                          {new Date(ticket.updatedAt).toLocaleDateString(
                             "en-US",
                             {
                               year: "numeric",
@@ -225,7 +232,7 @@ export const ViewTicketModal: React.FC<{
                   )}
                 </div>
               </div>
-              {/* Quick Actions */}
+              
               <div
                 className="border rounded-lg p-4"
                 style={{ borderColor: "#CBDCEB" }}
@@ -237,10 +244,22 @@ export const ViewTicketModal: React.FC<{
                   Quick Actions
                 </h3>
                 <div className="space-y-2">
-                  <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                  <button
+                    onClick={() => {
+                      onReply(ticket.ticketId, ticket._id);
+                      onClose();
+                    }}
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  >
                     Send Reply
                   </button>
-                  <button className="w-full px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50 transition-colors">
+                  <button
+                    onClick={() => {
+                      onCloseTicket(ticket);
+                      onClose();
+                    }}
+                    className="w-full px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50 transition-colors"
+                  >
                     Close Ticket
                   </button>
                 </div>
