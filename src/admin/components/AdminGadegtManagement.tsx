@@ -421,9 +421,11 @@ export const GadgetManagement: React.FC<GadgetManagementProp> = ({
         )}
       </div>
 
-      {hasMore || !isPageLoading && (
-        <div className="flex w-full justify-center mt-8">
+      {hasMore && (
+        <div className="w-full flex justify-center items-center mt-8">
           <button
+            type="button"
+            disabled={isPageLoading}
             onClick={onLoadMore}
             className="bg-[#1B3C53] text-white px-6 py-2 rounded-md hover:bg-[#456882] transition-colors"
           >
@@ -431,7 +433,7 @@ export const GadgetManagement: React.FC<GadgetManagementProp> = ({
           </button>
         </div>
       )}
-
+      
       {/* View Modal */}
       {viewProduct && (
         <ProductDetailsModal
