@@ -34,7 +34,7 @@ export interface IAppliedPromo {
 export interface IPayment {
   url: string;
   orderId: string;
-  expiresAt: string; 
+  expiresAt: string;
 }
 
 export interface ICheckOut {
@@ -49,10 +49,10 @@ export interface ICheckOut {
   address: string;
   zipCode?: number;
   deliveryFee: CheckoutDeliveryType;
-  orderDate: string; 
-  estimatedDelivery?: string; 
-  cart?: CartData; 
-  offerItem?: IOfferItem; 
+  orderDate: string;
+  estimatedDelivery?: string;
+  cart?: CartData;
+  offerItem?: IOfferItem;
   discountInPrice: number;
   total: number;
   appliedPromo: IAppliedPromo | null;
@@ -61,18 +61,19 @@ export interface ICheckOut {
 export interface ICheckoutFinal {
   firstName: string;
   lastName: string;
-  phone: string; 
+  phone: string;
   city: string;
   state: string;
   address: string;
-  zipCode?: number; 
-  deliveryType?: 'express' | 'standard'; 
+  zipCode?: number;
+  deliveryType?: "express" | "standard";
   estimatedDelivery: string;
 }
 
-
-
 export interface IOfferItem {
-  productId: string;
-  discountValue: number;
+  _id: string;
+  title: string;
+  brand?: string;
+  price: number;
+  quantity: number;
 }

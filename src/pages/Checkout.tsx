@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import CheckoutComponent from "../components/checkoutComponents/Checkout";
 import type { ICheckoutFinal } from "../components/checkoutComponents/CheckoutInterface";
 import Footer from "../components/Footer";
@@ -14,6 +14,16 @@ const Checkout = () => {
   const [isSubmitCheckoutLoading, setIsSubmitCheckoutLoading] =
     useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [queryParams] = useSearchParams();
+
+  const offerId = queryParams.has("offerId");
+  const stamp = queryParams.has("stamp");
+
+  const isOfferCheckout = offerId && stamp;
+
+  const offerIdValue = queryParams.get("offerId");
+  const stampValue = queryParams.get("stamp");
+
 
   const {
     isAuthenticated,
@@ -48,7 +58,6 @@ const Checkout = () => {
     [toast]
   );
 
-  // Fetch checkout data
   const handleCheckout = useCallback(async () => {
     if (!isAuthenticated) {
       toast.info("Please login to access checkout");
@@ -60,13 +69,20 @@ const Checkout = () => {
     setHasError(false);
 
     try {
-      const response = await api.get("/checkout");
-      const data = response.data;
+      let request: any;
 
-      console.log("Checkout data received:", data);
+      if (isOfferCheckout) {
+        request = await api.get(
+          `/checkout/offer?offerId=${offerIdValue}&stamp=${stampValue}`
+        );
+      } else {
+        request = await api.get("/checkout");
+      }
 
-      if (data?.data) {
-        const checkoutData = data.data;
+      const response = request.data;
+
+      if (response?.data) {
+        const checkoutData = response.data;
         console.log("first");
         setCheckout(checkoutData);
 
@@ -100,7 +116,6 @@ const Checkout = () => {
     handleNetworkError,
   ]);
 
-  // Remove promo code
   const handleRemovePromoCode = useCallback(
     async (promoCode: string) => {
       if (!promoCode?.trim()) {
@@ -307,7 +322,6 @@ const Checkout = () => {
     );
   }
 
-  // Main render
   return (
     <div className="min-h-screen bg-[#ffff]">
       <CheckoutComponent

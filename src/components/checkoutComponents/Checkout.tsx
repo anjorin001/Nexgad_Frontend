@@ -516,7 +516,7 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                   <div className="bg-[#CBDCEB]/10 rounded-lg p-4 sm:p-6 lg:p-8 border border-[#CBDCEB]/30">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
                       <p className="font-bold text-[#1B3C53] text-base sm:text-lg lg:text-xl">
-                        Order Summary ({checkout?.cart?.items?.length || 0}{" "}
+                        Order Summary ({checkout?.cart?.items?.length || (checkout?.offerItem ? 1 : 0)}{" "}
                         items)
                       </p>
                       <span className="font-bold text-[#456882] text-lg sm:text-xl lg:text-2xl">
@@ -524,9 +524,10 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                       </span>
                     </div>
 
-                    {showOrderDetails && checkout?.cart?.items && (
+                    {showOrderDetails && (checkout?.cart?.items || checkout?.offerItem) && (
                       <div className="space-y-4 sm:space-y-6 border-t border-[#CBDCEB] pt-4 sm:pt-6">
-                        {checkout.cart.items.map((item) => (
+                        {/* Render cart items if it's a cart checkout */}
+                        {checkout?.cart?.items && checkout.cart.items.map((item) => (
                           <div
                             key={item.product._id}
                             className="flex items-start sm:items-center gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 bg-white rounded-lg border border-[#CBDCEB]/30 hover:shadow-md transition-shadow duration-200"
@@ -554,6 +555,33 @@ const CheckoutComponent: React.FC<CheckoutProp> = React.memo(
                             </div>
                           </div>
                         ))}
+
+                        {/* Render offer item if it's an offer checkout */}
+                        {checkout?.offerItem && (
+                          <div className="flex items-start sm:items-center gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 bg-white rounded-lg border border-[#CBDCEB]/30 hover:shadow-md transition-shadow duration-200">
+                            <div className="w-12 h-12 sm:w-16 h-16 lg:w-20 h-20 bg-[#CBDCEB]/20 rounded-lg border border-[#CBDCEB]/30 flex-shrink-0 flex items-center justify-center">
+                              <Package className="w-6 h-6 sm:w-8 h-8 lg:w-10 h-10 text-[#456882]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-[#1B3C53] text-sm sm:text-base lg:text-lg mb-1 sm:mb-2 break-words">
+                                {checkout.offerItem.title}
+                              </p>
+                              {checkout.offerItem.brand && (
+                                <p className="text-[#456882] font-semibold text-xs sm:text-sm mb-1">
+                                  Brand: {checkout.offerItem.brand}
+                                </p>
+                              )}
+                              <p className="text-[#456882] font-semibold text-xs sm:text-sm">
+                                Quantity: {checkout.offerItem.quantity}
+                              </p>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <p className="font-bold text-[#456882] text-sm sm:text-base lg:text-xl">
+                                {formatCurrency(checkout.offerItem.price || 0)}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

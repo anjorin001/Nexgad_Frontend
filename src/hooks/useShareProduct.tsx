@@ -1,4 +1,3 @@
-// hooks/useShareProduct.tsx
 import { useAppContext } from "../context/AppContext";
 import { shareProduct } from "../utils/shareProduct";
 

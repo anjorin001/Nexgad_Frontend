@@ -170,7 +170,7 @@ const Listings = () => {
           );
           setHasMore(Boolean(pagination?.hasMore));
         } catch (err: any) {
-          console.error("Error sending reset token:", err);
+          console.error("Error getting  listings:", err);
 
           if (err.response) {
             toast.error(err.response.data.message || "Something went wrong");

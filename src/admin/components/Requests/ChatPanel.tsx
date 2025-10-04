@@ -1,13 +1,19 @@
-import { MessageCircle, Send } from "lucide-react";
+import { Loader2, MessageCircle, Send } from "lucide-react";
 import { useState } from "react";
+import {
+  UserRole,
+  type IGadgetRequest,
+} from "../../../components/gadgetRequestComponents/gadgetRequestInterface";
 import { CreateOfferModal } from "./CreateOfferModel";
-import type { UserRequest } from "./RequestTable";
 
 interface ChatPanelProps {
-  request: UserRequest;
+  isCloseOfferLoading: boolean;
+  isCreateOfferLoading: boolean;
+  request: IGadgetRequest;
   onToggleChat: (enabled: boolean) => void;
-  onCreateOffer: (price: string) => void;
+  onCreateOffer: (price: string) => Promise<void>;
   onCloseOffer: () => void;
+  isToggleChatLoading: boolean;
 }
 
 export const ChatPanel: React.FC<ChatPanelProps> = ({
@@ -15,6 +21,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   onToggleChat,
   onCreateOffer,
   onCloseOffer,
+  isCloseOfferLoading,
+  isCreateOfferLoading,
+  isToggleChatLoading,
 }) => {
   const [newMessage, setNewMessage] = useState("");
   const [showOfferModal, setShowOfferModal] = useState(false);
@@ -42,7 +51,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
             <span className="font-medium" style={{ color: "#456882" }}>
               User:
             </span>{" "}
-            <span style={{ color: "#263b51" }}>{request.userName}</span>
+            <span
+              style={{ color: "#263b51" }}
+            >{`${request.userId.firstName} ${request.userId.lastName}`}</span>
           </div>
           <div>
             <span className="font-medium" style={{ color: "#456882" }}>
@@ -70,28 +81,34 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         {request.chatMessages && request.chatMessages.length > 0 ? (
           request.chatMessages.map((message) => (
             <div
-              key={message.id}
+              key={message._id}
               className={`flex ${
-                message.sender === "admin" ? "justify-end" : "justify-start"
+                message.senderRole === UserRole.ADMIN
+                  ? "justify-end"
+                  : "justify-start"
               }`}
             >
               <div
                 className={`max-w-xs sm:max-w-sm lg:max-w-md px-4 py-2 rounded-lg ${
-                  message.sender === "admin"
+                  message.senderRole === UserRole.ADMIN
                     ? "bg-blue-500 text-white"
                     : "bg-white border border-gray-200"
                 }`}
-                style={message.sender === "user" ? { color: "#263b51" } : {}}
+                style={
+                  message.senderRole === UserRole.USER
+                    ? { color: "#263b51" }
+                    : {}
+                }
               >
                 <p className="text-sm break-words">{message.message}</p>
                 <p
                   className={`text-xs mt-1 ${
-                    message.sender === "admin"
+                    message.senderRole === UserRole.ADMIN
                       ? "text-blue-100"
                       : "text-gray-500"
                   }`}
                 >
-                  {new Date(message.timestamp).toLocaleTimeString()}
+                  {new Date(message.createdAt).toLocaleTimeString()}
                 </p>
               </div>
             </div>
@@ -129,41 +146,74 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2">
           <button
+            type="button"
             onClick={() => onToggleChat(!request.chatEnabled)}
-            className={`px-3 py-2 text-sm rounded-md border transition-colors flex-shrink-0 ${
+            disabled={isToggleChatLoading}
+            className={`inline-flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-md border transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed ${
               request.chatEnabled
                 ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
                 : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
             }`}
+            aria-busy={isToggleChatLoading}
           >
-            {request.chatEnabled ? "Disable Chat" : "Enable Chat"}
+            {isToggleChatLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {request.chatEnabled ? "Disabling..." : "Enabling..."}
+              </>
+            ) : request.chatEnabled ? (
+              "Disable Chat"
+            ) : (
+              "Enable Chat"
+            )}
           </button>
 
           {request.status === "in-progress" && (
             <button
+              type="button"
               onClick={() => setShowOfferModal(true)}
-              className="px-3 py-2 text-sm bg-green-50 text-green-700 border border-green-200 rounded-md hover:bg-green-100 transition-colors flex-shrink-0"
+              disabled={isCreateOfferLoading}
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm bg-green-50 text-green-700 border border-green-200 rounded-md hover:bg-green-100 transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-busy={isCreateOfferLoading}
             >
-              Create Offer
+              {isCreateOfferLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create Offer"
+              )}
             </button>
           )}
 
-          {request.status === "offer-made" && (
+          {request.status === "in-progress" && (
             <button
+              type="button"
               onClick={onCloseOffer}
-              className="px-3 py-2 text-sm bg-red-50 text-red-700 border border-red-200 rounded-md hover:bg-red-100 transition-colors flex-shrink-0"
+              disabled={isCloseOfferLoading}
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm bg-red-50 text-red-700 border border-red-200 rounded-md hover:bg-red-100 transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-busy={isCloseOfferLoading}
             >
-              Close Offer
+              {isCloseOfferLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Closing...
+                </>
+              ) : (
+                "Close Offer"
+              )}
             </button>
           )}
         </div>
       </div>
 
       <CreateOfferModal
+        isCreateOfferLoading={isCreateOfferLoading}
         isOpen={showOfferModal}
         onClose={() => setShowOfferModal(false)}
         onConfirm={onCreateOffer}
-        requestId={request.id}
+        requestId={request.requestId}
       />
     </div>
   );

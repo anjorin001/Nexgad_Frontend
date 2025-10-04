@@ -1,118 +1,66 @@
-import { Calendar, ChevronDown, Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ChevronDown, Search, X } from "lucide-react";
+import {
+  Status,
+  type IGadgetRequest,
+} from "../../components/gadgetRequestComponents/gadgetRequestInterface";
+import Loader from "../../components/nexgadMidPageLoader";
 import { statusColors } from "../helpers/common";
-import { mockRequests } from "../helpers/dummyData";
 import { ChatPanel } from "./Requests/ChatPanel";
-import { RequestsTable, type UserRequest } from "./Requests/RequestTable";
+import { RequestsTable } from "./Requests/RequestTable";
 
-enum Status {
-  PENDING = "pending",
-  IN_PROGRESS = "in-progress",
-  NOT_AVAILABLE = "not-available",
-  OFFER_MADE = "offer-made",
-  OFFER_DECLINED = "offer-declined",
-  OFFER_EXPIRED = "offer-expired",
-  PAID = "paid",
-  SHIPPED = "shipped",
-  COMPLETED = "completed",
+interface AdminGadgetRequestManagementProp {
+  isPageLoading: boolean;
+  isStatusChanging: string;
+  requests: IGadgetRequest[];
+  filteredRequests: IGadgetRequest[];
+  selectedRequestId: string | null;
+  selectedRequest: IGadgetRequest;
+  isViewMoreLoading: boolean;
+  isCloseOfferLoading: boolean;
+  isCreateOfferLoading: boolean;
+  isToggleChatLoading: boolean;
+  statusFilter: string;
+  searchTerm: string;
+  sortBy: string;
+  onSetSelectedRequestId: (value: any) => void;
+  onSetSelectedRequest: (value: any) => void;
+  onCreateOffer: (requestId: string, price: string) => Promise<void>;
+  onCloseOffer: (requestId: string) => void;
+  onToggleChat: (requestId: string, enabled: boolean) => void;
+  onChangeStatus: (requestId: string, newStatus: Status) => void;
+  onViewDetails: (requestId: string) => void;
+  onSetStatusFilter: (value: string) => void;
+  onSetSearchTerm: (value: string) => void;
+  onSetSortBy: (value: string) => void;
 }
 
-const AdminGadgetRequestManagement: React.FC = () => {
-  const [requests, setRequests] = useState<UserRequest[]>(mockRequests);
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
-    null
-  );
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<string>("date-desc");
-
-  // Filter and sort requests
-  const filteredRequests = useMemo(() => {
-    let filtered = requests;
-
-    // Status filter
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((req) => req.status === statusFilter);
-    }
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (req) =>
-          req.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          req.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (req.userName &&
-            req.userName.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "date-asc":
-          return (
-            new Date(a.submittedDate).getTime() -
-            new Date(b.submittedDate).getTime()
-          );
-        case "date-desc":
-          return (
-            new Date(b.submittedDate).getTime() -
-            new Date(a.submittedDate).getTime()
-          );
-        case "status":
-          return a.status.localeCompare(b.status);
-        case "product":
-          return a.productName.localeCompare(b.productName);
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [requests, statusFilter, searchTerm, sortBy]);
-
-  const selectedRequest = selectedRequestId
-    ? requests.find((req) => req.id === selectedRequestId)
-    : null;
-
-  const handleViewDetails = (requestId: string) => {
-    setSelectedRequestId(requestId);
-  };
-
-  const handleChangeStatus = (requestId: string, newStatus: Status) => {
-    setRequests((prev) =>
-      prev.map((req) =>
-        req.id === requestId
-          ? {
-              ...req,
-              status: newStatus,
-              // Auto-enable chat when moving to in-progress
-              ...(newStatus === Status.IN_PROGRESS
-                ? { chatEnabled: true }
-                : {}),
-            }
-          : req
-      )
-    );
-  };
-
-  const handleToggleChat = (requestId: string, enabled: boolean) => {
-    setRequests((prev) =>
-      prev.map((req) =>
-        req.id === requestId ? { ...req, chatEnabled: enabled } : req
-      )
-    );
-  };
-
-  const handleCreateOffer = (requestId: string, price: string) => {
-    console.log(`Creating offer for ${requestId}: ${price}`);
-    handleChangeStatus(requestId, Status.OFFER_MADE);
-  };
-
-  const handleCloseOffer = (requestId: string) => {
-    handleChangeStatus(requestId, Status.OFFER_DECLINED);
-  };
-
+const AdminGadgetRequestManagement: React.FC<
+  AdminGadgetRequestManagementProp
+> = ({
+  filteredRequests,
+  isPageLoading,
+  isViewMoreLoading,
+  onChangeStatus,
+  onCloseOffer,
+  onCreateOffer,
+  onSetSearchTerm,
+  onSetSelectedRequestId,
+  onSetSelectedRequest,
+  onSetSortBy,
+  onSetStatusFilter,
+  onToggleChat,
+  onViewDetails,
+  requests,
+  selectedRequestId,
+  selectedRequest,
+  statusFilter,
+  searchTerm,
+  sortBy,
+  isStatusChanging,
+  isCloseOfferLoading,
+  isCreateOfferLoading,
+  isToggleChatLoading,
+}) => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -147,7 +95,7 @@ const AdminGadgetRequestManagement: React.FC = () => {
                   <div className="relative">
                     <select
                       value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
+                      onChange={(e) => onSetStatusFilter(e.target.value)}
                       className="w-full appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       style={{ color: "#263b51" }}
                     >
@@ -181,7 +129,7 @@ const AdminGadgetRequestManagement: React.FC = () => {
                     <input
                       type="text"
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={(e) => onSetSearchTerm(e.target.value)}
                       placeholder="Search requests..."
                       className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       style={{ color: "#263b51" }}
@@ -200,14 +148,12 @@ const AdminGadgetRequestManagement: React.FC = () => {
                   <div className="relative">
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
+                      onChange={(e) => onSetSortBy(e.target.value)}
                       className="w-full appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       style={{ color: "#263b51" }}
                     >
                       <option value="date-desc">Latest First</option>
                       <option value="date-asc">Oldest First</option>
-                      <option value="status">Status</option>
-                      <option value="product">Product Name</option>
                     </select>
                     <ChevronDown
                       className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none"
@@ -215,163 +161,176 @@ const AdminGadgetRequestManagement: React.FC = () => {
                     />
                   </div>
                 </div>
-
-                {/* Date Range Picker Placeholder */}
-                <div>
-                  <label
-                    className="block text-sm font-medium mb-2"
-                    style={{ color: "#263b51" }}
-                  >
-                    Date Range
-                  </label>
-                  <div className="relative">
-                    <Calendar
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4"
-                      style={{ color: "#456882" }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Select date range"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ color: "#263b51" }}
-                      readOnly
-                    />
-                  </div>
-                </div>
               </div>
             </div>
 
-            {/* Requests Table */}
-            <RequestsTable
-              requests={filteredRequests}
-              onViewDetails={handleViewDetails}
-              onChangeStatus={handleChangeStatus}
-              onToggleChat={handleToggleChat}
-            />
+            {isPageLoading ? (
+              <div className="flex justify-center items-center">
+                <Loader size={64} thickness={1} />
+              </div>
+            ) : filteredRequests.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center text-gray-500">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-12 h-12 mb-3 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 13h6m-3-3v6m9 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="text-lg font-medium">No requests found</p>
+              </div>
+            ) : (
+              <RequestsTable
+                requests={filteredRequests}
+                onViewDetails={onViewDetails}
+                onChangeStatus={onChangeStatus}
+                onToggleChat={onToggleChat}
+                isStatusChanging={isStatusChanging}
+              />
+            )}
           </div>
 
-          {/* Request Details Panel */}
-          {selectedRequest && (
+          {isViewMoreLoading ? (
             <div className="lg:w-1/3 mt-6 lg:mt-0 transition-all duration-300">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
-                {/* Panel Header */}
-                <div
-                  className="p-4 border-b flex justify-between items-center"
-                  style={{ backgroundColor: "#CBDCEB" }}
-                >
-                  <h2
-                    className="text-lg font-semibold"
-                    style={{ color: "#263b51" }}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col justify-center align-middle">
+                <Loader size={36} thickness={1} />
+              </div>
+            </div>
+          ) : (
+            selectedRequest && (
+              <div className="lg:w-1/3 mt-6 lg:mt-0 transition-all duration-300">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
+                  <div
+                    className="p-4 border-b flex justify-between items-center"
+                    style={{ backgroundColor: "#CBDCEB" }}
                   >
-                    Request Details
-                  </h2>
-                  <button
-                    onClick={() => setSelectedRequestId(null)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+                    <h2
+                      className="text-lg font-semibold"
+                      style={{ color: "#263b51" }}
+                    >
+                      Request Details
+                    </h2>
+                    <button
+                      onClick={() => {
+                        onSetSelectedRequestId(null);
+                        onSetSelectedRequest(null);
+                      }}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
 
-                {/* Request Details & Chat */}
-                <div className="flex-1 flex flex-col">
-                  <div className="p-4 border-b">
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <span
-                          className="font-medium"
-                          style={{ color: "#456882" }}
-                        >
-                          Request ID:
-                        </span>{" "}
-                        <span style={{ color: "#263b51" }}>
-                          {selectedRequest.id}
-                        </span>
-                      </div>
-                      <div>
-                        <span
-                          className="font-medium"
-                          style={{ color: "#456882" }}
-                        >
-                          Submitted:
-                        </span>{" "}
-                        <span style={{ color: "#263b51" }}>
-                          {new Date(
-                            selectedRequest.submittedDate
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div>
-                        <span
-                          className="font-medium"
-                          style={{ color: "#456882" }}
-                        >
-                          Brand:
-                        </span>{" "}
-                        <span style={{ color: "#263b51" }}>
-                          {selectedRequest.brand}
-                        </span>
-                      </div>
-                      <div>
-                        <span
-                          className="font-medium"
-                          style={{ color: "#456882" }}
-                        >
-                          Description:
-                        </span>{" "}
-                        <span style={{ color: "#263b51" }}>
-                          {selectedRequest.description}
-                        </span>
-                      </div>
-                      <div>
-                        <span
-                          className="font-medium"
-                          style={{ color: "#456882" }}
-                        >
-                          Current Status:
-                        </span>
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2 ${
-                            statusColors[selectedRequest.status]
-                          }`}
-                        >
-                          {selectedRequest.status
-                            .replace("-", " ")
-                            .toUpperCase()}
-                        </span>
-                      </div>
-                      {selectedRequest.notes && (
+                  {/* Request Details & Chat */}
+                  <div className="flex-1 flex flex-col">
+                    <div className="p-4 border-b">
+                      <div className="space-y-3 text-sm">
                         <div>
                           <span
                             className="font-medium"
                             style={{ color: "#456882" }}
                           >
-                            Notes:
+                            Request ID:
                           </span>{" "}
                           <span style={{ color: "#263b51" }}>
-                            {selectedRequest.notes}
+                            {selectedRequest.requestId}
                           </span>
                         </div>
-                      )}
+                        <div>
+                          <span
+                            className="font-medium"
+                            style={{ color: "#456882" }}
+                          >
+                            Submitted:
+                          </span>{" "}
+                          <span style={{ color: "#263b51" }}>
+                            {new Date(
+                              selectedRequest.createdAt
+                            ).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div>
+                          <span
+                            className="font-medium"
+                            style={{ color: "#456882" }}
+                          >
+                            Brand:
+                          </span>{" "}
+                          <span style={{ color: "#263b51" }}>
+                            {selectedRequest.brand}
+                          </span>
+                        </div>
+                        <div>
+                          <span
+                            className="font-medium"
+                            style={{ color: "#456882" }}
+                          >
+                            Description:
+                          </span>{" "}
+                          <span style={{ color: "#263b51" }}>
+                            {selectedRequest.description}
+                          </span>
+                        </div>
+                        <div>
+                          <span
+                            className="font-medium"
+                            style={{ color: "#456882" }}
+                          >
+                            Current Status:
+                          </span>
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-2 ${
+                              statusColors[selectedRequest.status]
+                            }`}
+                          >
+                            {selectedRequest.status
+                              .replace("-", " ")
+                              .toUpperCase()}
+                          </span>
+                        </div>
+                        {selectedRequest.notes && (
+                          <div>
+                            <span
+                              className="font-medium"
+                              style={{ color: "#456882" }}
+                            >
+                              Notes:
+                            </span>{" "}
+                            <span style={{ color: "#263b51" }}>
+                              {selectedRequest.notes}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Chat Panel */}
-                  <div className="flex-1">
-                    <ChatPanel
-                      request={selectedRequest}
-                      onToggleChat={(enabled) =>
-                        handleToggleChat(selectedRequest.id, enabled)
-                      }
-                      onCreateOffer={(price) =>
-                        handleCreateOffer(selectedRequest.id, price)
-                      }
-                      onCloseOffer={() => handleCloseOffer(selectedRequest.id)}
-                    />
+                    {/* Chat Panel */}
+                    <div className="flex-1">
+                      <ChatPanel
+                        isToggleChatLoading={isToggleChatLoading}
+                        isCloseOfferLoading={isCloseOfferLoading}
+                        isCreateOfferLoading={isCreateOfferLoading}
+                        request={selectedRequest}
+                        onToggleChat={(enabled) =>
+                          onToggleChat(selectedRequest._id, enabled)
+                        }
+                        onCreateOffer={(price) =>
+                          onCreateOffer(selectedRequest._id, price)
+                        }
+                        onCloseOffer={() => onCloseOffer(selectedRequest._id)}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )
           )}
         </div>
       </div>

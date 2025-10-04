@@ -1,90 +1,15 @@
-import {
-  Check,
-  CheckCircle,
-  ChevronDown,
-  Clock,
-  Eye,
-  Filter,
-  MessageCircle,
-  Truck,
-  X,
-} from "lucide-react";
+import { ChevronDown, Eye, MessageCircle } from "lucide-react";
 import React from "react";
+import {
+  Status,
+  type IGadgetRequest,
+} from "../../../components/gadgetRequestComponents/gadgetRequestInterface";
 import { statusColors } from "../../helpers/common";
+import { statusIcons } from "./types";
 
-// Data Interfaces
-export interface RequestFormData {
-  productName: string;
-  category: string;
-  brand: string;
-  description: string;
-  quantity: string;
-  budgetRange: string;
-  purchaseDate: string;
-  imageLink: string;
-}
-
-interface ChatMessage {
-  id: string;
-  sender: "user" | "admin";
-  message: string;
-  timestamp: string;
-}
-
-export interface UserRequest {
-  id: string;
-  productName: string;
-  category: string;
-  status:
-    | "pending"
-    | "in-progress"
-    | "not-available"
-    | "offer-made"
-    | "offer-declined"
-    | "offer-expired"
-    | "paid"
-    | "shipped"
-    | "completed";
-  submittedDate: string;
-  estimatedResponse?: string;
-  notes?: string;
-  chatMessages?: ChatMessage[];
-  chatEnabled?: boolean;
-  offerExpiry?: string;
-  userName?: string;
-  brand?: string;
-  description?: string;
-  quantity?: string;
-  budgetRange?: string;
-}
-
-enum Status {
-  PENDING = "pending",
-  IN_PROGRESS = "in-progress",
-  NOT_AVAILABLE = "not-available",
-  OFFER_MADE = "offer-made",
-  OFFER_DECLINED = "offer-declined",
-  OFFER_EXPIRED = "offer-expired",
-  PAID = "paid",
-  SHIPPED = "shipped",
-  COMPLETED = "completed",
-}
-
-const statusIcons = {
-  pending: Clock,
-  "in-progress": Filter,
-  "not-available": X,
-  "offer-made": Check,
-  "offer-declined": X,
-  "offer-expired": Clock,
-  paid: CheckCircle,
-  shipped: Truck,
-  completed: CheckCircle,
-};
-
-// RequestsTable Component
 interface RequestsTableProps {
-  requests: UserRequest[];
+  isStatusChanging: string;
+  requests: IGadgetRequest[];
   onViewDetails: (requestId: string) => void;
   onChangeStatus: (requestId: string, newStatus: Status) => void;
   onToggleChat: (requestId: string, enabled: boolean) => void;
@@ -95,12 +20,12 @@ export const RequestsTable: React.FC<RequestsTableProps> = ({
   onViewDetails,
   onChangeStatus,
   onToggleChat,
+  isStatusChanging
 }) => {
   const getValidStatusTransitions = (currentStatus: string) => {
     const transitions: Record<string, Status[]> = {
       pending: [Status.IN_PROGRESS, Status.NOT_AVAILABLE],
-      "in-progress": [Status.SHIPPED],
-      shipped: [Status.COMPLETED],
+      "in-progress": [Status.NOT_AVAILABLE],
     };
     return transitions[currentStatus] || [];
   };
@@ -143,20 +68,20 @@ export const RequestsTable: React.FC<RequestsTableProps> = ({
 
               return (
                 <tr
-                  key={request.id}
+                  key={request._id}
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td
                     className="px-6 py-4 text-sm font-medium"
                     style={{ color: "#263b51" }}
                   >
-                    {request.id}
+                    {request.requestId}
                   </td>
                   <td
                     className="px-6 py-4 text-sm"
                     style={{ color: "#263b51" }}
                   >
-                    {request.userName}
+                    {`${request.userId.firstName} ${request.userId.lastName}`}
                   </td>
                   <td
                     className="px-6 py-4 text-sm"
@@ -180,7 +105,7 @@ export const RequestsTable: React.FC<RequestsTableProps> = ({
                   <td className="px-6 py-4 text-sm">
                     <button
                       onClick={() =>
-                        onToggleChat(request.id, !request.chatEnabled)
+                        onToggleChat(request._id, !request.chatEnabled)
                       }
                       className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
                         request.chatEnabled
@@ -213,7 +138,7 @@ export const RequestsTable: React.FC<RequestsTableProps> = ({
                   <td className="px-6 py-4 text-sm">
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => onViewDetails(request.id)}
+                        onClick={() => onViewDetails(request._id)}
                         className="inline-flex items-center px-3 py-1 bg-white border border-gray-300 rounded-md text-xs font-medium hover:bg-gray-50 transition-colors"
                         style={{ color: "#263b51" }}
                       >
@@ -223,9 +148,10 @@ export const RequestsTable: React.FC<RequestsTableProps> = ({
                       {validTransitions.length > 0 && (
                         <div className="relative">
                           <select
+                            disabled={isStatusChanging === request._id}
                             onChange={(e) =>
                               onChangeStatus(
-                                request.id,
+                                request._id,
                                 e.target.value as Status
                               )
                             }

@@ -46,7 +46,7 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: (id: string) => void }> = ({
     if (toast.duration !== 0) {
       const timer = setTimeout(() => {
         handleRemove();
-      }, toast.duration || 5000);
+      }, toast.duration || 8000);
       
       return () => clearTimeout(timer);
     }

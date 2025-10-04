@@ -13,13 +13,30 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { categories } from "../admin/components/PromoCodeDiscount/types";
 import SubmitedModal from "./gadgetRequestComponents/SubmitedModal";
 import {
+  budgetRanges,
+  getStatusConfig,
   Status,
-  type gadgetRequestProp,
+  UserRole,
+  type IGadgetRequest,
   type RequestFormData,
-  type UserRequest,
 } from "./gadgetRequestComponents/gadgetRequestInterface";
+import Loader from "./nexgadMidPageLoader";
+
+interface gadgetRequestProp {
+  onSubmitRequest: (formData: RequestFormData) => void;
+  isSubmitted: boolean;
+  requestId: string;
+  setIsSubmitted: () => void;
+  isLoading: boolean;
+  onSendMessage: (requestId: string) => void;
+  messages: Record<string, string>;
+  onMessageChange: (requestId: string, value: string) => void;
+  requests: IGadgetRequest[];
+  isPageLoading: boolean;
+}
 
 const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
   onSubmitRequest,
@@ -27,6 +44,11 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
   requestId,
   setIsSubmitted,
   isLoading,
+  onSendMessage,
+  messages,
+  onMessageChange,
+  requests,
+  isPageLoading,
 }) => {
   const [formData, setFormData] = useState<RequestFormData>({
     productName: "",
@@ -44,125 +66,8 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
   const [openChatRequests, setOpenChatRequests] = useState<Set<string>>(
     new Set()
   );
-  const [newMessages, setNewMessages] = useState<Record<string, string>>({});
+
   const navigate = useNavigate();
-
-  const categories = [
-    "Smartphones & Tablets",
-    "Laptops & Computers",
-    "Audio & Headphones",
-    "Gaming & Consoles",
-    "Cameras & Photography",
-    "Home Appliances",
-    "TV & Entertainment",
-    "Accessories",
-    "Smart Home",
-    "Wearables",
-  ];
-
-  const budgetRanges = [
-    "Under ₦25,000",
-    "₦25,000 - ₦50,000",
-    "₦50,000 - ₦100,000",
-    "₦100,000 - ₦250,000",
-    "₦250,000 - ₦500,000",
-    "₦500,000 - ₦1,000,000",
-    "Above ₦1,000,000",
-    "No Budget Limit",
-  ];
-
-  const userRequests: UserRequest[] = [
-    {
-      id: "RQ-ABC123XY",
-      productName: "MacBook Pro M4 32GB",
-      category: "Laptops & Computers",
-      status: "pending",
-      submittedDate: "2025-08-05",
-      notes: "Request received and queued for processing",
-    },
-    {
-      id: "RQ-DEF456ZW",
-      productName: "PlayStation 5 Pro",
-      category: "Gaming & Entertainment",
-      status: "in-progress",
-      submittedDate: "2025-08-07",
-      estimatedResponse: "2025-08-09",
-      notes: "Checking with suppliers for availability",
-      chatEnabled: true,
-      chatMessages: [
-        {
-          id: "1",
-          sender: "admin",
-          message:
-            "Hi! I'm checking with our suppliers for the PlayStation 5 Pro. I found one supplier who has it in stock.",
-          timestamp: "2025-08-07T10:30:00Z",
-        },
-        {
-          id: "2",
-          sender: "user",
-          message: "Great! What would be the price?",
-          timestamp: "2025-08-07T11:15:00Z",
-        },
-        {
-          id: "3",
-          sender: "admin",
-          message:
-            "The supplier is offering it for $650. This includes 1-year warranty. Would this work for you?",
-          timestamp: "2025-08-07T14:20:00Z",
-        },
-      ],
-    },
-    {
-      id: "RQ-GHI789UV",
-      productName: "iPhone 15 Pro Max 1TB Purple",
-      category: "Smartphones & Accessories",
-      status: "offer-made",
-      submittedDate: "2025-08-08",
-      notes: "Offer created! Check your email for payment link.",
-      offerExpiry: "2025-08-12T23:59:59Z",
-    },
-    {
-      id: "RQ-JKL012ST",
-      productName: "Samsung Galaxy Ring Size 8",
-      category: "Wearables & Fitness",
-      status: "not-available",
-      submittedDate: "2025-08-01",
-      notes: "Currently not available in Nigeria market",
-    },
-    {
-      id: "RQ-MNO345QR",
-      productName: "Apple Vision Pro 512GB",
-      category: "Wearables & Fitness",
-      status: "offer-declined",
-      submittedDate: "2025-07-28",
-      notes: "Price negotiation unsuccessful. Request closed by admin.",
-    },
-    {
-      id: "RQ-PQR678ST",
-      productName: "Steam Deck 1TB",
-      category: "Gaming & Entertainment",
-      status: "offer-expired",
-      submittedDate: "2025-07-25",
-      notes: "Payment not completed within 48 hours. Offer has expired.",
-      offerExpiry: "2025-08-08T23:59:59Z",
-    },
-    {
-      id: "RQ-UVW901XY",
-      productName: "MacBook Air M3",
-      category: "Laptops & Computers",
-      status: "paid",
-      submittedDate: "2025-07-20",
-      notes: "Payment confirmed! Your order is being prepared for shipment.",
-    },
-    {
-      id: "RQ-ZAB234CD",
-      productName: "iPhone 14 Pro 256GB",
-      category: "Smartphones & Accessories",
-      status: "shipped",
-      submittedDate: "2025-07-15",
-      notes: "Your gadget has been shipped! Tracking: NGP123456789",
-    },
-  ];
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -197,94 +102,8 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
     setOpenChatRequests(newOpenChats);
   };
 
-  const handleSendMessage = (requestId: string) => {
-    const message = newMessages[requestId]?.trim();
-    if (!message) return;
-
-    // Here you would typically send the message to your backend
-    console.log(`Sending message for request ${requestId}: ${message}`);
-
-    // Clear the input
-    setNewMessages({
-      ...newMessages,
-      [requestId]: "",
-    });
-  };
-
-  const handleMessageChange = (requestId: string, value: string) => {
-    setNewMessages({
-      ...newMessages,
-      [requestId]: value,
-    });
-  };
-
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case Status.PENDING:
-        return {
-          color: "bg-yellow-100 text-yellow-800",
-          label: "Pending",
-          icon: Clock,
-        };
-      case Status.IN_PROGRESS:
-        return {
-          color: "bg-blue-100 text-blue-800",
-          label: "In Progress",
-          icon: TrendingUp,
-        };
-      case Status.NOT_AVAILABLE:
-        return {
-          color: "bg-red-100 text-red-800",
-          label: "Not Available",
-          icon: X,
-        };
-      case Status.OFFER_MADE:
-        return {
-          color: "bg-green-100 text-green-800",
-          label: "Offer Made - Check Email",
-          icon: Check,
-        };
-      case Status.OFFER_DECLINED:
-        return {
-          color: "bg-orange-100 text-orange-800",
-          label: "Offer Declined",
-          icon: X,
-        };
-      case Status.OFFER_EXPIRED:
-        return {
-          color: "bg-gray-100 text-gray-800",
-          label: "Offer Expired",
-          icon: Clock,
-        };
-      case Status.PAID:
-        return {
-          color: "bg-emerald-100 text-emerald-800",
-          label: "Payment Confirmed",
-          icon: Check,
-        };
-      case Status.SHIPPED:
-        return {
-          color: "bg-purple-100 text-purple-800",
-          label: "Shipped",
-          icon: TrendingUp,
-        };
-      case Status.COMPLETED:
-        return {
-          color: "bg-teal-100 text-teal-800",
-          label: "Completed",
-          icon: Check,
-        };
-      default:
-        return {
-          color: "bg-gray-100 text-gray-800",
-          label: "Unknown",
-          icon: Clock,
-        };
-    }
-  };
-
-  const canShowChat = (request: UserRequest) => {
-    return request.status === Status.IN_PROGRESS && request.chatEnabled;
+  const canShowChat = (request: IGadgetRequest) => {
+    return request.status === Status.IN_PROGRESS && request.chatEnabled; //TODO notify admin to know that status has to be in progress and chat enabled
   };
 
   const formatExpiry = (expiryDate: string) => {
@@ -569,11 +388,15 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
               </div>
             </div>
 
-            {userRequests.length > 0 ? (
+            {isPageLoading ? (
+              <div className="flex justify-center items-center">
+                <Loader size={64} thickness={1} />
+              </div>
+            ) : requests?.length > 0 ? (
               <div className="space-y-6 max-w-4xl mx-auto">
-                {userRequests.map((request) => (
+                {requests?.map((request) => (
                   <div
-                    key={request.id}
+                    key={request._id}
                     className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                   >
                     <div className="p-6">
@@ -601,13 +424,11 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
                             {request.category}
                           </p>
                           <div className="flex items-center text-gray-500 text-sm gap-4">
-                            <span>Request ID: {request.id}</span>
+                            <span>Request ID: {request.requestId}</span>
                             <span>•</span>
                             <span>
                               Submitted:{" "}
-                              {new Date(
-                                request.submittedDate
-                              ).toLocaleDateString()}
+                              {new Date(request.createdAt).toLocaleDateString()}
                             </span>
                             {request.estimatedResponse && (
                               <>
@@ -639,12 +460,12 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
                               </div>
                               {canShowChat(request) && (
                                 <button
-                                  onClick={() => toggleChat(request.id)}
+                                  onClick={() => toggleChat(request._id)}
                                   className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold py-2 px-4 rounded-md hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center text-sm"
                                 >
                                   <MessageCircle className="w-4 h-4 mr-2" />
                                   Chat
-                                  {openChatRequests.has(request.id) ? (
+                                  {openChatRequests.has(request._id) ? (
                                     <ChevronUp className="w-4 h-4 ml-1" />
                                   ) : (
                                     <ChevronDown className="w-4 h-4 ml-1" />
@@ -697,9 +518,8 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
                       </div>
                     </div>
 
-                    {/* Chat Section - Only for in-progress requests where admin enabled chat */}
                     {canShowChat(request) &&
-                      openChatRequests.has(request.id) && (
+                      openChatRequests.has(request._id) && (
                         <div className="border-t border-gray-200 bg-gray-50">
                           <div className="p-6">
                             <div className="flex items-center gap-2 mb-4">
@@ -716,16 +536,16 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
                                 <div className="p-4 space-y-4">
                                   {request.chatMessages.map((message) => (
                                     <div
-                                      key={message.id}
+                                      key={message._id}
                                       className={`flex ${
-                                        message.sender === "user"
+                                        message.senderRole === UserRole.USER
                                           ? "justify-end"
                                           : "justify-start"
                                       }`}
                                     >
                                       <div
                                         className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
-                                          message.sender === "user"
+                                          message.senderRole === UserRole.USER
                                             ? "bg-blue-600 text-white"
                                             : "bg-gray-100 text-gray-800"
                                         }`}
@@ -735,12 +555,12 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
                                         </p>
                                         <p
                                           className={`text-xs mt-1 ${
-                                            message.sender === "user"
+                                            message.senderRole === UserRole.USER
                                               ? "text-blue-200"
                                               : "text-gray-500"
                                           }`}
                                         >
-                                          {formatTimestamp(message.timestamp)}
+                                          {formatTimestamp(message.createdAt)}
                                         </p>
                                       </div>
                                     </div>
@@ -762,26 +582,23 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
                               <div className="flex gap-3">
                                 <input
                                   type="text"
-                                  value={newMessages[request.id] || ""}
+                                  value={messages[request._id] || ""}
                                   onChange={(e) =>
-                                    handleMessageChange(
-                                      request.id,
-                                      e.target.value
-                                    )
+                                    onMessageChange(request._id, e.target.value)
                                   }
                                   placeholder="Type your message..."
                                   className="flex-1 p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
                                   onKeyPress={(e) => {
                                     if (e.key === "Enter") {
-                                      handleSendMessage(request.id);
+                                      onSendMessage(request._id);
                                     }
                                   }}
                                 />
                                 <button
-                                  onClick={() => handleSendMessage(request.id)}
-                                  disabled={!newMessages[request.id]?.trim()}
+                                  onClick={() => onSendMessage(request._id)}
+                                  disabled={!messages[request._id]?.trim()}
                                   className={`px-4 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                                    newMessages[request.id]?.trim()
+                                    messages[request._id]?.trim()
                                       ? "bg-blue-600 text-white hover:bg-blue-700"
                                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                   }`}
@@ -816,7 +633,7 @@ const RequestGadgetComponent: React.FC<gadgetRequestProp> = ({
                 </p>
                 <button
                   onClick={() => setActiveTab("request")}
-                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 px-6 rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-300"
+                  className="bg-[#263b51] text-white font-semibold py-3 px-6 rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-300"
                 >
                   Make Your First Request
                 </button>
