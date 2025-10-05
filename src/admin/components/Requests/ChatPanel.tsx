@@ -4,16 +4,26 @@ import {
   UserRole,
   type IGadgetRequest,
 } from "../../../components/gadgetRequestComponents/gadgetRequestInterface";
+import Loader from "../../../components/nexgadMidPageLoader";
+import type { ChatMessage } from "../../../hooks/useChat";
+import { getStatusClasses } from "../../../utils/SseGetStatusColour";
 import { CreateOfferModal } from "./CreateOfferModel";
 
 interface ChatPanelProps {
   isCloseOfferLoading: boolean;
   isCreateOfferLoading: boolean;
+  isSending: boolean;
   request: IGadgetRequest;
+  text: string;
+  messages: ChatMessage[];
   onToggleChat: (enabled: boolean) => void;
   onCreateOffer: (price: string) => Promise<void>;
   onCloseOffer: () => void;
   isToggleChatLoading: boolean;
+  onSendMessage: () => void;
+  onSetText: (value: string) => void;
+  connectionStatus: any;
+  isMessageLoading: boolean;
 }
 
 export const ChatPanel: React.FC<ChatPanelProps> = ({
@@ -24,18 +34,25 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   isCloseOfferLoading,
   isCreateOfferLoading,
   isToggleChatLoading,
+  connectionStatus,
+  isMessageLoading,
+  isSending,
+  onSendMessage,
+  onSetText,
+  messages,
+  text,
 }) => {
-  const [newMessage, setNewMessage] = useState("");
   const [showOfferModal, setShowOfferModal] = useState(false);
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      // In real app, this would call an API
-      console.log("Sending message:", newMessage);
-      setNewMessage("");
-    }
+  const formatTimestamp = (timestamp: string) => {
+    return new Date(timestamp).toLocaleString("en-GB", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
-
+  const cls = getStatusClasses(connectionStatus as any);
   return (
     <div className="h-full flex flex-col min-h-96 lg:min-h-0">
       {/* Request Info Summary */}
@@ -73,15 +90,35 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
             </span>{" "}
             <span style={{ color: "#263b51" }}>{request.quantity}</span>
           </div>
+          <div>
+            <span
+              role="status"
+              aria-live="polite"
+              className={`inline-flex items-center gap-2 text-sm font-medium px-2.5 py-1 rounded-full ${cls.bg} ${cls.text}`}
+              title={cls.label}
+            >
+              <span
+                className={`w-2.5 h-2.5 rounded-full ${cls.dot}`}
+                aria-hidden="true"
+              />
+              <span>{cls.label}</span>
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 min-h-0">
-        {request.chatMessages && request.chatMessages.length > 0 ? (
-          request.chatMessages.map((message) => (
+        {isMessageLoading || connectionStatus === "connecting" ? (
+          <div className="flex justify-center align-middle">
+            <div className="col-span-full flex justify-center items-center py-12">
+              <Loader size={23} thickness={1} />
+            </div>
+          </div>
+        ) : messages.length > 0 ? (
+          messages.map((message) => (
             <div
-              key={message._id}
+              key={message._id || Date.now()}
               className={`flex ${
                 message.senderRole === UserRole.ADMIN
                   ? "justify-end"
@@ -108,7 +145,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                       : "text-gray-500"
                   }`}
                 >
-                  {new Date(message.createdAt).toLocaleTimeString()}
+                  {formatTimestamp(
+                    message.createdAt ?? new Date().toISOString()
+                  )}
                 </p>
               </div>
             </div>
@@ -126,20 +165,26 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         <div className="flex flex-col sm:flex-row gap-2 mb-3">
           <input
             type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            value={text}
+            onChange={(e) => onSetText(e.target.value)}
             placeholder="Type your message..."
             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             style={{ color: "#263b51" }}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+            onKeyPress={(e) => e.key === "Enter" && onSendMessage()}
             disabled={!request.chatEnabled}
           />
           <button
-            onClick={handleSendMessage}
-            disabled={!request.chatEnabled || !newMessage.trim()}
+            onClick={onSendMessage}
+            disabled={!request.chatEnabled || !text.trim() || isSending}
             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex-shrink-0"
           >
-            <Send className="w-4 h-4" />
+            {isSending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </>
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
           </button>
         </div>
 

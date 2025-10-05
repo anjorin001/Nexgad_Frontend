@@ -1,9 +1,12 @@
 import { ChevronDown, Search, X } from "lucide-react";
+import { useState } from "react";
 import {
   Status,
   type IGadgetRequest,
 } from "../../components/gadgetRequestComponents/gadgetRequestInterface";
 import Loader from "../../components/nexgadMidPageLoader";
+import { useChatMVP } from "../../hooks/useChat";
+import { useToast } from "../../utils/ToastNotification";
 import { statusColors } from "../helpers/common";
 import { ChatPanel } from "./Requests/ChatPanel";
 import { RequestsTable } from "./Requests/RequestTable";
@@ -26,7 +29,7 @@ interface AdminGadgetRequestManagementProp {
   onSetSelectedRequest: (value: any) => void;
   onCreateOffer: (requestId: string, price: string) => Promise<void>;
   onCloseOffer: (requestId: string) => void;
-  onToggleChat: (requestId: string, enabled: boolean) => void;
+  onToggleChat: (requestId: string, enabled: boolean) => Promise<void>;
   onChangeStatus: (requestId: string, newStatus: Status) => void;
   onViewDetails: (requestId: string) => void;
   onSetStatusFilter: (value: string) => void;
@@ -61,6 +64,47 @@ const AdminGadgetRequestManagement: React.FC<
   isCreateOfferLoading,
   isToggleChatLoading,
 }) => {
+  const {
+    messages,
+    sendMessage,
+    loading,
+    connection,
+    updateMessageLocal,
+    close,
+    reconnect,
+  } = useChatMVP(selectedRequest?._id);
+
+  const [sending, setSending] = useState(false);
+  const [text, setText] = useState("");
+  const toast = useToast();
+
+  async function handleSend(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (!text.trim()) return;
+    setSending(true);
+    try {
+      const saved = await sendMessage(text.trim());
+      updateMessageLocal(saved._id, { delivered: true });
+      setText("");
+    } catch (err: any) {
+      console.error("send failed", err);
+
+      if (err.response) {
+        toast.error(err.response.data.message || "Something went wrong");
+      } else if (
+        err.code === "ERR_NETWORK" ||
+        err.code === "ECONNABORTED" ||
+        err.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
+    } finally {
+      setSending(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -221,6 +265,7 @@ const AdminGadgetRequestManagement: React.FC<
                       onClick={() => {
                         onSetSelectedRequestId(null);
                         onSetSelectedRequest(null);
+                        close();
                       }}
                       className="text-gray-400 hover:text-gray-600 transition-colors"
                     >
@@ -314,13 +359,23 @@ const AdminGadgetRequestManagement: React.FC<
                     {/* Chat Panel */}
                     <div className="flex-1">
                       <ChatPanel
+                        messages={messages}
+                        connectionStatus={connection}
+                        isMessageLoading={loading}
+                        isSending={sending}
+                        onSendMessage={handleSend}
+                        onSetText={setText}
+                        text={text}
                         isToggleChatLoading={isToggleChatLoading}
                         isCloseOfferLoading={isCloseOfferLoading}
                         isCreateOfferLoading={isCreateOfferLoading}
                         request={selectedRequest}
-                        onToggleChat={(enabled) =>
-                          onToggleChat(selectedRequest._id, enabled)
-                        }
+                        onToggleChat={async (enabled) => {
+                          console.log("first");
+                          await onToggleChat(selectedRequest._id, enabled);
+                          console.log("done now reconnecting...");
+                          reconnect();
+                        }}
                         onCreateOffer={(price) =>
                           onCreateOffer(selectedRequest._id, price)
                         }

@@ -7,6 +7,7 @@ import type {
   RequestFormData,
 } from "../components/gadgetRequestComponents/gadgetRequestInterface";
 import { useAppContext } from "../context/AppContext";
+import { useChatMVP } from "../hooks/useChat";
 import { useToast } from "../utils/ToastNotification";
 import api from "../utils/api";
 
@@ -16,11 +17,50 @@ const GadgetRequest = () => {
   const [isLoading, setIsloading] = useState<boolean>(false);
   const [newMessages, setNewMessages] = useState<Record<string, string>>({});
   const [requests, setRequests] = useState<IGadgetRequest[]>();
+  const [selectedRequest, setSelectedRequest] = useState<IGadgetRequest>();
   const [isPageLoading, setIsPageLoading] = useState<boolean>(false);
   const { isAuthenticated } = useAppContext();
-
+  const [sending, setSending] = useState(false);
+  const [text, setText] = useState("");
   const toast = useToast();
   const navigate = useNavigate();
+
+  const {
+    messages,
+    sendMessage,
+    loading,
+    connection,
+    updateMessageLocal,
+    close,
+    reconnect,
+  } = useChatMVP(selectedRequest?._id);
+
+  async function handleSend(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (!text.trim()) return;
+    setSending(true);
+    try {
+      const saved = await sendMessage(text.trim());
+      updateMessageLocal(saved._id, { delivered: true });
+      setText("");
+    } catch (err: any) {
+      console.error("send failed", err);
+
+      if (err.response) {
+        toast.error(err.response.data.message || "Something went wrong");
+      } else if (
+        err.code === "ERR_NETWORK" ||
+        err.code === "ECONNABORTED" ||
+        err.message.includes("Network Error")
+      ) {
+        window.dispatchEvent(new CustomEvent("network-error"));
+      } else {
+        toast.error("Unexpected error occurred.");
+      }
+    } finally {
+      setSending(false);
+    }
+  }
 
   const handleSubmitRequest = async (data: RequestFormData) => {
     setIsloading(true);
@@ -94,22 +134,6 @@ const GadgetRequest = () => {
     }
   };
 
-  //TODO once request are been renderend, mount full on chat integration
-
-  const handleSendMessage = (requestId: string) => {
-    const message = newMessages[requestId]?.trim();
-    if (!message) return;
-
-    // Here you would typically send the message to your backend
-    console.log(`Sending message for request ${requestId}: ${message}`);
-
-    // Clear the input
-    setNewMessages({
-      ...newMessages,
-      [requestId]: "",
-    });
-  };
-
   const handleMessageChange = (requestId: string, value: string) => {
     setNewMessages({
       ...newMessages,
@@ -127,16 +151,25 @@ const GadgetRequest = () => {
   return (
     <>
       <RequestGadgetComponent
+        onCloseConnection={() => {
+          close();
+          setSelectedRequest(null);
+        }}
+        isMessageLoading={loading}
+        connectionStatus={connection}
+        onSetSelectedRequest={setSelectedRequest}
         isLoading={isLoading}
         isSubmitted={isSubmitted}
         requestId={requestId}
         onSubmitRequest={handleSubmitRequest}
         setIsSubmitted={() => setIsSubmitted(false)}
-        onSendMessage={handleSendMessage}
-        messages={newMessages}
-        onMessageChange={handleMessageChange}
+        onSendMessage={handleSend}
+        messages={messages}
+        onMessageChange={setText}
+        text={text}
         requests={requests}
         isPageLoading={isPageLoading}
+        isSending={sending}
       />
       <Footer />
     </>
